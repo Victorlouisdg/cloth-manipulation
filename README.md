@@ -9,11 +9,8 @@ Cloth manipulation through simulation with C-IPC
 
 
 ## Running an experiment
-SET trajectory_height=0.3
-`blender --python experiments/trajectory_height/run.py --background`
-or
 `cd experiments/trajectory_height`
-`blender -b -P run.py -- -ht 0.25`
+`blender scene.blend -b -P run.py -- -ht 0.25`
 
 ## Experiment flow
 * Model piece of cloth in blender.

@@ -1,8 +1,15 @@
 import bpy
 import argparse
 import sys
+import os
 
 def export_as_obj(name, filepath):
+    if filepath is None:
+        filepath = os.path.join(os.getcwd(), f"{name}.obj")
+
+    if os.path.isdir(filepath):
+        filepath = os.path.join(filepath, f"{name}.obj")
+
     objects = bpy.data.objects
     object = objects[name]
 
@@ -13,19 +20,21 @@ def export_as_obj(name, filepath):
     bpy.ops.export_scene.obj(filepath=filepath, use_selection=True, use_materials=False)
 
 
-# ground = objects["Ground Plane"]
+def export_trajectory_as_velocities(name, filepath):
 
-# cloth.select_set(True)
+    scene = bpy.context.scene
 
+    # animation in blender should go from 0 tot 100
+    # -> this leads to 100 frames being simulated
+    # -> set fps e.g. 25
 
-# dir = "/home/idlab185/Codim-IPC/Projects/FEMShell/input/victor/"
+    # 
 
-# bpy.ops.export_scene.obj(filepath=dir + "cloth.obj", use_selection=True, use_materials=False)
+    # for i in range(n_sim_frames + 1):
+    #     scene.frame_set(i)
+    #     locations.append(obj.location.copy())
+    #     times.append(dt * i) 
 
-# cloth.select_set(False)
-# ground.select_set(True)
-
-# bpy.ops.export_scene.obj(filepath=dir +"ground.obj", use_selection=True, use_materials=False)
 
 if __name__ == "__main__":
     if '--' in sys.argv:
@@ -34,5 +43,4 @@ if __name__ == "__main__":
         parser.add_argument('object_name')
         parser.add_argument('-o', '--output', dest='output_dir', metavar='OUTPUT_FILEPATH')
         args = parser.parse_known_args(argv)[0]
-        print('height: ', args.height)
-        height = args.height
+        export_as_obj(args.object_name, args.output_dir)
