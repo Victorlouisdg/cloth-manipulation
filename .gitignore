@@ -1,6 +1,10 @@
 *.blend1
 **/output/**
 misc/
+*.obj
+*.vtk
+Codim-IPC/Projects/FEMShell/input/
+Codim-IPC/Projects/FEM/input/
 
 ## Default Python gitignore:
 # Byte-compiled / optimized / DLL files
