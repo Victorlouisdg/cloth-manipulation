@@ -1,5 +1,6 @@
 *.blend1
 **/output/**
+misc/
 
 ## Default Python gitignore:
 # Byte-compiled / optimized / DLL files

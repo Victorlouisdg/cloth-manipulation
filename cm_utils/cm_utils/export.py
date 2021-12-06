@@ -18,6 +18,7 @@ def export_as_obj(name, filepath):
 
     object.select_set(True)
     bpy.ops.export_scene.obj(filepath=filepath, use_selection=True, use_materials=False)
+    return filepath
 
 
 def export_trajectory_as_velocities(name, filepath):

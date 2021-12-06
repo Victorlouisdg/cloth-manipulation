@@ -8,9 +8,27 @@
    4) Calculate loss.
 """
 
+import os
 import sys
 import argparse
-from cm_utils import test, export_as_obj
+from cm_utils import test, export_as_obj, import_cipc_outputs, render
+
+sys.path.insert(0, os.path.dirname(__file__))
+from cipc import simulate
+
+import sys
+
+# CIPC_PATH = "/home/idlab185/Codim-IPC"
+# CIPC_PYTHON_PATH = os.path.join(CIPC_PATH, "Python")
+# CIPC_BUILD_PATH = os.path.join(CIPC_PATH, "build")
+
+# sys.path.insert(0, CIPC_PYTHON_PATH)
+# sys.path.insert(0, CIPC_BUILD_PATH)
+
+# from JGSL import *
+# import Drivers
+
+#print("JGSL module location:", JGSL.__file__)
 
 import os
 import datetime
@@ -28,8 +46,31 @@ def run(height):
     print("Running Trajectory Height experiment with height: ", height)
     output_dir = create_output_dir(height)
 
-    export_as_obj('cloth', output_dir)
-    export_as_obj('ground', output_dir)
+    cloth_path = export_as_obj('cloth', output_dir)
+    ground_path = export_as_obj('ground', output_dir)
+
+
+    cipc_output_dir = os.path.join(output_dir, "cipc")
+    os.makedirs(cipc_output_dir)
+
+
+    simulate(ground_path, ground_path, cipc_output_dir)
+
+    import_cipc_outputs(cipc_output_dir)
+
+    renders_dir = os.path.join(output_dir, "renders")
+    render(renders_dir)
+
+    #simulate(cloth_path, ground_path, cipc_output_dir)
+
+    # 1) make_fold_target
+    # 2) TODO maybe export with origin at 0,0,0 so z-translation backed in
+    # export cloth target -> not needed initially
+    # export trajectory
+    # 3) run IPC with cloth.obj and ground.obj
+    # 4) import IPC results back into blender
+    # 5) loss: MSE  by iterating over mesh in blender
+    # 5.1) later: import objs with libigl, iterate there for losses 
 
 
 
