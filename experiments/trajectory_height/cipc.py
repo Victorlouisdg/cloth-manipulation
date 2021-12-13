@@ -1,7 +1,7 @@
 import sys
 import os
 
-CIPC_PATH = "/home/idlab185/Codim-IPC"
+CIPC_PATH = "../../../Codim-IPC"
 CIPC_PYTHON_PATH = os.path.join(CIPC_PATH, "Python")
 CIPC_BUILD_PATH = os.path.join(CIPC_PATH, "build")
 
@@ -15,13 +15,14 @@ import Drivers
 import numpy as np
 import json
 
+
 def to_Vector3d(v):
-    return Vector3d(v[0], v[1], v[2])
+    # Note that this also swaps y and z components
+    return Vector3d(v[0], v[2], v[1])
 
 
-def simulate(cloth_path, ground_path, output_dir, waypoints=None):
+def simulate(cloth_path, ground_path, output_dir, velocities=None):
     sim = Drivers.FEMDiscreteShellBase("double", 3, output_dir)
-
 
     # Ground plane
     sim.add_shell_3D(
@@ -35,7 +36,7 @@ def simulate(cloth_path, ground_path, output_dir, waypoints=None):
     # Cloth
     sim.add_shell_3D(
         cloth_path,
-        Vector3d(0, 0.01, 0),
+        Vector3d(0, 0, 0),
         Vector3d(0, 0, 0),
         Vector3d(0, 1, 0),
         0,
@@ -54,7 +55,6 @@ def simulate(cloth_path, ground_path, output_dir, waypoints=None):
     sim.withCollision = True
 
     # density, E, nu, thickness, initial displacement case
-    # iso
     sim.initialize(
         sim.cloth_density_iso[clothI],
         sim.cloth_Ebase_iso[clothI] * membEMult,
@@ -70,12 +70,7 @@ def simulate(cloth_path, ground_path, output_dir, waypoints=None):
 
     x_min = Vector3d(-10, -10, -10)
     x_max = Vector3d(10, 10, 10)
-    bbox = x_min, x_max
-    v0 = Vector3d(0, 0, 0)
     rotation = (Vector3d(0, 0, 0), Vector3d(0, 1, 0), 0)
-    vIndRange = Vector4i(4, 0, 5, -1)
-
-    vIndRange2 = Vector4i(61, 0, 62, -1)  # vertex 57
 
     vIndRangeGround = Vector4i(0, 0, 4, -1)
 
@@ -89,13 +84,7 @@ def simulate(cloth_path, ground_path, output_dir, waypoints=None):
         vIndRangeGround,
     )
 
-    velocities = []
-
-    with open("/home/idlab185/waypoints_vel.json") as json_file:
-        data = json.load(json_file)
-        for vel in data["waypoints"]["velocities"]:
-            velocities.append(Vector3d(vel["x"], vel["z"], vel["y"]))
-
+    controlled_vertices = velocities.keys()
 
     sim.write(0)
     for f in range(sim.frame_num):
@@ -106,16 +95,10 @@ def simulate(cloth_path, ground_path, output_dir, waypoints=None):
         # Ground plane DBC
         sim.set_DBC_with_range(*ground_DBC)
 
-        # Trajectory DBC
-        v = velocities[f]
-        # v = to_Vector3d(v)
-        sim.set_DBC_with_range(x_min, x_max, v, *rotation, vIndRange)
-        sim.set_DBC_with_range(x_min, x_max, v, *rotation, vIndRange2)
-
-
-        # Setting w too doesn't change anything.
-        # w = to_Vector3d(waypoints[f + 1])
-        # sim.set_DBC_with_range(w, w, v, *rotation, vIndRange)
+        for id in controlled_vertices:
+            v = to_Vector3d(velocities[id][f])
+            vIndRange = Vector4i(4 + id, 0, 5 + id, -1)
+            sim.set_DBC_with_range(x_min, x_max, v, *rotation, vIndRange)
 
         # Advance
         sim.current_frame = f + 1

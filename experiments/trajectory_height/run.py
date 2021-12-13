@@ -7,16 +7,16 @@
    3) Import first IPC output and last back into blender.
    4) Calculate loss.
 """
-
+import bpy
 import os
 import sys
 import argparse
 from cm_utils import test, export_as_obj, import_cipc_outputs, render
+from cm_utils import get_grasped_verts_trajectories, calcucate_velocities
 
 sys.path.insert(0, os.path.dirname(__file__))
 from cipc import simulate
 
-import sys
 
 # CIPC_PATH = "/home/idlab185/Codim-IPC"
 # CIPC_PYTHON_PATH = os.path.join(CIPC_PATH, "Python")
@@ -46,20 +46,31 @@ def run(height):
     print("Running Trajectory Height experiment with height: ", height)
     output_dir = create_output_dir(height)
 
-    cloth_path = export_as_obj('cloth', output_dir)
+    objects = bpy.data.objects
+    cloth = objects['cloth_simple']
+    gripper = objects['gripper']
+
+    cloth_path = export_as_obj('cloth_simple', output_dir)
     ground_path = export_as_obj('ground', output_dir)
 
+    trajs, times = get_grasped_verts_trajectories(cloth, gripper)
+    velocities = calcucate_velocities(trajs, times)
 
     cipc_output_dir = os.path.join(output_dir, "cipc")
     os.makedirs(cipc_output_dir)
 
 
-    simulate(ground_path, ground_path, cipc_output_dir)
+    simulate(cloth_path, ground_path, cipc_output_dir, velocities)
 
     import_cipc_outputs(cipc_output_dir)
 
+    new_blend_path = os.path.join(output_dir, f"scene_with_results.blend")
+    bpy.ops.wm.save_as_mainfile(filepath=new_blend_path)
+
     renders_dir = os.path.join(output_dir, "renders")
     render(renders_dir)
+
+
 
     #simulate(cloth_path, ground_path, cipc_output_dir)
 
