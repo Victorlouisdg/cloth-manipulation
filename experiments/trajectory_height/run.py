@@ -12,6 +12,7 @@ import os
 import sys
 import argparse
 import datetime
+import numpy as np
 
 from cm_utils import export_as_obj, import_cipc_outputs, render
 from cm_utils import get_grasped_verts_trajectories, calcucate_velocities
@@ -29,6 +30,13 @@ def create_output_dir(height):
     return output_dir
 
 
+def set_trajectory_height(gripper, height):
+    action = gripper.animation_data.action
+    zcurve = action.fcurves[2]
+    z1_key = zcurve.keyframe_points[1]
+    z1_key.co[1] = height
+
+
 def run(height):
     print("Running Trajectory Height experiment with height: ", height)
     output_dir = create_output_dir(height)
@@ -39,7 +47,8 @@ def run(height):
     gripper = objects["gripper"]
     ground = objects["ground"]
 
-    # TODO EDIT THE GRIPPER HEIGHT!
+    # Editing the gripper height
+    set_trajectory_height(gripper, height)
 
     # Exporting to obj for CIPC
     cloth_path = export_as_obj(cloth, output_dir)
@@ -56,10 +65,15 @@ def run(height):
     import_cipc_outputs(cipc_output_dir)
 
     # Calculating losses
-    # 1) make_fold_target
-    # 5) loss: MSE  by iterating over mesh in blender
-    # 5.1) later: import objs with libigl, iterate there for losses
-    # coords0 = bpy.data.objects[""]
+    # no need to transform to world space because origins coincide
+    targets = np.array([v.co for v in objects["cloth_simple_target"].data.vertices])
+    positions = np.array([v.co for v in objects["sim100"].data.vertices])
+
+    distances = np.linalg.norm(targets - positions, axis=1)
+    sq_distances = distances ** 2
+    mean_distance = distances.mean(axis=0)
+    mean_sq_distance = sq_distances.mean(axis=0)
+    rms_distance = np.sqrt(mean_sq_distance)
 
     # Saving the visualizations
     new_blend_path = os.path.join(output_dir, f"scene_with_results.blend")
@@ -67,6 +81,11 @@ def run(height):
 
     renders_dir = os.path.join(output_dir, "renders")
     render(renders_dir, resolution_percentage=50)
+
+    print("LOSSES")
+    print("mean_distance", mean_distance)
+    print("mean_sq_distance", mean_sq_distance)
+    print("rms_distance", rms_distance)
 
 
 if __name__ == "__main__":

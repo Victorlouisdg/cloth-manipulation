@@ -21,33 +21,31 @@ def import_cipc_outputs(cipc_output_dir):
     files = glob.glob(shell_glob)
     files.sort()
 
-    for file in files:
-        bpy.ops.import_scene.obj(filepath=file)
-        obj = bpy.context.selected_objects[0]
+    sim_collection = bpy.data.collections.new("sim")
+    bpy.context.scene.collection.children.link(sim_collection)
 
-        # Separate ground and cloth
+    for file in files:
+        bpy.ops.object.select_all(action="DESELECT")
+        bpy.ops.import_scene.obj(filepath=file, split_mode="OFF")
+        cloth = bpy.context.selected_objects[0]
+        bpy.ops.object.transform_apply()
+
+        num = file.split("shell")[1].split(".obj")[0]
+
+        cloth.name = f"sim{num}"
+
+        ground_vertices = [0, 1, 2, 3]
+        mesh = cloth.data
+
         bpy.ops.object.mode_set(mode="EDIT")
         bpy.ops.mesh.select_all(action="DESELECT")
-        ground_vertices = [0, 1, 2, 3]
-        mesh = obj.data
         bpy.ops.object.mode_set(mode="OBJECT")
         for v in mesh.vertices:
             if v.index in ground_vertices:
                 v.select = True
         bpy.ops.object.mode_set(mode="EDIT")
-        bpy.ops.mesh.separate(type="SELECTED")
+        bpy.ops.mesh.delete(type="VERT")
         bpy.ops.object.mode_set(mode="OBJECT")
-
-        num = file.split("shell")[1].split(".obj")[0]
-        cloth = bpy.data.objects[f"shell{num}"]
-        ground = bpy.data.objects[f"shell{num}.001"]
-
-        cloth.name = f"sim{num}"
-
-        # Delete ground
-        bpy.ops.object.select_all(action="DESELECT")
-        ground.select_set(True)
-        bpy.ops.object.delete()
 
         # Hide the new cloth object on all other frames
         cloth.hide_render = True
@@ -65,4 +63,30 @@ def import_cipc_outputs(cipc_output_dir):
 
         cloth.data.materials[0] = cloth_material
 
-    bpy.context.scene.frame_end = int(num)
+    # bpy.context.scene.frame_end = int(num)
+
+
+# MANUALLY MOVING CLOTH VERTS INTO NEW MESH
+# cloth_verts = [v.co for v in mesh.vertices[4:]]
+# cloth_edges = []
+# cloth_faces = []
+
+# for edge in mesh.edges:
+#     edge_verts = [v - 4 for v in edge.vertices]
+#     if edge_verts[0] >= 0:
+#         cloth_edges.append(edge_verts)
+
+# for poly in mesh.polygons[2:]:
+#     poly_verts = [v - 4 for v in poly.vertices]
+#     if poly_verts[0] >= 0:
+#         cloth_faces.append(poly_verts)
+
+# cloth_mesh = bpy.data.meshes.new("sim_mesh{num}")
+# cloth_mesh.from_pydata(cloth_verts, cloth_edges, cloth_faces)
+# cloth_mesh.update()
+# cloth = bpy.data.objects.new(f"sim{num}", cloth_mesh)
+# sim_collection.objects.link(cloth)
+
+# bpy.ops.object.select_all(action="DESELECT")
+# obj.select_set(True)
+# bpy.ops.object.delete()

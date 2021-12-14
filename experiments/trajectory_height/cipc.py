@@ -42,8 +42,8 @@ def simulate(cloth_path, ground_path, output_dir, velocities=None):
         0,
     )
 
-    algI = 0
-    clothI = 0
+    algI = 0    # isotropic
+    clothI = 0  # cotton
     membEMult = 0.01
     bendEMult = 0.1
     sim.mu = 0.4
