@@ -38,15 +38,16 @@ def import_cipc_outputs(cipc_output_dir):
         bpy.ops.mesh.separate(type="SELECTED")
         bpy.ops.object.mode_set(mode="OBJECT")
 
-
         num = file.split("shell")[1].split(".obj")[0]
         cloth = bpy.data.objects[f"shell{num}"]
         ground = bpy.data.objects[f"shell{num}.001"]
 
+        cloth.name = f"sim{num}"
+
         # Delete ground
-        bpy.ops.object.select_all(action='DESELECT')
+        bpy.ops.object.select_all(action="DESELECT")
         ground.select_set(True)
-        bpy.ops.object.delete() 
+        bpy.ops.object.delete()
 
         # Hide the new cloth object on all other frames
         cloth.hide_render = True
@@ -65,6 +66,3 @@ def import_cipc_outputs(cipc_output_dir):
         cloth.data.materials[0] = cloth_material
 
     bpy.context.scene.frame_end = int(num)
-
-
-

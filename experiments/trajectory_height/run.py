@@ -11,27 +11,14 @@ import bpy
 import os
 import sys
 import argparse
-from cm_utils import test, export_as_obj, import_cipc_outputs, render
+import datetime
+
+from cm_utils import export_as_obj, import_cipc_outputs, render
 from cm_utils import get_grasped_verts_trajectories, calcucate_velocities
 
 sys.path.insert(0, os.path.dirname(__file__))
 from cipc import simulate
 
-
-# CIPC_PATH = "/home/idlab185/Codim-IPC"
-# CIPC_PYTHON_PATH = os.path.join(CIPC_PATH, "Python")
-# CIPC_BUILD_PATH = os.path.join(CIPC_PATH, "build")
-
-# sys.path.insert(0, CIPC_PYTHON_PATH)
-# sys.path.insert(0, CIPC_BUILD_PATH)
-
-# from JGSL import *
-# import Drivers
-
-#print("JGSL module location:", JGSL.__file__)
-
-import os
-import datetime
 
 def create_output_dir(height):
     dir = os.path.dirname(os.path.abspath(__file__))
@@ -46,62 +33,51 @@ def run(height):
     print("Running Trajectory Height experiment with height: ", height)
     output_dir = create_output_dir(height)
 
+    # Selecting the relevant objects
     objects = bpy.data.objects
-    cloth = objects['cloth_simple']
-    gripper = objects['gripper']
+    cloth = objects["cloth_simple"]
+    gripper = objects["gripper"]
+    ground = objects["ground"]
 
-    cloth_path = export_as_obj('cloth_simple', output_dir)
-    ground_path = export_as_obj('ground', output_dir)
+    # TODO EDIT THE GRIPPER HEIGHT!
 
+    # Exporting to obj for CIPC
+    cloth_path = export_as_obj(cloth, output_dir)
+    ground_path = export_as_obj(ground, output_dir)
+
+    # Evaluating controlled vertices' velocities for all frames
     trajs, times = get_grasped_verts_trajectories(cloth, gripper)
     velocities = calcucate_velocities(trajs, times)
 
+    # Simulating with CIPC and importing the results
     cipc_output_dir = os.path.join(output_dir, "cipc")
     os.makedirs(cipc_output_dir)
-
-
     simulate(cloth_path, ground_path, cipc_output_dir, velocities)
-
     import_cipc_outputs(cipc_output_dir)
 
+    # Calculating losses
+    # 1) make_fold_target
+    # 5) loss: MSE  by iterating over mesh in blender
+    # 5.1) later: import objs with libigl, iterate there for losses
+    # coords0 = bpy.data.objects[""]
+
+    # Saving the visualizations
     new_blend_path = os.path.join(output_dir, f"scene_with_results.blend")
     bpy.ops.wm.save_as_mainfile(filepath=new_blend_path)
 
     renders_dir = os.path.join(output_dir, "renders")
-    render(renders_dir)
+    render(renders_dir, resolution_percentage=50)
 
-
-
-    #simulate(cloth_path, ground_path, cipc_output_dir)
-
-    # 1) make_fold_target
-    # 2) TODO maybe export with origin at 0,0,0 so z-translation backed in
-    # export cloth target -> not needed initially
-    # export trajectory
-    # 3) run IPC with cloth.obj and ground.obj
-    # 4) import IPC results back into blender
-    # 5) loss: MSE  by iterating over mesh in blender
-    # 5.1) later: import objs with libigl, iterate there for losses 
-
-
-
-
-# CIPC_PATH = /home/Codim-IPC/
 
 if __name__ == "__main__":
-    test.test_print()
-
-    if '--' in sys.argv:
-        argv = sys.argv[sys.argv.index('--') + 1:]
+    if "--" in sys.argv:
+        argv = sys.argv[sys.argv.index("--") + 1 :]
         parser = argparse.ArgumentParser()
-        parser.add_argument('-ht', '--height', dest='height', type=float)
+        parser.add_argument("-ht", "--height", dest="height", type=float)
         args = parser.parse_known_args(argv)[0]
-        print('height: ', args.height)
+        print("height: ", args.height)
         height = args.height
 
         run(height)
     else:
         print(f"Please rerun with arguments.")
-
-
-
