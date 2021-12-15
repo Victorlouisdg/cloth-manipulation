@@ -1,5 +1,6 @@
 *.blend1
 **/output/**
+**/wandb/**
 misc/
 *.obj
 *.vtk

@@ -13,10 +13,12 @@ import sys
 import argparse
 import datetime
 import numpy as np
+import json
 
 from cm_utils import export_as_obj, import_cipc_outputs, render
 from cm_utils import get_grasped_verts_trajectories, calcucate_velocities
 
+# This allows import from this dir even when running with blender
 sys.path.insert(0, os.path.dirname(__file__))
 from cipc import simulate
 
@@ -35,11 +37,16 @@ def set_trajectory_height(gripper, height):
     zcurve = action.fcurves[2]
     z1_key = zcurve.keyframe_points[1]
     z1_key.co[1] = height
+    z1_key.handle_left[1] = height
+    z1_key.handle_right[1] = height
 
 
-def run(height):
+def run_experiment(height, output_dir=None):
+
+    if output_dir is None:
+        output_dir = create_output_dir(height)
+
     print("Running Trajectory Height experiment with height: ", height)
-    output_dir = create_output_dir(height)
 
     # Selecting the relevant objects
     objects = bpy.data.objects
@@ -82,10 +89,18 @@ def run(height):
     renders_dir = os.path.join(output_dir, "renders")
     render(renders_dir, resolution_percentage=50)
 
-    print("LOSSES")
-    print("mean_distance", mean_distance)
-    print("mean_sq_distance", mean_sq_distance)
-    print("rms_distance", rms_distance)
+    losses = {
+        "mean_distance": mean_distance,
+        "mean_sq_distance": mean_sq_distance,
+        "rms_distance": rms_distance,
+    }
+
+    print(losses)
+
+    with open(os.path.join(output_dir, "losses.json"), "w") as f:
+        json.dump(losses, f)
+
+    return losses
 
 
 if __name__ == "__main__":
@@ -93,10 +108,16 @@ if __name__ == "__main__":
         argv = sys.argv[sys.argv.index("--") + 1 :]
         parser = argparse.ArgumentParser()
         parser.add_argument("-ht", "--height", dest="height", type=float)
+        parser.add_argument(
+            "-o", "--output", dest="output_dir", metavar="OUTPUT_DIR"
+        )
         args = parser.parse_known_args(argv)[0]
         print("height: ", args.height)
-        height = args.height
 
-        run(height)
+        losses = run_experiment(args.height, args.output_dir)
+
+        print("LOSSES")
+        for k, v in losses.items():
+            print(f"{k} = {v}")
     else:
         print(f"Please rerun with arguments.")

@@ -14,6 +14,6 @@ def render(renders_dir, resolution_percentage=100):
 
     # Encode video
     command = (
-        f'ffmpeg -y -framerate 25 -i "{renders_dir}/%04d.png" "{renders_dir}/video.mp4"'
+        f'ffmpeg -y -hide_banner -loglevel error -nostats -framerate 25 -i "{renders_dir}/%04d.png" "{renders_dir}/video.mp4"'
     )
-    subprocess.call([command], shell=True)
+    subprocess.run([command], shell=True, stdout=subprocess.DEVNULL)
