@@ -5,9 +5,9 @@ import json
 import subprocess
 import numpy as np
 
-height_min = 0.15
+height_min = 0.2
 height_max = 0.6
-steps = 100
+steps = 40
 
 run = wandb.init(project="cloth-manipulation", entity="victorlouis")
 wandb.config = {"height_min": height_min, "height_max": height_max, "steps": steps}

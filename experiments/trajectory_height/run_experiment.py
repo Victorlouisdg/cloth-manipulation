@@ -50,7 +50,8 @@ def run_experiment(height, output_dir=None):
 
     # Selecting the relevant objects
     objects = bpy.data.objects
-    cloth = objects["cloth_simple"]
+    cloth_name = "cloth"
+    cloth = objects[cloth_name]
     gripper = objects["gripper"]
     ground = objects["ground"]
 
@@ -73,7 +74,7 @@ def run_experiment(height, output_dir=None):
 
     # Calculating losses
     # no need to transform to world space because origins coincide
-    targets = np.array([v.co for v in objects["cloth_simple_target"].data.vertices])
+    targets = np.array([v.co for v in objects[f"{cloth_name}_target"].data.vertices])
     positions = np.array([v.co for v in objects["sim100"].data.vertices])
 
     distances = np.linalg.norm(targets - positions, axis=1)
