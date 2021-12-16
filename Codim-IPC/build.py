@@ -2,7 +2,7 @@ import subprocess
 
 # https://stackoverflow.com/questions/15291500/i-have-2-versions-of-python-installed-but-cmake-is-using-older-version-how-do
 
-BLENDER_PYTHON = "~/Blender/blender-2.93.3-linux-x64/2.93/python/bin/python3.9"
+BLENDER_PYTHON = "~/Blender/blender-3.0.0-linux-x64/3.0/python/bin/python3.9"
 PYTHON_LIBS = "/usr/lib/libpython3.9.so"
 INCLUDE_DIRS ="/usr/include/python3.9/"
 
