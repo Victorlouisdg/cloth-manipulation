@@ -1,7 +1,7 @@
 import sys
 import os
 
-CIPC_PATH = "../../../Codim-IPC"
+CIPC_PATH = "../../Codim-IPC"
 CIPC_PYTHON_PATH = os.path.join(CIPC_PATH, "Python")
 CIPC_BUILD_PATH = os.path.join(CIPC_PATH, "build")
 
