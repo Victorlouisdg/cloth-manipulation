@@ -15,42 +15,24 @@ import datetime
 import numpy as np
 import json
 
-from cm_utils import export_as_obj, import_cipc_outputs, render
-from cm_utils import get_grasped_verts_trajectories, calcucate_velocities
-
-# This allows import from this dir even when running with blender
-sys.path.insert(0, os.path.dirname(__file__))
-from cipc import simulate
-
-
-def create_output_dir(height):
-    dir = os.path.dirname(os.path.abspath(__file__))
-    timestamp = datetime.datetime.now()
-    run_name = f"height={height:.4f} ({timestamp})"
-    output_dir = os.path.join(dir, "output", run_name)
-    os.makedirs(output_dir)
-    return output_dir
+from cm_utils import export_as_obj, import_cipc_outputs, render, encode_video
+from cm_utils import (
+    get_grasped_verts_trajectories,
+    calcucate_velocities,
+    set_trajectory_height,
+)
+from cm_utils.cipc import simulate
+from cm_utils import ensure_output_paths, save_dict_as_json
 
 
-def set_trajectory_height(gripper, height):
-    action = gripper.animation_data.action
-    zcurve = action.fcurves[2]
-    z1_key = zcurve.keyframe_points[1]
-    z1_key.co[1] = height
-    z1_key.handle_left[1] = height
-    z1_key.handle_right[1] = height
-
-
-def run_experiment(height, output_dir=None):
-
-    if output_dir is None:
-        output_dir = create_output_dir(height)
-
-    print("Running Trajectory Height experiment with height: ", height)
+def run_experiment(height, run_dir=None):
+    config = {"height": height}
+    paths = ensure_output_paths(run_dir, config=config)
+    save_dict_as_json(paths["config"], config)
 
     # Selecting the relevant objects
     objects = bpy.data.objects
-    cloth_name = "cloth"
+    cloth_name = "cloth_simple"
     cloth = objects[cloth_name]
     gripper = objects["gripper"]
     ground = objects["ground"]
@@ -59,18 +41,19 @@ def run_experiment(height, output_dir=None):
     set_trajectory_height(gripper, height)
 
     # Exporting to obj for CIPC
-    cloth_path = export_as_obj(cloth, output_dir)
-    ground_path = export_as_obj(ground, output_dir)
+    cloth_path = export_as_obj(cloth, paths["run"])
+    ground_path = export_as_obj(ground, paths["run"])
 
     # Evaluating controlled vertices' velocities for all frames
     trajs, times = get_grasped_verts_trajectories(cloth, gripper)
     velocities = calcucate_velocities(trajs, times)
 
     # Simulating with CIPC and importing the results
-    cipc_output_dir = os.path.join(output_dir, "cipc")
-    os.makedirs(cipc_output_dir)
-    simulate(cloth_path, ground_path, cipc_output_dir, velocities)
-    import_cipc_outputs(cipc_output_dir)
+    simulate(cloth_path, ground_path, paths["cipc"], velocities)
+    import_cipc_outputs(paths["cipc"])
+
+    # Saving the visualizations
+    bpy.ops.wm.save_as_mainfile(filepath=paths["blend"])
 
     # Calculating losses
     # no need to transform to world space because origins coincide
@@ -83,23 +66,15 @@ def run_experiment(height, output_dir=None):
     mean_sq_distance = sq_distances.mean(axis=0)
     rms_distance = np.sqrt(mean_sq_distance)
 
-    # Saving the visualizations
-    new_blend_path = os.path.join(output_dir, f"scene_with_results.blend")
-    bpy.ops.wm.save_as_mainfile(filepath=new_blend_path)
-
-    renders_dir = os.path.join(output_dir, "renders")
-    render(renders_dir, resolution_percentage=50)
-
     losses = {
         "mean_distance": mean_distance,
         "mean_sq_distance": mean_sq_distance,
         "rms_distance": rms_distance,
     }
+    save_dict_as_json(paths["losses"], losses)
 
-    print(losses)
-
-    with open(os.path.join(output_dir, "losses.json"), "w") as f:
-        json.dump(losses, f)
+    render(paths["renders"], resolution_percentage=50)
+    encode_video(paths["renders"], paths["video"])
 
     return losses
 
@@ -109,13 +84,10 @@ if __name__ == "__main__":
         argv = sys.argv[sys.argv.index("--") + 1 :]
         parser = argparse.ArgumentParser()
         parser.add_argument("-ht", "--height", dest="height", type=float)
-        parser.add_argument(
-            "-o", "--output", dest="output_dir", metavar="OUTPUT_DIR"
-        )
+        parser.add_argument("-d", "--dir", dest="run_dir", metavar="RUN_DIR")
         args = parser.parse_known_args(argv)[0]
-        print("height: ", args.height)
-
-        losses = run_experiment(args.height, args.output_dir)
+        print("HEIGHT: ", args.height)
+        losses = run_experiment(args.height, args.run_dir)
 
         print("LOSSES")
         for k, v in losses.items():

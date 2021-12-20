@@ -12,8 +12,8 @@ def render(renders_dir, resolution_percentage=100):
 
     bpy.ops.render.render(animation=True)
 
-    # Encode video
-    command = (
-        f'ffmpeg -y -hide_banner -loglevel error -nostats -framerate 25 -i "{renders_dir}/%04d.png" "{renders_dir}/video.mp4"'
-    )
+
+def encode_video(renders_dir, video_path):
+    ffmpeg_args = "-y -hide_banner -loglevel error -nostats -framerate 25"
+    command = f'ffmpeg {ffmpeg_args} -i "{renders_dir}/%04d.png" "{video_path}"'
     subprocess.run([command], shell=True, stdout=subprocess.DEVNULL)

@@ -105,6 +105,15 @@ def visualize_trajectories(trajectories):
         collection.objects.link(object)
 
 
+def set_trajectory_height(gripper, height):
+    action = gripper.animation_data.action
+    zcurve = action.fcurves[2]
+    z1_key = zcurve.keyframe_points[1]
+    z1_key.co[1] = height
+    z1_key.handle_left[1] = height
+    z1_key.handle_right[1] = height
+
+
 def calcucate_velocities(trajectories, times):
     velocities = {}
     for id, trajectory in trajectories.items():

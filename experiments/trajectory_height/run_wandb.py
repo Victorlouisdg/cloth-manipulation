@@ -21,7 +21,7 @@ def run_wandb():
         log = {"height": height}
 
         runCommand = (
-            f"blender scene.blend -b -P run_experiment.py -- -ht {height} -o '{subdir}'"
+            f"blender scene.blend -b -P run_experiment.py -- -ht {height} -d '{subdir}'"
         )
         subprocess.run([runCommand], shell=True, stdout=subprocess.DEVNULL)
 
