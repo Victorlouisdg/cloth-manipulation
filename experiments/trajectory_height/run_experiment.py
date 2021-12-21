@@ -53,6 +53,7 @@ def run_experiment(height, run_dir=None):
     import_cipc_outputs(paths["cipc"])
 
     # Saving the visualizations
+    bpy.ops.object.paths_update_visible()
     bpy.ops.wm.save_as_mainfile(filepath=paths["blend"])
 
     # Calculating losses
