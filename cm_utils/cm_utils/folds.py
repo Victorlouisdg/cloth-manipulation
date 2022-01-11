@@ -41,7 +41,14 @@ def update_4x4_with_3x3(matrix4x4, matrix3x3):
 
 
 def keyframe_sleeve_fold(
-    gripper, keypoints, left_or_right, height, start_frame, end_frame, angle=30
+    gripper,
+    keypoints,
+    left_or_right,
+    height_ratio,
+    offset_ratio,
+    start_frame,
+    end_frame,
+    angle=30,
 ):
     angle = np.deg2rad(angle)
 
@@ -71,7 +78,6 @@ def keyframe_sleeve_fold(
 
     gripper.keyframe_insert(data_path="location", frame=start_frame)
 
-    # Keyframe middle pose
     corner_bottom = keypoints[f"{left_or_right}_corner_bottom"]
 
     # For the left sleeve, we rotate the fold line clockwise
@@ -86,19 +92,6 @@ def keyframe_sleeve_fold(
     basis_Y = basis_Z.cross(basis_X)
     new_basis = vectors_to_matrix_4x4(basis_X, basis_Y, basis_Z, armpit)
 
-    middle_frame = (start_frame + end_frame) // 2
-
-    M = start_pose
-    M = new_basis.inverted() @ M
-    M = Matrix.Rotation(np.deg2rad(90 if left_or_right is "left" else -90), 4, "X") @ M
-    M = new_basis @ M
-    middle_pose = (
-        M  # Middle pose only needed to correctly interpolate gripper orientations
-    )
-
-    gripper.location.z = height
-    gripper.keyframe_insert(data_path="location", index=2, frame=middle_frame)
-
     # Keyframe end pose
     M = start_pose
     M = new_basis.inverted() @ M
@@ -107,9 +100,30 @@ def keyframe_sleeve_fold(
     end_pose = M
 
     gripper.matrix_world = end_pose
-
+    gripper.location.z = 0.05
     gripper.keyframe_insert(data_path="location", frame=end_frame)
 
+    # Keyframe middle pose
+    start_position = start_pose.translation
+    end_position = end_pose.translation
+    base_distance = (start_position - end_position).length
+
+    middle_frame = (start_frame + end_frame) // 2
+
+    mid_angle = np.deg2rad(90 if left_or_right is "left" else -90)
+
+    M = start_pose
+    M = new_basis.inverted() @ M
+    M = Matrix.Rotation(mid_angle, 4, "X") @ M
+    M = Matrix.Translation((offset_ratio * base_distance, 0, 0)) @ M
+    M = new_basis @ M
+    middle_pose = M
+
+    gripper.matrix_world = middle_pose
+    gripper.location.z = height_ratio * base_distance
+    gripper.keyframe_insert(data_path="location", frame=middle_frame)
+
+    # Keyframing the orientation of the gripper in all frames
     key_rots = Rotation.from_matrix(
         [start_pose.to_3x3(), middle_pose.to_3x3(), end_pose.to_3x3()]
     )

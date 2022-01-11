@@ -27,9 +27,22 @@ from cm_utils.grasp import visualize_trajectories
 from cm_utils.cipc import Simulation
 from cm_utils import ensure_output_paths, save_dict_as_json
 
+keypoint_ids_cloth_simple = {
+    "left_shoulder": 22,
+    "left_sleeve_top": 2,
+    "left_sleeve_bottom": 0,
+    "left_armpit": 18,
+    "left_corner_bottom": 8,
+    "right_shoulder": 53,
+    "right_sleeve_top": 29,
+    "right_sleeve_bottom": 27,
+    "right_armpit": 49,
+    "right_corner_bottom": 35,
+}
 
-def run_experiment(height, run_dir=None):
-    config = {"height": height}
+
+def run_experiment(height_ratio, offset_ratio, run_dir=None):
+    config = {"height_ratio": height_ratio, "offset_ratio": offset_ratio}
     paths = ensure_output_paths(run_dir, config=config)
     save_dict_as_json(paths["config"], config)
 
@@ -39,25 +52,15 @@ def run_experiment(height, run_dir=None):
     cloth = objects[cloth_name]
     ground = objects["ground"]
 
-    keypoint_ids = {
-        "left_shoulder": 22,
-        "left_sleeve_top": 2,
-        "left_sleeve_bottom": 0,
-        "left_armpit": 18,
-        "left_corner_bottom": 8,
-        "right_shoulder": 53,
-        "right_sleeve_top": 29,
-        "right_sleeve_bottom": 27,
-        "right_armpit": 49,
-        "right_corner_bottom": 35,
+    keypoints = {
+        name: cloth.data.vertices[id].co
+        for name, id in keypoint_ids_cloth_simple.items()
     }
-
-    keypoints = {name: cloth.data.vertices[id].co for name, id in keypoint_ids.items()}
 
     scene = bpy.context.scene
 
     frames_per_fold = 100
-    scene.frame_end = 202  # todo think about these frames in more detail
+    scene.frame_end = 227  # todo think about these frames in more detail
     scene.render.fps = 25
 
     cloth_path = export_as_obj(cloth, paths["run"])
@@ -71,22 +74,18 @@ def run_experiment(height, run_dir=None):
         start_frame = i * (frames_per_fold + 1)
         end_frame = start_frame + frames_per_fold + 1
 
-        keyframe_sleeve_fold(gripper, keypoints, side, height, start_frame, end_frame)
+        keyframe_sleeve_fold(gripper, keypoints, side, height_ratio, offset_ratio, start_frame, end_frame)
 
-        # TODO if i != 0, import final frame and get net grasped vertices
+        # TODO if i != 0, import final frame and get new grasped vertices
         trajs, times = get_grasped_verts_trajectories(
             cloth, gripper, start_frame, end_frame
         )
 
-        visualize_trajectories(trajs)
-
         velocities = calculate_velocities(trajs, times)
+        simulation.advance(frames_per_fold + 1, velocities)
 
-        velocities.pop(28, None)
-        velocities.pop(30, None)
 
-        # 0, 2, 27, 29
-        simulation.advance(frames_per_fold, velocities)
+    simulation.advance(25, {})
 
     import_cipc_outputs(paths["cipc"])
 
@@ -123,14 +122,14 @@ if __name__ == "__main__":
     if "--" in sys.argv:
         argv = sys.argv[sys.argv.index("--") + 1 :]
         parser = argparse.ArgumentParser()
-        parser.add_argument("-ht", "--height", dest="height", type=float)
+        parser.add_argument("-hr", "--height_ratio", dest="height_ratio", type=float)
+        parser.add_argument("-or", "--offset_ratio", dest="offset_ratio", type=float)
         parser.add_argument("-d", "--dir", dest="run_dir", metavar="RUN_DIR")
         args = parser.parse_known_args(argv)[0]
-        print("HEIGHT: ", args.height)
-        losses = run_experiment(args.height, args.run_dir)
+        losses = run_experiment(args.height_ratio, args.offset_ratio, args.run_dir)
 
         print("LOSSES")
         for k, v in losses.items():
             print(f"{k} = {v}")
     else:
-        print(f"Please rerun with arguments.")
+        print(f"Please rerun with arguments after --")
