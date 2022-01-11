@@ -106,7 +106,7 @@ def keyframe_sleeve_fold(
     # Keyframe middle pose
     start_position = start_pose.translation
     end_position = end_pose.translation
-    base_distance = (start_position - end_position).length
+    start_to_end_distance = (start_position - end_position).length
 
     middle_frame = (start_frame + end_frame) // 2
 
@@ -115,12 +115,12 @@ def keyframe_sleeve_fold(
     M = start_pose
     M = new_basis.inverted() @ M
     M = Matrix.Rotation(mid_angle, 4, "X") @ M
-    M = Matrix.Translation((offset_ratio * base_distance, 0, 0)) @ M
+    M = Matrix.Translation((offset_ratio * start_to_end_distance, 0, 0)) @ M
     M = new_basis @ M
     middle_pose = M
 
     gripper.matrix_world = middle_pose
-    gripper.location.z = height_ratio * base_distance
+    gripper.location.z = height_ratio * start_to_end_distance
     gripper.keyframe_insert(data_path="location", frame=middle_frame)
 
     # Keyframing the orientation of the gripper in all frames
