@@ -114,7 +114,7 @@ def set_trajectory_height(gripper, height):
     z1_key.handle_right[1] = height
 
 
-def calcucate_velocities(trajectories, times):
+def calculate_velocities(trajectories, times):
     velocities = {}
     for id, trajectory in trajectories.items():
         velocities[id] = []
@@ -127,6 +127,28 @@ def calcucate_velocities(trajectories, times):
             velocities[id].append(v)
     return velocities
 
+
+def keyframe_gripper_endpoint(gripper, fold_plane, fold_line, height_increase):
+    point, normal = fold_plane
+    bpy.context.scene.cursor.location = point
+
+    up = np.array([0, 0, 1.0])
+
+    matrix = np.column_stack([normal, fold_line, up])
+    print(matrix)
+    pass
+
+
+def make_gripper(name):
+    """Makes a new Blender object that can serve as gripper.
+
+    Args:
+        name (str): name of the object in Blender
+    """
+    bpy.ops.mesh.primitive_cube_add(size=0.05)
+    cube = bpy.context.active_object
+    cube.name = name
+    return cube
 
 if __name__ == "__main__":
     objects = bpy.data.objects
