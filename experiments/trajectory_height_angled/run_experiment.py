@@ -23,6 +23,7 @@ from cm_utils import (
     set_trajectory_height,
     make_gripper,
 )
+from cm_utils.grasp import visualize_trajectories
 from cm_utils.cipc import Simulation
 from cm_utils import ensure_output_paths, save_dict_as_json
 
@@ -53,7 +54,11 @@ def run_experiment(height, run_dir=None):
 
     keypoints = {name: cloth.data.vertices[id].co for name, id in keypoint_ids.items()}
 
+    scene = bpy.context.scene
+
     frames_per_fold = 100
+    scene.frame_end = 202  # todo think about these frames in more detail
+    scene.render.fps = 25
 
     cloth_path = export_as_obj(cloth, paths["run"])
     ground_path = export_as_obj(ground, paths["run"])
@@ -63,25 +68,25 @@ def run_experiment(height, run_dir=None):
     for i, side in enumerate(["left", "right"]):
         gripper = make_gripper(f"gripper_{side}_sleeve")
 
-        start_frame = i * frames_per_fold
+        start_frame = i * (frames_per_fold + 1)
         end_frame = start_frame + frames_per_fold + 1
 
-        bpy.context.scene.frame_end = end_frame
-
         keyframe_sleeve_fold(gripper, keypoints, side, height, start_frame, end_frame)
-
-        continue
 
         # TODO if i != 0, import final frame and get net grasped vertices
         trajs, times = get_grasped_verts_trajectories(
             cloth, gripper, start_frame, end_frame
         )
+
+        visualize_trajectories(trajs)
+
         velocities = calculate_velocities(trajs, times)
 
+        velocities.pop(28, None)
+        velocities.pop(30, None)
+
+        # 0, 2, 27, 29
         simulation.advance(frames_per_fold, velocities)
-
-
-    return
 
     import_cipc_outputs(paths["cipc"])
 
@@ -100,6 +105,7 @@ def run_experiment(height, run_dir=None):
     # mean_sq_distance = sq_distances.mean(axis=0)
     # rms_distance = np.sqrt(mean_sq_distance)
 
+    losses = {}
     # losses = {
     #     "mean_distance": mean_distance,
     #     "mean_sq_distance": mean_sq_distance,

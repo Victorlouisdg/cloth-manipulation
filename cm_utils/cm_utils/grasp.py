@@ -57,27 +57,22 @@ def find_grasped_vertices(obj, gripper):
     return grasped_vertices
 
 
-def get_grasped_verts_trajectories(obj, gripper):
+def get_grasped_verts_trajectories(obj, gripper, start_frame, end_frame):
     grasped_vertices = find_grasped_vertices(obj, gripper)
 
+    # Make gripper parent to make cloth move with gripper as if it was a rigid body
     obj.parent = gripper
     obj.matrix_parent_inverse = gripper.matrix_world.inverted()
 
-    fps = 25
-    n_sim_frames = 100
-
     scene = bpy.context.scene
-    scene.frame_start = 0
-    scene.frame_end = n_sim_frames
-    scene.render.fps = 25
-    dt = 1.0 / fps
+    dt = 1.0 / scene.render.fps
 
     trajectories = {id: [] for id in grasped_vertices}
     times = []
 
     obj_verts = obj.data.vertices
 
-    for i in range(n_sim_frames + 1):
+    for i in range(start_frame, end_frame + 1):
         scene.frame_set(i)
         times.append(i * dt)
 
@@ -128,17 +123,6 @@ def calculate_velocities(trajectories, times):
     return velocities
 
 
-def keyframe_gripper_endpoint(gripper, fold_plane, fold_line, height_increase):
-    point, normal = fold_plane
-    bpy.context.scene.cursor.location = point
-
-    up = np.array([0, 0, 1.0])
-
-    matrix = np.column_stack([normal, fold_line, up])
-    print(matrix)
-    pass
-
-
 def make_gripper(name):
     """Makes a new Blender object that can serve as gripper.
 
@@ -149,6 +133,7 @@ def make_gripper(name):
     cube = bpy.context.active_object
     cube.name = name
     return cube
+
 
 if __name__ == "__main__":
     objects = bpy.data.objects

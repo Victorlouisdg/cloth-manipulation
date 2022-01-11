@@ -16,6 +16,11 @@ import numpy as np
 import json
 
 
+def to_Vector3d(v):
+    # Note that this also swaps y and z components
+    return Vector3d(v[0], v[2], -v[1])
+
+
 class Simulation:
     def __init__(self, cloth_path, ground_path, output_dir):
         sim = Drivers.FEMDiscreteShellBase("double", 3, output_dir)
@@ -84,7 +89,6 @@ class Simulation:
 
         sim.write(0)
 
-
     def advance(self, frames, velocities):
         sim = self.sim
         controlled_vertices = velocities.keys()
@@ -106,11 +110,6 @@ class Simulation:
             sim.current_frame += 1
             sim.advance_one_frame(sim.current_frame)
             sim.write(sim.current_frame)
-
-
-def to_Vector3d(v):
-    # Note that this also swaps y and z components
-    return Vector3d(v[0], v[2], v[1])
 
 
 def simulate(cloth_path, ground_path, output_dir, velocities=None):
