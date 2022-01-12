@@ -15,15 +15,13 @@ import datetime
 import numpy as np
 import json
 
-from cm_utils.folds import keyframe_sleeve_fold
+from cm_utils.folds import keyframe_sleeve_fold, make_folded_copy
 from cm_utils import export_as_obj, import_cipc_outputs, render, encode_video
 from cm_utils import (
     get_grasped_verts_trajectories,
     calculate_velocities,
-    set_trajectory_height,
     make_gripper,
 )
-from cm_utils.grasp import visualize_trajectories
 from cm_utils.cipc import Simulation
 from cm_utils import ensure_output_paths, save_dict_as_json
 
@@ -40,6 +38,19 @@ keypoint_ids_cloth_simple = {
     "right_corner_bottom": 35,
 }
 
+keypoint_ids_cloth = {
+    "left_shoulder": 1121,
+    "left_sleeve_top": 57,
+    "left_sleeve_bottom": 0,
+    "left_armpit": 929,
+    "left_corner_bottom": 369,
+    "right_shoulder": 2583,
+    "right_sleeve_top": 1492,
+    "right_sleeve_bottom": 1435,
+    "right_armpit": 2391,
+    "right_corner_bottom": 1804,
+}
+
 
 def run_experiment(height_ratio, offset_ratio, run_dir=None):
     config = {"height_ratio": height_ratio, "offset_ratio": offset_ratio}
@@ -48,13 +59,13 @@ def run_experiment(height_ratio, offset_ratio, run_dir=None):
 
     # Selecting the relevant objects
     objects = bpy.data.objects
-    cloth_name = "cloth_simple"
+    cloth_name = "cloth"
     cloth = objects[cloth_name]
     ground = objects["ground"]
 
     keypoints = {
         name: cloth.data.vertices[id].co
-        for name, id in keypoint_ids_cloth_simple.items()
+        for name, id in keypoint_ids_cloth.items()
     }
 
     scene = bpy.context.scene
@@ -68,13 +79,18 @@ def run_experiment(height_ratio, offset_ratio, run_dir=None):
 
     simulation = Simulation(cloth_path, ground_path, paths["cipc"])
 
+    cloth_target = cloth
+
     for i, side in enumerate(["left", "right"]):
         gripper = make_gripper(f"gripper_{side}_sleeve")
+        cloth_target = make_folded_copy(cloth_target, keypoints, side)
 
         start_frame = i * (frames_per_fold + 1)
         end_frame = start_frame + frames_per_fold + 1
 
-        keyframe_sleeve_fold(gripper, keypoints, side, height_ratio, offset_ratio, start_frame, end_frame)
+        keyframe_sleeve_fold(
+            gripper, keypoints, side, height_ratio, offset_ratio, start_frame, end_frame
+        )
 
         # TODO if i != 0, import final frame and get new grasped vertices
         trajs, times = get_grasped_verts_trajectories(
@@ -83,7 +99,6 @@ def run_experiment(height_ratio, offset_ratio, run_dir=None):
 
         velocities = calculate_velocities(trajs, times)
         simulation.advance(frames_per_fold + 1, velocities)
-
 
     simulation.advance(25, {})
 
@@ -95,22 +110,21 @@ def run_experiment(height_ratio, offset_ratio, run_dir=None):
 
     #  TODO update Calculating losses
     # no need to transform to world space because origins coincide
-    # targets = np.array([v.co for v in objects[f"{cloth_name}_target"].data.vertices])
-    # positions = np.array([v.co for v in objects["sim100"].data.vertices])
+    targets = np.array([v.co for v in cloth_target.data.vertices])
+    positions = np.array([v.co for v in objects["sim202"].data.vertices])
 
-    # distances = np.linalg.norm(targets - positions, axis=1)
-    # sq_distances = distances ** 2
-    # mean_distance = distances.mean(axis=0)
-    # mean_sq_distance = sq_distances.mean(axis=0)
-    # rms_distance = np.sqrt(mean_sq_distance)
+    distances = np.linalg.norm(targets - positions, axis=1)
+    sq_distances = distances ** 2
+    mean_distance = distances.mean(axis=0)
+    mean_sq_distance = sq_distances.mean(axis=0)
+    rms_distance = np.sqrt(mean_sq_distance)
 
-    losses = {}
-    # losses = {
-    #     "mean_distance": mean_distance,
-    #     "mean_sq_distance": mean_sq_distance,
-    #     "rms_distance": rms_distance,
-    # }
-    # save_dict_as_json(paths["losses"], losses)
+    losses = {
+        "mean_distance": mean_distance,
+        "mean_sq_distance": mean_sq_distance,
+        "rms_distance": rms_distance,
+    }
+    save_dict_as_json(paths["losses"], losses)
 
     render(paths["renders"], resolution_percentage=50)
     encode_video(paths["renders"], paths["video"])
