@@ -7,22 +7,19 @@
    3) Import first IPC output and last back into blender.
    4) Calculate loss.
 """
+from cm_utils.grasp import find_grasped_vertices, update_active_grippers
 import bpy
-import os
 import sys
 import argparse
-import datetime
 import numpy as np
-import json
 
-from cm_utils.folds import keyframe_sleeve_fold, make_folded_copy
-from cm_utils import export_as_obj, import_cipc_outputs, render, encode_video
+from cm_utils.folds import SleeveFold
+from cm_utils import export_as_obj, import_cipc_output, render, encode_video
 from cm_utils import (
     get_grasped_verts_trajectories,
     calculate_velocities,
-    make_gripper,
 )
-from cm_utils.cipc import Simulation
+from cm_utils.cipc import Simulation, cipc_action
 from cm_utils import ensure_output_paths, save_dict_as_json
 
 keypoint_ids_cloth_simple = {
@@ -59,61 +56,76 @@ def run_experiment(height_ratio, offset_ratio, run_dir=None):
 
     # Selecting the relevant objects
     objects = bpy.data.objects
-    cloth_name = "cloth"
+    cloth_name = "cloth_simple"
     cloth = objects[cloth_name]
     ground = objects["ground"]
 
     keypoints = {
         name: cloth.data.vertices[id].co
-        for name, id in keypoint_ids_cloth.items()
+        for name, id in keypoint_ids_cloth_simple.items()
     }
 
     scene = bpy.context.scene
 
-    frames_per_fold = 100
+    # frames_per_fold = 101
+    scene.frame_start = 0
     scene.frame_end = 227  # todo think about these frames in more detail
     scene.render.fps = 25
 
     cloth_path = export_as_obj(cloth, paths["run"])
     ground_path = export_as_obj(ground, paths["run"])
 
-    simulation = Simulation(cloth_path, ground_path, paths["cipc"])
+    fold_sequence = [
+        ((0, 100), SleeveFold(keypoints, height_ratio, offset_ratio, "left")),
+        ((100, 200), SleeveFold(keypoints, height_ratio, offset_ratio, "right")),
+        # SideFold("left", "top"),
+        # SideFold("left", "bottom"),
+        # SideFold(),
+        # SideFold()
+    ]
 
+    # Keyframe the grippers for each fold
+    grippers = []
+    for (start_frame, end_frame), fold in fold_sequence:
+        gripper = fold.make_keyframed_gripper(start_frame, end_frame)
+        grippers.append(gripper)
+
+    # Create the idealized cloth target shape
     cloth_target = cloth
+    for _, fold in fold_sequence:
+        cloth_target = fold.make_folded_cloth_target(cloth_target)
 
-    for i, side in enumerate(["left", "right"]):
-        gripper = make_gripper(f"gripper_{side}_sleeve")
-        cloth_target = make_folded_copy(cloth_target, keypoints, side)
+    scene.frame_set(scene.frame_start)
 
-        start_frame = i * (frames_per_fold + 1)
-        end_frame = start_frame + frames_per_fold + 1
+    # Simulate
+    active_grippers = {}
+    simulation = Simulation(cloth_path, ground_path, paths["cipc"])
+    for frame in range(50): #range(scene.frame_end):
+        action = {}
 
-        keyframe_sleeve_fold(
-            gripper, keypoints, side, height_ratio, offset_ratio, start_frame, end_frame
-        )
+        update_active_grippers(grippers, active_grippers, cloth, frame)
 
-        # TODO if i != 0, import final frame and get new grasped vertices
-        trajs, times = get_grasped_verts_trajectories(
-            cloth, gripper, start_frame, end_frame
-        )
+        # TODO FIGURE OUT WHY CLOTH DOESNT MOVE PERFECTLY WITH GRIPPER
+        for gripper, grasped in active_grippers.items():
+            gripper_action = cipc_action(gripper, cloth, grasped, frame)
+            action = action | gripper_action
 
-        velocities = calculate_velocities(trajs, times)
-        simulation.advance(frames_per_fold + 1, velocities)
+        simulation.step(action)
+        cloth = import_cipc_output(paths["cipc"], frame)
 
-    simulation.advance(25, {})
-
-    import_cipc_outputs(paths["cipc"])
+    scene.frame_set(scene.frame_start)
 
     # Saving the visualizations
     bpy.ops.object.paths_update_visible()
     bpy.ops.wm.save_as_mainfile(filepath=paths["blend"])
 
-    #  TODO update Calculating losses
     # no need to transform to world space because origins coincide
     targets = np.array([v.co for v in cloth_target.data.vertices])
-    positions = np.array([v.co for v in objects["sim202"].data.vertices])
+    final_positions = np.array(
+        [v.co for v in objects[f"sim{scene.frame_end}"].data.vertices]
+    )
 
-    distances = np.linalg.norm(targets - positions, axis=1)
+    distances = np.linalg.norm(targets - final_positions, axis=1)
     sq_distances = distances ** 2
     mean_distance = distances.mean(axis=0)
     mean_sq_distance = sq_distances.mean(axis=0)
@@ -126,8 +138,8 @@ def run_experiment(height_ratio, offset_ratio, run_dir=None):
     }
     save_dict_as_json(paths["losses"], losses)
 
-    render(paths["renders"], resolution_percentage=50)
-    encode_video(paths["renders"], paths["video"])
+    # render(paths["renders"], resolution_percentage=50)
+    # encode_video(paths["renders"], paths["video"])
 
     return losses
 

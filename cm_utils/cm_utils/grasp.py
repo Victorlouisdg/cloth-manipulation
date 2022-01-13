@@ -135,6 +135,23 @@ def make_gripper(name):
     return cube
 
 
+def update_active_grippers(grippers, active_grippers, cloth, frame):
+    scene = bpy.context.scene
+
+    for gripper in grippers:
+        scene.frame_set(frame + 1)
+        if gripper not in active_grippers and not gripper.hide_viewport:
+            scene.frame_set(frame)
+            grasped = find_grasped_vertices(cloth, gripper)
+            active_grippers[gripper] = grasped
+
+        scene.frame_set(frame + 1)
+        if gripper in active_grippers and gripper.hide_viewport:
+            active_grippers.pop(gripper)
+
+    return active_grippers
+
+
 if __name__ == "__main__":
     objects = bpy.data.objects
     cloth = objects["cloth_simple"]

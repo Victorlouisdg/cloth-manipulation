@@ -14,6 +14,31 @@ import Drivers
 
 import numpy as np
 import json
+import bpy
+
+
+def cipc_action(gripper, cloth, grasped, frame):
+    scene = bpy.context.scene
+    scene.frame_set(frame)
+    positions = [
+        cloth.matrix_world @ v.co for v in cloth.data.vertices if v.index in grasped
+    ]
+    cloth.parent = gripper
+    cloth.matrix_parent_inverse = gripper.matrix_world.inverted()
+    scene.frame_set(frame + 1)
+    positions_next = [
+        cloth.matrix_world @ v.co for v in cloth.data.vertices if v.index in grasped
+    ]
+    cloth.parent = None
+
+    velocities = {}
+    dt = 1.0 / scene.render.fps
+
+    for id, p, p_next in zip(grasped, positions, positions_next):
+        v = (p_next - p) / dt
+        velocities[id] = v
+
+    return velocities
 
 
 def to_Vector3d(v):
@@ -88,6 +113,32 @@ class Simulation:
         )
 
         sim.write(0)
+
+    def step(self, action={}):
+        """Advance the C-IPC simulation a single frame.
+
+        Args:
+            action (dict): dictionary with keys the vertex ids and values the vertex velcoties
+        """
+        sim = self.sim
+        controlled_vertices = action.keys()
+
+        # Reset DBCs
+        sim.DBC = Storage.V4dStorage()
+        sim.DBCMotion = Storage.V2iV3dV3dV3dSdStorage()
+
+        # Ground plane DBC
+        sim.set_DBC_with_range(*self.ground_DBC)
+
+        for id in controlled_vertices:
+            v = to_Vector3d(action[id])
+            vIndRange = Vector4i(4 + id, 0, 5 + id, -1)
+            sim.set_DBC_with_range(self.x_min, self.x_max, v, *self.rotation, vIndRange)
+
+        # Advance
+        sim.current_frame += 1
+        sim.advance_one_frame(sim.current_frame)
+        sim.write(sim.current_frame)
 
     def advance(self, frames, velocities):
         # WARNING: if the velocities cause intersecting states, CIPC be stuck in an endless loop
