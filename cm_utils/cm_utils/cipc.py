@@ -11,30 +11,41 @@ sys.path.insert(0, CIPC_BUILD_PATH)
 from JGSL import *
 import Drivers
 
-
-import numpy as np
-import json
 import bpy
 
 
 def cipc_action(gripper, cloth, grasped, frame):
     scene = bpy.context.scene
     scene.frame_set(frame)
-    positions = [
-        cloth.matrix_world @ v.co for v in cloth.data.vertices if v.index in grasped
-    ]
+
+    positions = {}
+    for id in grasped:
+        positions[id] = cloth.matrix_world @ cloth.data.vertices[id].co
+
     cloth.parent = gripper
     cloth.matrix_parent_inverse = gripper.matrix_world.inverted()
+
+    # gripper_pose = gripper.matrix_world.copy()
+    # scene.frame_set(frame + 1)
+    # gripper_pose_next = gripper.matrix_world.copy()
+    # transform = gripper_pose_next @ gripper_pose.inverted()
+    # matrix_world_new = transform @ cloth.matrix_world
+    # positions_next = {}
+    # for id in grasped:
+    #     positions_next[id] = matrix_world_new @ cloth.data.vertices[id].co
+
     scene.frame_set(frame + 1)
-    positions_next = [
-        cloth.matrix_world @ v.co for v in cloth.data.vertices if v.index in grasped
-    ]
+    positions_next = {}
+    for id in grasped:
+        positions_next[id] = cloth.matrix_world @ cloth.data.vertices[id].co
     cloth.parent = None
 
     velocities = {}
     dt = 1.0 / scene.render.fps
 
-    for id, p, p_next in zip(grasped, positions, positions_next):
+    for id in grasped:
+        p = positions[id]
+        p_next = positions_next[id]
         v = (p_next - p) / dt
         velocities[id] = v
 
@@ -42,7 +53,6 @@ def cipc_action(gripper, cloth, grasped, frame):
 
 
 def to_Vector3d(v):
-    # Note that this also swaps y and z components
     return Vector3d(v[0], v[2], -v[1])
 
 
@@ -139,28 +149,3 @@ class Simulation:
         sim.current_frame += 1
         sim.advance_one_frame(sim.current_frame)
         sim.write(sim.current_frame)
-
-    def advance(self, frames, velocities):
-        # WARNING: if the velocities cause intersecting states, CIPC be stuck in an endless loop
-        sim = self.sim
-        controlled_vertices = velocities.keys()
-
-        for f in range(frames):
-            # Reset DBCs
-            sim.DBC = Storage.V4dStorage()
-            sim.DBCMotion = Storage.V2iV3dV3dV3dSdStorage()
-
-            # Ground plane DBC
-            sim.set_DBC_with_range(*self.ground_DBC)
-
-            for id in controlled_vertices:
-                v = to_Vector3d(velocities[id][f])
-                vIndRange = Vector4i(4 + id, 0, 5 + id, -1)
-                sim.set_DBC_with_range(
-                    self.x_min, self.x_max, v, *self.rotation, vIndRange
-                )
-
-            # Advance
-            sim.current_frame += 1
-            sim.advance_one_frame(sim.current_frame)
-            sim.write(sim.current_frame)

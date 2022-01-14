@@ -7,7 +7,7 @@
    3) Import first IPC output and last back into blender.
    4) Calculate loss.
 """
-from cm_utils.grasp import find_grasped_vertices, update_active_grippers
+from cm_utils.grasp import update_active_grippers
 import bpy
 import sys
 import argparse
@@ -98,20 +98,19 @@ def run_experiment(height_ratio, offset_ratio, run_dir=None):
     scene.frame_set(scene.frame_start)
 
     # Simulate
-    active_grippers = {}
     simulation = Simulation(cloth_path, ground_path, paths["cipc"])
-    for frame in range(50): #range(scene.frame_end):
-        action = {}
 
+    active_grippers = {}
+    for frame in range(scene.frame_end):
+        action = {}
         update_active_grippers(grippers, active_grippers, cloth, frame)
 
-        # TODO FIGURE OUT WHY CLOTH DOESNT MOVE PERFECTLY WITH GRIPPER
         for gripper, grasped in active_grippers.items():
             gripper_action = cipc_action(gripper, cloth, grasped, frame)
             action = action | gripper_action
 
         simulation.step(action)
-        cloth = import_cipc_output(paths["cipc"], frame)
+        cloth = import_cipc_output(paths["cipc"], frame + 1)
 
     scene.frame_set(scene.frame_start)
 
