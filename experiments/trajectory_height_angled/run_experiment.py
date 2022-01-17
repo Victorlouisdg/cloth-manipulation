@@ -13,7 +13,7 @@ import sys
 import argparse
 import numpy as np
 
-from cm_utils.folds import SleeveFold
+from cm_utils.folds import SleeveFold, SideFold
 from cm_utils import export_as_obj, import_cipc_output, render, encode_video
 from cm_utils import (
     get_grasped_verts_trajectories,
@@ -62,7 +62,7 @@ def run_experiment(height_ratio, offset_ratio, run_dir=None):
 
     # Selecting the relevant objects
     objects = bpy.data.objects
-    cloth_name = "cloth_simple"
+    cloth_name = "cloth"
     cloth = objects[cloth_name]
     ground = objects["ground"]
 
@@ -75,7 +75,7 @@ def run_experiment(height_ratio, offset_ratio, run_dir=None):
 
     # frames_per_fold = 101
     scene.frame_start = 0
-    scene.frame_end = 227  # todo think about these frames in more detail
+    scene.frame_end = 450  # todo think about these frames in more detail
     scene.render.fps = 25
 
     cloth_path = export_as_obj(cloth, paths["run"])
@@ -84,6 +84,11 @@ def run_experiment(height_ratio, offset_ratio, run_dir=None):
     fold_sequence = [
         ((0, 100), SleeveFold(keypoints, height_ratio, offset_ratio, "left")),
         ((100, 200), SleeveFold(keypoints, height_ratio, offset_ratio, "right")),
+        ((200, 300), SideFold(keypoints, 0.7, 0.0, "left", "top")),
+        ((200, 300), SideFold(keypoints, 0.7, 0.0, "left", "bottom")),
+        ((300, 400), SideFold(keypoints, 0.7, 0.0, "right", "top")),
+        ((300, 400), SideFold(keypoints, 0.7, 0.0, "right", "bottom"))
+
         # SideFold("left", "top"),
         # SideFold("left", "bottom"),
         # SideFold(),
@@ -102,6 +107,8 @@ def run_experiment(height_ratio, offset_ratio, run_dir=None):
         cloth_target = fold.make_folded_cloth_target(cloth_target)
 
     scene.frame_set(scene.frame_start)
+
+    #return {}
 
     # Simulate
     simulation = Simulation(cloth_path, ground_path, paths["cipc"])
