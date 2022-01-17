@@ -22,6 +22,7 @@ from cm_utils import (
 from cm_utils.cipc import Simulation, cipc_action
 from cm_utils import ensure_output_paths, save_dict_as_json
 
+# Currently the vertex ids of the keypoints in the meshes are hardcoded.
 keypoint_ids_cloth_simple = {
     "left_shoulder": 22,
     "left_sleeve_top": 2,
@@ -48,6 +49,11 @@ keypoint_ids_cloth = {
     "right_corner_bottom": 1804,
 }
 
+keypoint_ids = {
+    "cloth": keypoint_ids_cloth,
+    "cloth_simple": keypoint_ids_cloth_simple,
+}
+
 
 def run_experiment(height_ratio, offset_ratio, run_dir=None):
     config = {"height_ratio": height_ratio, "offset_ratio": offset_ratio}
@@ -62,7 +68,7 @@ def run_experiment(height_ratio, offset_ratio, run_dir=None):
 
     keypoints = {
         name: cloth.data.vertices[id].co
-        for name, id in keypoint_ids_cloth_simple.items()
+        for name, id in keypoint_ids[cloth_name].items()
     }
 
     scene = bpy.context.scene
@@ -99,6 +105,8 @@ def run_experiment(height_ratio, offset_ratio, run_dir=None):
 
     # Simulate
     simulation = Simulation(cloth_path, ground_path, paths["cipc"])
+    cloth = import_cipc_output(paths["cipc"], 0)
+
 
     active_grippers = {}
     for frame in range(scene.frame_end):
@@ -137,8 +145,8 @@ def run_experiment(height_ratio, offset_ratio, run_dir=None):
     }
     save_dict_as_json(paths["losses"], losses)
 
-    # render(paths["renders"], resolution_percentage=50)
-    # encode_video(paths["renders"], paths["video"])
+    render(paths["renders"], resolution_percentage=50)
+    encode_video(paths["renders"], paths["video"])
 
     return losses
 
