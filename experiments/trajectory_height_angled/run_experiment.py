@@ -13,7 +13,7 @@ import sys
 import argparse
 import numpy as np
 
-from cm_utils.folds import SleeveFold, SideFold
+from cm_utils.folds import SleeveFold, SideFold, MiddleFold
 from cm_utils import export_as_obj, import_cipc_output, render, encode_video
 from cm_utils import (
     get_grasped_verts_trajectories,
@@ -73,9 +73,8 @@ def run_experiment(height_ratio, offset_ratio, run_dir=None):
 
     scene = bpy.context.scene
 
-    # frames_per_fold = 101
     scene.frame_start = 0
-    scene.frame_end = 450  # todo think about these frames in more detail
+    scene.frame_end = 600
     scene.render.fps = 25
 
     cloth_path = export_as_obj(cloth, paths["run"])
@@ -87,12 +86,9 @@ def run_experiment(height_ratio, offset_ratio, run_dir=None):
         ((200, 300), SideFold(keypoints, 0.7, 0.0, "left", "top")),
         ((200, 300), SideFold(keypoints, 0.7, 0.0, "left", "bottom")),
         ((300, 400), SideFold(keypoints, 0.7, 0.0, "right", "top")),
-        ((300, 400), SideFold(keypoints, 0.7, 0.0, "right", "bottom"))
-
-        # SideFold("left", "top"),
-        # SideFold("left", "bottom"),
-        # SideFold(),
-        # SideFold()
+        ((300, 400), SideFold(keypoints, 0.7, 0.0, "right", "bottom")),
+        ((400, 500), MiddleFold(keypoints, 0.5, 0.0, "left")),
+        ((400, 500), MiddleFold(keypoints, 0.5, 0.0, "right")),
     ]
 
     # Keyframe the grippers for each fold
@@ -108,12 +104,9 @@ def run_experiment(height_ratio, offset_ratio, run_dir=None):
 
     scene.frame_set(scene.frame_start)
 
-    #return {}
-
     # Simulate
     simulation = Simulation(cloth_path, ground_path, paths["cipc"])
     cloth = import_cipc_output(paths["cipc"], 0)
-
 
     active_grippers = {}
     for frame in range(scene.frame_end):

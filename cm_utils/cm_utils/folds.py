@@ -109,11 +109,41 @@ class Fold(ABC):
         return cloth_folded
 
 
-class SleeveFold(Fold):
+class SidedFold(Fold):
+    """Intermediate class to inherit for folds that have left-right symmetry."""
+
+    def __init__(self, keypoints, height_ratio, offset_ratio, left_or_right):
+        self.left_or_right = left_or_right
+        super().__init__(keypoints, height_ratio, offset_ratio)
+
+    def init_gripper_middle_pose(self):
+        left_or_right = self.left_or_right
+        start_pose = self.gripper_start_pose
+        end_pose = self.gripper_end_pose
+        fold_basis = self.fold_basis
+        height_ratio = self.height_ratio
+        offset_ratio = self.offset_ratio
+
+        start_position = start_pose.translation
+        end_position = end_pose.translation
+        start_to_end_distance = (start_position - end_position).length
+
+        M = start_pose
+        M = fold_basis.inverted() @ M
+        M = Matrix.Rotation(np.deg2rad(90), 4, "X") @ M
+        sign = 1 if left_or_right is "left" else -1
+        M = Matrix.Translation((sign * offset_ratio * start_to_end_distance, 0, 0)) @ M
+        M = fold_basis @ M
+        middle_pose = M
+        middle_pose.col[3][2] = height_ratio * start_to_end_distance
+        return middle_pose
+
+
+class SleeveFold(SidedFold):
     def __init__(self, keypoints, height_ratio, offset_ratio, left_or_right, angle=30):
         self.left_or_right = left_or_right
         self.angle = angle
-        super().__init__(keypoints, height_ratio, offset_ratio)
+        super().__init__(keypoints, height_ratio, offset_ratio, left_or_right)
 
     def name(self):
         return f"{self.left_or_right}_sleeve_fold"
@@ -164,34 +194,14 @@ class SleeveFold(Fold):
         )
         return start_pose
 
-    def init_gripper_middle_pose(self):
-        left_or_right = self.left_or_right
-        start_pose = self.gripper_start_pose
-        end_pose = self.gripper_end_pose
-        fold_basis = self.fold_basis
-        height_ratio = self.height_ratio
-        offset_ratio = self.offset_ratio
 
-        start_position = start_pose.translation
-        end_position = end_pose.translation
-        start_to_end_distance = (start_position - end_position).length
-
-        M = start_pose
-        M = fold_basis.inverted() @ M
-        M = Matrix.Rotation(np.deg2rad(90), 4, "X") @ M
-        sign = 1 if left_or_right is "left" else -1
-        M = Matrix.Translation((sign * offset_ratio * start_to_end_distance, 0, 0)) @ M
-        M = fold_basis @ M
-        middle_pose = M
-        middle_pose.col[3][2] = height_ratio * start_to_end_distance
-        return middle_pose
-
-
-class SideFold(Fold):
-    def __init__(self, keypoints, height_ratio, offset_ratio, left_or_right, top_or_bottom):
+class SideFold(SidedFold):
+    def __init__(
+        self, keypoints, height_ratio, offset_ratio, left_or_right, top_or_bottom
+    ):
         self.left_or_right = left_or_right
         self.top_or_bottom = top_or_bottom
-        super().__init__(keypoints, height_ratio, offset_ratio)
+        super().__init__(keypoints, height_ratio, offset_ratio, left_or_right)
 
     def name(self):
         return f"{self.left_or_right}_side_fold"
@@ -252,24 +262,61 @@ class SideFold(Fold):
         )
         return start_pose
 
-    def init_gripper_middle_pose(self):
+
+class MiddleFold(SidedFold):
+    def __init__(self, keypoints, height_ratio, offset_ratio, left_or_right):
+        self.left_or_right = left_or_right
+        super().__init__(keypoints, height_ratio, offset_ratio, left_or_right)
+
+    def name(self):
+        return f"{self.left_or_right}_middle_fold"
+
+    def init_fold_basis(self):
+        keypoints = self.keypoints
+
+        left_shoulder = keypoints["left_shoulder"]
+        left_corner_bottom = keypoints["left_corner_bottom"]
+        right_shoulder = keypoints["right_shoulder"]
+        right_corner_bottom = keypoints["right_corner_bottom"]
+
+        left_middle = 0.5 * left_shoulder + 0.5 * left_corner_bottom
+        right_middle = 0.5 * right_shoulder + 0.5 * right_corner_bottom
+
+        right_to_left = (left_middle - right_middle).normalized()
+
+        vector_along_fold = right_to_left
+        origin = left_middle
+
+        up = Vector([0, 0, 1])
+
+        basis_X = vector_along_fold
+        basis_Z = up
+        basis_Y = basis_Z.cross(basis_X)
+        new_basis = vectors_to_matrix_4x4(basis_X, basis_Y, basis_Z, origin)
+        return new_basis
+
+    def init_gripper_start_pose(self):
+        keypoints = self.keypoints
         left_or_right = self.left_or_right
-        start_pose = self.gripper_start_pose
-        end_pose = self.gripper_end_pose
-        fold_basis = self.fold_basis
-        height_ratio = self.height_ratio
-        offset_ratio = self.offset_ratio
 
-        start_position = start_pose.translation
-        end_position = end_pose.translation
-        start_to_end_distance = (start_position - end_position).length
+        left_armpit = keypoints["left_armpit"]
+        left_corner_bottom = keypoints["left_corner_bottom"]
+        right_corner_bottom = keypoints["right_corner_bottom"]
 
-        M = start_pose
-        M = fold_basis.inverted() @ M
-        M = Matrix.Rotation(np.deg2rad(90), 4, "X") @ M
-        sign = 1 if left_or_right is "left" else -1
-        M = Matrix.Translation((sign * offset_ratio * start_to_end_distance, 0, 0)) @ M
-        M = fold_basis @ M
-        middle_pose = M
-        middle_pose.col[3][2] = height_ratio * start_to_end_distance
-        return middle_pose
+        if left_or_right == "left":
+            gripper_translation = 0.75 * left_corner_bottom + 0.25 * right_corner_bottom
+        else:
+            gripper_translation = 0.25 * left_corner_bottom + 0.75 * right_corner_bottom
+
+        up = Vector([0, 0, 1])
+
+        bottom_to_top = (left_armpit - left_corner_bottom).normalized()
+
+        gripper_X = bottom_to_top
+        gripper_Z = up
+        gripper_Y = gripper_Z.cross(gripper_X)
+
+        start_pose = vectors_to_matrix_4x4(
+            gripper_X, gripper_Y, gripper_Z, gripper_translation
+        )
+        return start_pose
