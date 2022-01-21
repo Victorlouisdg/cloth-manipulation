@@ -45,7 +45,7 @@ class FEMDiscreteShellBase(SimulationBase):
         self.bendingStiffMult = 1
         self.fiberStiffMult = Vector4d(0, 0, 0, 0)
         self.inextLimit = Vector3d(0, 0, 0)
-        self.s = Vector2d(1.01, 0)
+        self.s = Vector2d(1.01, 0) # strain limiting: 1.01 means max 1% stretching
         self.sHat = Vector2d(1, 1)
         self.kappa_s = Vector2d(0, 0)
         self.withCollision = False

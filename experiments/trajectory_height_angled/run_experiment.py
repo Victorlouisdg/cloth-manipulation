@@ -55,7 +55,9 @@ keypoint_ids = {
 }
 
 
-def run_experiment(height_ratio, offset_ratio, run_dir=None):
+def run_experiment(
+    height_ratio, offset_ratio, cloth_material, ground_friction, run_dir=None
+):
     config = {"height_ratio": height_ratio, "offset_ratio": offset_ratio}
     paths = ensure_output_paths(run_dir, config=config)
     save_dict_as_json(paths["config"], config)

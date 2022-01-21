@@ -21,7 +21,7 @@ def ensure_output_paths(run_dir=None, config=None):
             os.mkdir(experiment_output_dir)
 
         if config is None:
-            run_dir = os.path.join(experiment_output_dir, datetime.datetime.now())
+            run_dir = os.path.join(experiment_output_dir, str(datetime.datetime.now()))
         else:
             run_dirname = "_".join(
                 ["=".join([str(k), str(v)]) for k, v in config.items()]

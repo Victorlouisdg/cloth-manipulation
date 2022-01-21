@@ -4,19 +4,19 @@ import sys
 import os
 
 
-def export_as_obj(object, filepath):
-    if filepath is None:
-        filepath = os.path.join(os.getcwd(), f"{object.name}.obj")
+def export_as_obj(object, path):
+    if path is None:
+        path = os.path.join(os.getcwd(), f"{object.name}.obj")
 
-    if os.path.isdir(filepath):
-        filepath = os.path.join(filepath, f"{object.name}.obj")
+    if os.path.isdir(path):
+        path = os.path.join(path, f"{object.name}.obj")
 
     for o in bpy.data.objects:
         o.select_set(False)
 
     object.select_set(True)
-    bpy.ops.export_scene.obj(filepath=filepath, use_selection=True, use_materials=False)
-    return filepath
+    bpy.ops.export_scene.obj(filepath=path, use_selection=True, use_materials=False)
+    return path
 
 
 if __name__ == "__main__":
