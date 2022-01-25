@@ -37,7 +37,8 @@ class SimulationCIPC:
 
         self.output_folder = paths["cipc"]
 
-        self.blender_objects = []
+        self.blender_objects_input = []
+        self.blender_objects_output = {}
 
         Kokkos_Initialize()
 
@@ -110,7 +111,7 @@ class SimulationCIPC:
         self.sHat = Vector2d(1, 1)
         self.kappa_s = Vector2d(0, 0)
         self.friction_iterations = 1
-        self.friction_coefficient = 0  # todo set with cloth material?
+        self.friction_coefficient = 0.5
         self.muComp = StdVectorXd()  # list of mus?
         self.DBC = Storage.V4dStorage()
         self.DBCMotion = Storage.V2iV3dV3dV3dSdStorage()
@@ -163,7 +164,7 @@ class SimulationCIPC:
 
     def _add_shell(self, object):
 
-        self.blender_objects.append(object)
+        self.blender_objects_input.append(object)
 
         # TODO triangulate if necessary
         file_path = export_as_obj(object, self.paths["run"])
@@ -218,7 +219,7 @@ class SimulationCIPC:
             0.0, 0.0, thickness, 0.0, self.mass_matrix, self.kappa, stiffMult
         )
         # self.elasticIPC = False # redundant
-        #self.thickness = offset
+        # self.thickness = offset
 
         self.cipc_initialized = True
 
@@ -248,6 +249,8 @@ class SimulationCIPC:
 
         # All the CIPC shells are saved and imported as single mesh that we split up.
         object = bpy.context.selected_objects[0]
+        object.data.materials.clear() # Remove the default material
+
 
         vertex_counts = self.vertex_counts
         vertex_counts.pop(-1)  # We don't need to split the last object
@@ -256,14 +259,17 @@ class SimulationCIPC:
         for i in range(len(vertex_counts)):
             vertex_range = range(vertex_counts[i])
             object_split_off = SimulationCIPC._split_object(object, vertex_range)
-            object_split_off.name = f"{self.blender_objects[i].name}_{frame}"
+            object_split_off.name = f"{self.blender_objects_input[i].name}_{frame}"
             objects.append(object_split_off)
 
         objects.append(object)
-        object.name = f"{self.blender_objects[-1].name}_{frame}"
+        object.name = f"{self.blender_objects_input[-1].name}_{frame}"
 
         for object in objects:
             keyframe_visibility(object, frame, frame)
+
+
+        self.blender_objects_output[frame] = objects
 
     @staticmethod
     def _split_object(object, vertex_indices_to_split_off):
@@ -317,8 +323,8 @@ class SimulationCIPC:
         print("thickness", thickness)
         print("thickness2", self.thickness_elastic_squared)
 
-        #thickness = 0.01
-        #self.thickness_elastic_squared = thickness * thickness
+        # thickness = 0.01
+        # self.thickness_elastic_squared = thickness * thickness
 
         FEM.DiscreteShell.Advance_One_Step_IE_Hinge(
             self.triangles,
