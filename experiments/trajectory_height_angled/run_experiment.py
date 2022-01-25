@@ -56,7 +56,7 @@ keypoint_ids = {
 
 
 def run_experiment(
-    height_ratio, offset_ratio, cloth_material, ground_friction, run_dir=None
+    height_ratio, offset_ratio, run_dir=None
 ):
     config = {"height_ratio": height_ratio, "offset_ratio": offset_ratio}
     paths = ensure_output_paths(run_dir, config=config)
@@ -121,6 +121,7 @@ def run_experiment(
 
         simulation.step(action)
         cloth = import_cipc_output(paths["cipc"], frame + 1)
+        return
 
     scene.frame_set(scene.frame_start)
 

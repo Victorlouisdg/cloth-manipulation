@@ -546,6 +546,7 @@ class FEMDiscreteShellBase(SimulationBase):
             MeshIO.Read_TriMesh_Obj(
                 self.seqDBCPath + "/" + str(self.lv_fn) + ".obj", newX, newElem
             )
+            print("Initialize_Shell_Hinge_EIPC")
             # reset rest shape info:
             FEM.DiscreteShell.Initialize_Shell_Hinge_EIPC(
                 self.shell_density,
@@ -582,6 +583,7 @@ class FEMDiscreteShellBase(SimulationBase):
             self.lv_fn = self.lv_fn + 1
         if self.elasticIPC:
             if self.split:
+                print("Advance_One_Step_SIE_Hinge_EIPC")
                 self.PNIterCount = (
                     self.PNIterCount
                     + FEM.DiscreteShell.Advance_One_Step_SIE_Hinge_EIPC(
@@ -627,6 +629,7 @@ class FEMDiscreteShellBase(SimulationBase):
                     )
                 )
             else:
+                print("Advance_One_Step_IE_Hinge_EIPC")
                 self.PNIterCount = (
                     self.PNIterCount
                     + FEM.DiscreteShell.Advance_One_Step_IE_Hinge_EIPC(
@@ -676,6 +679,7 @@ class FEMDiscreteShellBase(SimulationBase):
                 )
         else:
             if self.flow:
+                print("Advance_One_Step_IE_Flow")
                 self.PNIterCount = (
                     self.PNIterCount
                     + FEM.DiscreteShell.Advance_One_Step_IE_Flow(
@@ -725,6 +729,7 @@ class FEMDiscreteShellBase(SimulationBase):
                 )
             else:
                 if self.split:
+                    print("Advance_One_Step_SIE_Hinge")
                     self.PNIterCount = (
                         self.PNIterCount
                         + FEM.DiscreteShell.Advance_One_Step_SIE_Hinge(
@@ -770,6 +775,7 @@ class FEMDiscreteShellBase(SimulationBase):
                         )
                     )
                 else:
+                    print("Advance_One_Step_IE_Hinge")
                     self.PNIterCount = (
                         self.PNIterCount
                         + FEM.DiscreteShell.Advance_One_Step_IE_Hinge(

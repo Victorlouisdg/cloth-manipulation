@@ -1,6 +1,8 @@
 import sys
 import os
 
+from cm_utils.materials.material import Material
+
 CIPC_PATH = "../../Codim-IPC"
 CIPC_PYTHON_PATH = os.path.join(CIPC_PATH, "Python")
 CIPC_BUILD_PATH = os.path.join(CIPC_PATH, "build")
@@ -10,6 +12,9 @@ sys.path.insert(0, CIPC_BUILD_PATH)
 
 from JGSL import *
 from cm_utils import export_as_obj
+from cm_utils.keyframe import keyframe_visibility
+
+import bpy
 
 translation0 = Vector3d(0, 0, 0)
 scale1 = Vector3d(1, 1, 1)
@@ -27,15 +32,18 @@ identity_transform = (
 
 
 class SimulationCIPC:
-    def __init__(self, paths, fps):
+    def __init__(self, paths, frames_per_second):
         self.paths = paths
 
         self.output_folder = paths["cipc"]
 
+        self.blender_objects = []
+
         Kokkos_Initialize()
 
-        self.fps = fps
-        self.timestep_size = 1.0 / fps
+        self.current_frame = 0
+        self.frames_per_second = frames_per_second
+        self.timestep_size = 1.0 / frames_per_second
 
         # Coordinates of the vertices
         self.vertex_coordinates = Storage.V3dStorage()
@@ -52,6 +60,7 @@ class SimulationCIPC:
         # This is used to differentiate between added object,
         # because coordinates etc. are stored contiguously.
         self.vertex_counts_cumulative = StdVectorXi()
+        self.vertex_index_ranges = []
 
         self.elasticity = FIXED_COROTATED_2.Create()
         self.gravity = Vector3d(0, -9.81, 0)
@@ -96,7 +105,7 @@ class SimulationCIPC:
         self.bendingStiffMult = 1
         self.fiberStiffMult = Vector4d(0, 0, 0, 0)
         self.inextLimit = Vector3d(0, 0, 0)
-        # Strain limiting: 1.01 means max 1% stretching, but why 2d?
+        # Strain limiting: 1.01 means max 1% stretching, second component for compression?
         self.strain_limit = Vector2d(1.01, 0)
         self.sHat = Vector2d(1, 1)
         self.kappa_s = Vector2d(0, 0)
@@ -104,6 +113,7 @@ class SimulationCIPC:
         self.friction_coefficient = 0  # todo set with cloth material?
         self.muComp = StdVectorXd()  # list of mus?
         self.DBC = Storage.V4dStorage()
+        self.DBCMotion = Storage.V2iV3dV3dV3dSdStorage()
 
         # Solver settings
         self.projected_newton_tolerance = 1e-3
@@ -117,7 +127,9 @@ class SimulationCIPC:
         self.cloths = []
         self.materials_cloth = {}
 
-    def add_cloth(self, cloth, material):
+        self.static_object_DBCs = []
+
+    def add_cloth(self, cloth, material: Material):
         if self.cipc_initialized:
             print("WARNING: you cannot add objects after the simulation has started.")
             return
@@ -131,20 +143,41 @@ class SimulationCIPC:
             print("WARNING: you cannot add objects after the simulation has started.")
             return
 
-        self._add_shell(object)
-        # TODO make collider static
+        index_range = self._add_shell(object)
+        positions_min = Vector3d(-100, -100, -100)
+        positions_max = Vector3d(100, 100, 100)
+        rotation = (Vector3d(0, 0, 0), Vector3d(0, 1, 0), 0)
+        velocity = Vector3d(0, 0, 0)
+
+        DBC = (
+            positions_min,
+            positions_max,
+            velocity,
+            *rotation,
+            index_range,
+        )
+
+        self.static_object_DBCs.append(DBC)
+
         # TODO bookkeeping for actuation and import
 
     def _add_shell(self, object):
+
+        self.blender_objects.append(object)
+
+        # TODO triangulate if necessary
         file_path = export_as_obj(object, self.paths["run"])
         # TODO read object transform, ignored for now
-        counter = FEM.DiscreteShell.Add_Shell(
+        index_range = FEM.DiscreteShell.Add_Shell(
             file_path,
             *identity_transform,
             self.vertex_coordinates,
             self.triangles,
             self.vertex_counts_cumulative,
         )
+
+        self.vertex_index_ranges.append(index_range)
+        return index_range
 
     def initialize_cipc(self):
         MeshIO.Append_Attribute(
@@ -153,14 +186,14 @@ class SimulationCIPC:
 
         cloth = self.cloths[0]
         material_cloth = self.materials_cloth[cloth]
-        thickness = material_cloth["thickness"]
+        thickness = material_cloth.thickness
 
         # dHat2 == thickness_elastic_squared = thickness ** 2
 
         self.thickness_elastic_squared = FEM.DiscreteShell.Initialize_Shell_Hinge_EIPC(
-            material_cloth["density_volumetric"],
-            material_cloth["youngs_modulus"],
-            material_cloth["poissons_ratio"],
+            material_cloth.density_volumetric,
+            material_cloth.youngs_modulus,
+            material_cloth.poissons_ratio,
             thickness,
             self.timestep_size,
             0.0,  # this input seems to be unused?
@@ -179,7 +212,81 @@ class SimulationCIPC:
             self.kappa,
         )
 
+        # From initialize_OIPC, usually called with thickness 0.001 and offset 0
+        stiffMult = 1
+        self.thickness_elastic_squared = FEM.DiscreteShell.Initialize_OIPC(
+            0.0, 0.0, thickness, 0.0, self.mass_matrix, self.kappa, stiffMult
+        )
+        # self.elasticIPC = False # redundant
+        #self.thickness = offset
+
         self.cipc_initialized = True
+
+        self.save_current_state_to_disk()
+        self.import_cipc_output_from_disk_to_blender(self.current_frame)
+
+    @property
+    def vertex_counts(self):
+        vertex_counts_cumulative = self.vertex_counts_cumulative
+        _vertex_counts = [vertex_counts_cumulative[0]]
+        for i in range(1, len(vertex_counts_cumulative)):
+            count = vertex_counts_cumulative[i]
+            count_prev = vertex_counts_cumulative[i - 1]
+            vertex_count = count - count_prev
+            _vertex_counts.append(vertex_count)
+        return _vertex_counts
+
+    def save_current_state_to_disk(self):
+        shell_path = os.path.join(self.output_folder, f"shell{self.current_frame}.obj")
+        MeshIO.Write_TriMesh_Obj(self.vertex_coordinates, self.triangles, shell_path)
+
+    def import_cipc_output_from_disk_to_blender(self, frame):
+        file = os.path.join(self.output_folder, f"shell{frame}.obj")
+
+        bpy.ops.object.select_all(action="DESELECT")
+        bpy.ops.import_scene.obj(filepath=file, split_mode="OFF")
+
+        # All the CIPC shells are saved and imported as single mesh that we split up.
+        object = bpy.context.selected_objects[0]
+
+        vertex_counts = self.vertex_counts
+        vertex_counts.pop(-1)  # We don't need to split the last object
+        objects = []
+
+        for i in range(len(vertex_counts)):
+            vertex_range = range(vertex_counts[i])
+            object_split_off = SimulationCIPC._split_object(object, vertex_range)
+            object_split_off.name = f"{self.blender_objects[i].name}_{frame}"
+            objects.append(object_split_off)
+
+        objects.append(object)
+        object.name = f"{self.blender_objects[-1].name}_{frame}"
+
+        for object in objects:
+            keyframe_visibility(object, frame, frame)
+
+    @staticmethod
+    def _split_object(object, vertex_indices_to_split_off):
+        mesh = object.data
+        bpy.context.view_layer.objects.active = object
+        bpy.ops.object.mode_set(mode="EDIT")
+        bpy.ops.mesh.select_all(action="DESELECT")
+        bpy.ops.object.mode_set(mode="OBJECT")
+
+        for v in mesh.vertices:
+            if v.index in vertex_indices_to_split_off:
+                v.select = True
+
+        bpy.ops.object.mode_set(mode="EDIT")
+        bpy.ops.mesh.separate(type="SELECTED")
+        bpy.ops.object.mode_set(mode="OBJECT")
+
+        object_split_off = bpy.context.selected_objects[-1]
+        return object_split_off
+
+    def run(self, amount_of_steps):
+        for _ in range(amount_of_steps):
+            self.step({})
 
     def step(self, action):
         if not self.cipc_initialized:
@@ -187,7 +294,31 @@ class SimulationCIPC:
 
         cloth = self.cloths[0]
         material_cloth = self.materials_cloth[cloth]
-        thickness = material_cloth["thickness"]
+        thickness = material_cloth.thickness
+
+        self.DBC = Storage.V4dStorage()
+        self.DBCMotion = Storage.V2iV3dV3dV3dSdStorage()
+        for DBC in self.static_object_DBCs:
+            DBCRangeMin, DBCRangeMax, v, rotCenter, rotAxis, angVelDeg, vIndRange = DBC
+
+            FEM.Init_Dirichlet(
+                self.vertex_coordinates,
+                DBCRangeMin,
+                DBCRangeMax,
+                v,
+                rotCenter,
+                rotAxis,
+                angVelDeg,
+                self.DBC,
+                self.DBCMotion,
+                vIndRange,
+            )
+
+        print("thickness", thickness)
+        print("thickness2", self.thickness_elastic_squared)
+
+        #thickness = 0.01
+        #self.thickness_elastic_squared = thickness * thickness
 
         FEM.DiscreteShell.Advance_One_Step_IE_Hinge(
             self.triangles,
@@ -233,3 +364,10 @@ class SimulationCIPC:
             self.discrete_particle,
             self.output_folder,
         )
+
+        self.current_frame += 1
+        self.save_current_state_to_disk()
+        TIMER_FLUSH(0, 100, self.timestep_size, self.timestep_size)
+        self.import_cipc_output_from_disk_to_blender(self.current_frame)
+
+        # import .obj files back into blender
