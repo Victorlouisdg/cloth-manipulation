@@ -1,25 +1,21 @@
+from cm_utils import render
 from cm_utils.dirs import ensure_output_paths
 from cm_utils.materials.penava import materials
 from cm_utils.cipc_sim import SimulationCIPC
 import itertools
-
-
+import numpy as np
+import airo_blender_toolkit as abt
 import bpy
-
 from mathutils import Vector
+import os
 
 cloth_name = "cloth"
 cloth = bpy.data.objects[cloth_name]
 sphere = bpy.data.objects["sphere"]
 
-
 # TODO make sphere and cloth here
-# change background
-# add camera
-
 
 cotton = materials[0]
-
 friction_coefficient = 0.4
 
 # SimulationCIPC is an adaptor between Blender and CIPC
@@ -68,17 +64,10 @@ for material, location, color in zip(materials, results_locations, colors):
         if material.name in obj.name:
             set_blender_material(obj, color)
 
-    # break
-
-
-import numpy as np
+    break
 
 results_middle = np.mean(results_locations, axis=0)
-
-print(results_middle)
-
 camera_location = results_middle + (0, -3, 0)
-
 
 def look_at(point, camera):
     direction = Vector(point) - camera.location
@@ -94,24 +83,36 @@ camera.data.ortho_scale = 2
 
 look_at(results_middle, camera)
 scene = bpy.context.scene
-
-bpy.context.scene.render.resolution_x = 1920
-bpy.context.scene.render.resolution_y = 1920
-bpy.context.scene.render.engine = "CYCLES"
-
-
-background = bpy.data.worlds["World"].node_tree.nodes["Background"]
-background.inputs[0].default_value = (1, 1, 1, 1)
-background.inputs[1].default_value = 4
-
 scene.camera = camera
+scene.render.resolution_x = 1920
+scene.render.resolution_y = 1920
+scene.render.engine = "CYCLES"
 
+hdri_name = "immenstadter_horn"
+hdri_path = abt.download_hdri(hdri_name, paths["run"])
+abt.load_hdri(hdri_path)
+
+# Plane to prevent light from HDRI grass
+bpy.ops.mesh.primitive_plane_add(location = (1.5, 0, -2))
+
+scene.render.film_transparent = True
+scene.cycles.adaptive_threshold = 0.1
+scene.view_settings.exposure = 1
+scene.view_settings.look = 'High Contrast'
 
 cloth.hide_viewport = True
 sphere.hide_viewport = True
 
-bpy.context.scene.render.fps = 25
-bpy.context.scene.frame_start = 0
-bpy.context.scene.frame_end = simulation_steps
+scene.render.fps = 25
+scene.frame_start = 0
+scene.frame_end = simulation_steps
 
-bpy.context.scene.frame_set(0)
+scene.frame_set(50)
+
+bpy.ops.wm.save_as_mainfile(filepath=paths["blend"])
+
+scene.render.resolution_percentage = 50
+scene.render.filepath = os.path.join(paths["run"], "result.png")
+
+bpy.ops.render.render(write_still=True)
+
