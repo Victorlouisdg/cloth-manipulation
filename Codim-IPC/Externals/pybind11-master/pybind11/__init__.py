@@ -1,8 +1,9 @@
-from ._version import version_info, __version__  # noqa: F401 imported but unused
+from ._version import __version__, version_info  # noqa: F401 imported but unused
 
 
 def get_include(user=False):
     import os
+
     d = os.path.dirname(__file__)
     if os.path.exists(os.path.join(d, "include")):
         # Package is installed

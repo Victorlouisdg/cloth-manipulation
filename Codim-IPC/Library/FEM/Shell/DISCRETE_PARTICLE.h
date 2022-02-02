@@ -35,8 +35,8 @@ VECTOR<int, 4> Add_Discrete_Particles(
 
                 particle.emplace_back(X.size);
                 X.Append(VECTOR<T, dim>(
-                    -len[0] / 2 + step[0] * i + randNum[0] * randScale[0], 
-                    -len[1] / 2 + step[1] * j + randNum[1] * randScale[1], 
+                    -len[0] / 2 + step[0] * i + randNum[0] * randScale[0],
+                    -len[1] / 2 + step[1] * j + randNum[1] * randScale[1],
                     -len[2] / 2 + step[2] * k + randNum[2] * randScale[2]));
             }
         }
@@ -52,7 +52,7 @@ template <class T, int dim = 3>
 void Initialize_Discrete_Particle(
     MESH_NODE<T, dim>& X,
     const std::vector<int>& particle,
-    T rho, T E, T thickness, 
+    T rho, T E, T thickness,
     const VECTOR<T, dim>& gravity,
     std::vector<T>& b,
     MESH_NODE_ATTR<T, dim>& nodeAttr,

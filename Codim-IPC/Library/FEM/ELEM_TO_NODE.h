@@ -56,7 +56,7 @@ void Augment_Mass_Matrix_And_Body_Force(
     std::vector<T>& b)
 {
     if (b.size() != X.size * dim || M.Get_Matrix().rows() != X.size * dim ||
-        M.Get_Matrix().cols() != X.size * dim) 
+        M.Get_Matrix().cols() != X.size * dim)
     {
         std::cout << "mass matrix or bodyforce vector uninitialized!" << std::endl;
         exit(-1);
@@ -165,9 +165,9 @@ void DF_Div_DX_Mult2(const Eigen::Matrix<T, dim * dim, dim * dim>& middle,
             result[colIBegin + 3] = Eigen::Triplet<T>(indMap[3], indMap[colI], _200 + _301);
             result[colIBegin + 4] = Eigen::Triplet<T>(indMap[4], indMap[colI], _010 + _111);
             result[colIBegin + 5] = Eigen::Triplet<T>(indMap[5], indMap[colI], _210 + _311);
-            result[colIBegin + 0] = Eigen::Triplet<T>(indMap[0], indMap[colI], 
+            result[colIBegin + 0] = Eigen::Triplet<T>(indMap[0], indMap[colI],
                 -result[colIBegin + 2].value() - result[colIBegin + 4].value());
-            result[colIBegin + 1] = Eigen::Triplet<T>(indMap[1], indMap[colI], 
+            result[colIBegin + 1] = Eigen::Triplet<T>(indMap[1], indMap[colI],
                 -result[colIBegin + 3].value() - result[colIBegin + 5].value());
         }
     }
@@ -217,11 +217,11 @@ void DF_Div_DX_Mult2(const Eigen::Matrix<T, dim * dim, dim * dim>& middle,
             result[rowIBegin + 9] = Eigen::Triplet<T>(indMap[rowI], indMap[9], dotRows(IB, 2, right, 0));
             result[rowIBegin + 10] = Eigen::Triplet<T>(indMap[rowI], indMap[10], dotRows(IB, 2, right, 1));
             result[rowIBegin + 11] = Eigen::Triplet<T>(indMap[rowI], indMap[11], dotRows(IB, 2, right, 2));
-            result[rowIBegin] = Eigen::Triplet<T>(indMap[rowI], indMap[0], 
+            result[rowIBegin] = Eigen::Triplet<T>(indMap[rowI], indMap[0],
                 -result[rowIBegin + 3].value() - result[rowIBegin + 6].value() - result[rowIBegin + 9].value());
-            result[rowIBegin + 1] = Eigen::Triplet<T>(indMap[rowI], indMap[1], 
+            result[rowIBegin + 1] = Eigen::Triplet<T>(indMap[rowI], indMap[1],
                 -result[rowIBegin + 4].value() - result[rowIBegin + 7].value() - result[rowIBegin + 10].value());
-            result[rowIBegin + 2] = Eigen::Triplet<T>(indMap[rowI], indMap[2], 
+            result[rowIBegin + 2] = Eigen::Triplet<T>(indMap[rowI], indMap[2],
                 -result[rowIBegin + 5].value() - result[rowIBegin + 8].value() - result[rowIBegin + 11].value());
         }
     }
@@ -238,8 +238,8 @@ void Elem_To_Node(
     Elem.Par_Each([&](int id, auto data) {
         auto &[elemVInd] = data;
 
-        DF_Div_DX_Mult(std::get<FIELDS<MESH_ELEM_ATTR<T, dim>>::P>(elemAttr.Get_Unchecked_Const(id)), 
-            std::get<FIELDS<MESH_ELEM_ATTR<T, dim>>::IB>(elemAttr.Get_Unchecked_Const(id)), 
+        DF_Div_DX_Mult(std::get<FIELDS<MESH_ELEM_ATTR<T, dim>>::P>(elemAttr.Get_Unchecked_Const(id)),
+            std::get<FIELDS<MESH_ELEM_ATTR<T, dim>>::IB>(elemAttr.Get_Unchecked_Const(id)),
             grad.data() + id * (dim + 1));
     });
 
@@ -269,8 +269,8 @@ void Elem_To_Node(
     Elem.Par_Each([&](int id, auto data) {
         auto &[elemVInd] = data;
 
-        DF_Div_DX_Mult2(std::get<0>(dP_div_dF.Get_Unchecked_Const(id)), 
-            std::get<FIELDS<MESH_ELEM_ATTR<T, dim>>::IB>(elemAttr.Get_Unchecked_Const(id)), 
+        DF_Div_DX_Mult2(std::get<0>(dP_div_dF.Get_Unchecked_Const(id)),
+            std::get<FIELDS<MESH_ELEM_ATTR<T, dim>>::IB>(elemAttr.Get_Unchecked_Const(id)),
             elemVInd, triplets.data() + old_size + id * localMtrEntryAmt);
     });
 }
@@ -283,4 +283,3 @@ void Export_Elem_To_Node(py::module& m) {
 }
 
 }
-

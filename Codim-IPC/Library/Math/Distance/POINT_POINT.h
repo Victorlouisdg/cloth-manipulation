@@ -9,16 +9,16 @@ namespace JGSL {
 //NOTE: squared distance
 
 template <class T, int dim>
-void Point_Point_Distance(const Eigen::Matrix<T, dim, 1>& a, 
-    const Eigen::Matrix<T, dim, 1>& b, 
+void Point_Point_Distance(const Eigen::Matrix<T, dim, 1>& a,
+    const Eigen::Matrix<T, dim, 1>& b,
     T& dist2)
 {
     dist2 = (a - b).squaredNorm();
 }
 
 template <class T, int dim>
-void Point_Point_Distance_Gradient(const Eigen::Matrix<T, dim, 1>& a, 
-    const Eigen::Matrix<T, dim, 1>& b, 
+void Point_Point_Distance_Gradient(const Eigen::Matrix<T, dim, 1>& a,
+    const Eigen::Matrix<T, dim, 1>& b,
     Eigen::Matrix<T, dim * 2, 1>& grad)
 {
     grad.template segment<dim>(0) = 2.0 * (a - b);
@@ -26,8 +26,8 @@ void Point_Point_Distance_Gradient(const Eigen::Matrix<T, dim, 1>& a,
 }
 
 template <class T, int dim>
-void Point_Point_Distance_Hessian(const Eigen::Matrix<T, dim, 1>& a, 
-    const Eigen::Matrix<T, dim, 1>& b, 
+void Point_Point_Distance_Hessian(const Eigen::Matrix<T, dim, 1>& a,
+    const Eigen::Matrix<T, dim, 1>& b,
     Eigen::Matrix<T, dim * 2, dim * 2>& Hessian)
 {
     Hessian.setZero();

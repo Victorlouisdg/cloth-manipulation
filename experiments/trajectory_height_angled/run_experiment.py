@@ -7,20 +7,16 @@
    3) Import first IPC output and last back into blender.
    4) Calculate loss.
 """
-from cm_utils.grasp import update_active_grippers
-import bpy
-import sys
 import argparse
+import sys
+
+import bpy
 import numpy as np
 
-from cm_utils.folds import SleeveFold, SideFold, MiddleFold
-from cm_utils import export_as_obj, import_cipc_output, render, encode_video
-from cm_utils import (
-    get_grasped_verts_trajectories,
-    calculate_velocities,
-)
+from cm_utils import encode_video, ensure_output_paths, export_as_obj, import_cipc_output, render, save_dict_as_json
 from cm_utils.cipc import Simulation, cipc_action
-from cm_utils import ensure_output_paths, save_dict_as_json
+from cm_utils.folds import MiddleFold, SideFold, SleeveFold
+from cm_utils.grasp import update_active_grippers
 
 # Currently the vertex ids of the keypoints in the meshes are hardcoded.
 keypoint_ids_cloth_simple = {
@@ -55,9 +51,7 @@ keypoint_ids = {
 }
 
 
-def run_experiment(
-    height_ratio, offset_ratio, run_dir=None
-):
+def run_experiment(height_ratio, offset_ratio, run_dir=None):
     config = {"height_ratio": height_ratio, "offset_ratio": offset_ratio}
     paths = ensure_output_paths(run_dir, config=config)
     save_dict_as_json(paths["config"], config)
@@ -68,10 +62,7 @@ def run_experiment(
     cloth = objects[cloth_name]
     ground = objects["ground"]
 
-    keypoints = {
-        name: cloth.data.vertices[id].co
-        for name, id in keypoint_ids[cloth_name].items()
-    }
+    keypoints = {name: cloth.data.vertices[id].co for name, id in keypoint_ids[cloth_name].items()}
 
     scene = bpy.context.scene
 
@@ -131,9 +122,7 @@ def run_experiment(
 
     # no need to transform to world space because origins coincide
     targets = np.array([v.co for v in cloth_target.data.vertices])
-    final_positions = np.array(
-        [v.co for v in objects[f"sim{scene.frame_end}"].data.vertices]
-    )
+    final_positions = np.array([v.co for v in objects[f"sim{scene.frame_end}"].data.vertices])
 
     distances = np.linalg.norm(targets - final_positions, axis=1)
     sq_distances = distances ** 2
@@ -156,7 +145,8 @@ def run_experiment(
 
 if __name__ == "__main__":
     if "--" in sys.argv:
-        argv = sys.argv[sys.argv.index("--") + 1 :]
+        arg_start = sys.argv.index("--") + 1
+        argv = sys.argv[arg_start:]
         parser = argparse.ArgumentParser()
         parser.add_argument("-hr", "--height_ratio", dest="height_ratio", type=float)
         parser.add_argument("-or", "--offset_ratio", dest="offset_ratio", type=float)
@@ -168,4 +158,4 @@ if __name__ == "__main__":
         for k, v in losses.items():
             print(f"{k} = {v}")
     else:
-        print(f"Please rerun with arguments after --")
+        print("Please rerun with arguments after --")

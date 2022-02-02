@@ -20,7 +20,7 @@ void Compute_Rod_Spring_Energy(
         const VECTOR<T, dim>& x0 = std::get<0>(X.Get_Unchecked(segI[0]));
         const VECTOR<T, dim>& x1 = std::get<0>(X.Get_Unchecked(segI[1]));
 
-        E += h * h * M_PI * rodInfo[i][2] * rodInfo[i][2] / 4 * rodInfo[i][1] * rodInfo[i][0] / 2 * 
+        E += h * h * M_PI * rodInfo[i][2] * rodInfo[i][2] / 4 * rodInfo[i][1] * rodInfo[i][0] / 2 *
             std::pow((x0 - x1).length() / rodInfo[i][1] - 1, 2);
 
         ++i;
@@ -42,9 +42,9 @@ void Compute_Rod_Spring_Gradient(
         const VECTOR<T, dim>& x1 = std::get<0>(X.Get_Unchecked(segI[1]));
 
         T g[6];
-        g_MS(rodInfo[i][0], rodInfo[i][1], 
+        g_MS(rodInfo[i][0], rodInfo[i][1],
             x0[0], x0[1], x0[2], x1[0], x1[1], x1[2], g);
-        
+
         T w = h * h * M_PI * rodInfo[i][2] * rodInfo[i][2] / 4;
         for (int endI = 0; endI < 2; ++endI) {
             VECTOR<T, dim>& grad = std::get<FIELDS<MESH_NODE_ATTR<T, dim>>::g>(nodeAttr.Get_Unchecked(segI[endI]));
@@ -79,14 +79,14 @@ void Compute_Rod_Spring_Hessian(
         const VECTOR<T, dim>& x1 = std::get<0>(X.Get_Unchecked(segI[1]));
 
         Eigen::Matrix<T, 6, 6> hessian;
-        H_MS(rodInfo[i][0], rodInfo[i][1], 
+        H_MS(rodInfo[i][0], rodInfo[i][1],
             x0[0], x0[1], x0[2], x1[0], x1[1], x1[2], hessian.data());
 
         if (projectSPD) {
             makePD(hessian);
         }
-        
-        int globalInd[6] = { 
+
+        int globalInd[6] = {
             segI[0] * dim,
             segI[0] * dim + 1,
             segI[0] * dim + 2,
@@ -124,7 +124,7 @@ void Check_Rod_Spring_Gradient(
         MESH_NODE<T, dim> Xperturb;
         Append_Attribute(X, Xperturb);
         std::get<0>(Xperturb.Get_Unchecked(i / dim))[i % dim] += eps;
-        
+
         T E = 0;
         Compute_Rod_Spring_Energy(Xperturb, rod, rodInfo, h, E);
         grad_FD[i] = (E - E0) / eps;
@@ -172,7 +172,7 @@ void Check_Rod_Spring_Hessian(
         MESH_NODE<T, dim> Xperturb;
         Append_Attribute(X, Xperturb);
         std::get<0>(Xperturb.Get_Unchecked(i / dim))[i % dim] += eps;
-        
+
         nodeAttr.template Fill<FIELDS<MESH_NODE_ATTR<T, dim>>::g>(VECTOR<T, dim>(0));
         Compute_Rod_Spring_Gradient(Xperturb, rod, rodInfo, h, nodeAttr);
         for (int vI = 0; vI < X.size; ++vI) {

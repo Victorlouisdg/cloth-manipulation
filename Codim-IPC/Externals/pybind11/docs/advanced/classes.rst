@@ -82,7 +82,7 @@ helper class that is defined as follows:
 
 The macro :c:macro:`PYBIND11_OVERLOAD_PURE` should be used for pure virtual
 functions, and :c:macro:`PYBIND11_OVERLOAD` should be used for functions which have
-a default implementation.  There are also two alternate macros 
+a default implementation.  There are also two alternate macros
 :c:macro:`PYBIND11_OVERLOAD_PURE_NAME` and :c:macro:`PYBIND11_OVERLOAD_NAME` which
 take a string-valued name argument between the *Parent class* and *Name of the
 function* slots, which defines the name of function in Python. This is required

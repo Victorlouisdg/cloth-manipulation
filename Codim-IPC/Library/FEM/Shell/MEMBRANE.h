@@ -56,7 +56,7 @@ void Compute_Membrane_Gradient(
     MESH_NODE<T, dim>& X, // mid-surface node coordinates
     MESH_NODE_ATTR<T, dim>& nodeAttr,
     MESH_ELEM_ATTR<T, dim - 1>& elemAttr,
-    FIXED_COROTATED<T, dim - 1>& elasticityAttr) 
+    FIXED_COROTATED<T, dim - 1>& elasticityAttr)
 {
     TIMER_FLAG("Compute_Membrane_Gradient");
     if constexpr (dim == 2) {
@@ -109,7 +109,7 @@ void Compute_Membrane_Gradient(
                     VECTOR<T, dim>& g = std::get<FIELDS<MESH_NODE_ATTR<T, dim>>::g>(nodeAttr.Get_Unchecked(elemVInd[endI]));
                     for (int dimI = 0; dimI < dim; ++dimI) {
                         int i = endI * dim + dimI;
-                        g[dimI] += dA_div_dx(0, i) * temp(0, 0) + dA_div_dx(1, i) * temp(1, 0) + 
+                        g[dimI] += dA_div_dx(0, i) * temp(0, 0) + dA_div_dx(1, i) * temp(1, 0) +
                             dA_div_dx(2, i) * temp(0, 1) + dA_div_dx(3, i) * temp(1, 1);
                     }
                 }
@@ -120,7 +120,7 @@ void Compute_Membrane_Gradient(
 
 template<class T, int dim, bool useNH = true>
 void Compute_Membrane_Hessian(
-    MESH_ELEM<dim - 1>& Elem, 
+    MESH_ELEM<dim - 1>& Elem,
     T h, bool projectSPD,
     const std::vector<bool>& DBCb,
     MESH_NODE<T, dim>& X, // mid-surface node coordinates
@@ -216,7 +216,7 @@ void Compute_Membrane_Hessian(
                     for (int endI = 0; endI < dim; ++endI) {
                         for (int dimI = 0; dimI < dim; ++dimI) {
                             int i = endI * dim + dimI;
-                            ainvda[i] = dA_div_dx(0, i) * IA(0, 0) + dA_div_dx(1, i) * IA(1, 0) + 
+                            ainvda[i] = dA_div_dx(0, i) * IA(0, 0) + dA_div_dx(1, i) * IA(1, 0) +
                                 dA_div_dx(2, i) * IA(0, 1) + dA_div_dx(3, i) * IA(1, 1);
                         }
                     }
@@ -239,7 +239,7 @@ void Compute_Membrane_Hessian(
                 else {
                     Eigen::Matrix<T, 1, 9> inner;
                     for (int i = 0; i < 9; ++i) {
-                        inner[i] = dA_div_dx(0, i) * IB(0, 0) + dA_div_dx(1, i) * IB(1, 0) + 
+                        inner[i] = dA_div_dx(0, i) * IB(0, 0) + dA_div_dx(1, i) * IB(1, 0) +
                             dA_div_dx(2, i) * IB(0, 1) + dA_div_dx(3, i) * IB(1, 1);
                     }
                     hessian = lambda * inner.transpose() * inner;
@@ -302,16 +302,16 @@ void Check_Membrane_Gradient(
     T eps = 1.0e-6;
 
     T E0 = 0;
-    Compute_Membrane_Energy(Elem, 1.0, std::vector<bool>(X.size, false), std::vector<bool>(X.size, false), X, nodeAttr, elemAttr, elasticityAttr, E0); 
+    Compute_Membrane_Energy(Elem, 1.0, std::vector<bool>(X.size, false), std::vector<bool>(X.size, false), X, nodeAttr, elemAttr, elasticityAttr, E0);
     nodeAttr.template Fill<FIELDS<MESH_NODE_ATTR<T, dim>>::g>(VECTOR<T, dim>(0));
-    Compute_Membrane_Gradient(Elem, 1.0, std::vector<bool>(X.size, false), X, nodeAttr, elemAttr, elasticityAttr); 
+    Compute_Membrane_Gradient(Elem, 1.0, std::vector<bool>(X.size, false), X, nodeAttr, elemAttr, elasticityAttr);
 
     std::vector<T> grad_FD(X.size * dim);
     for (int i = 0; i < X.size * dim; ++i) {
         MESH_NODE<T, dim> Xperturb;
         Append_Attribute(X, Xperturb);
         std::get<0>(Xperturb.Get_Unchecked(i / dim))[i % dim] += eps;
-        
+
         T E = 0;
         Compute_Membrane_Energy(Elem, 1.0, Xperturb, nodeAttr, elemAttr, elasticityAttr, E);
         grad_FD[i] = (E - E0) / eps;
@@ -338,7 +338,7 @@ void Check_Membrane_Gradient(
 template <class T, int dim>
 void Check_Membrane_Hessian(
     MESH_ELEM<dim - 1>& Elem,
-    const VECTOR_STORAGE<T, dim + 1>& DBC, 
+    const VECTOR_STORAGE<T, dim + 1>& DBC,
     T h, MESH_NODE<T, dim>& X,
     MESH_NODE_ATTR<T, dim>& nodeAttr,
     CSR_MATRIX<T>& M, // mass matrix, #row = 4 * (#segments + 1)
@@ -352,7 +352,7 @@ void Check_Membrane_Hessian(
     nodeAttr0.template Fill<FIELDS<MESH_NODE_ATTR<T, dim>>::g>(VECTOR<T, dim>(0));
     Compute_Membrane_Gradient(Elem, 1.0, std::vector<bool>(X.size, false), X, nodeAttr0, elemAttr, elasticityAttr);
     std::vector<Eigen::Triplet<T>> HStriplets;
-    Compute_Membrane_Hessian(Elem, 1.0, false, std::vector<bool>(X.size, false), X, nodeAttr, elemAttr, elasticityAttr, HStriplets); 
+    Compute_Membrane_Hessian(Elem, 1.0, false, std::vector<bool>(X.size, false), X, nodeAttr, elemAttr, elasticityAttr, HStriplets);
     CSR_MATRIX<T> HS;
     HS.Construct_From_Triplet(X.size * dim, X.size * dim, HStriplets);
 
@@ -362,7 +362,7 @@ void Check_Membrane_Hessian(
         MESH_NODE<T, dim> Xperturb;
         Append_Attribute(X, Xperturb);
         std::get<0>(Xperturb.Get_Unchecked(i / dim))[i % dim] += eps;
-        
+
         nodeAttr.template Fill<FIELDS<MESH_NODE_ATTR<T, dim>>::g>(VECTOR<T, dim>(0));
         Compute_Membrane_Gradient(Elem, 1.0, std::vector<bool>(X.size, false), Xperturb, nodeAttr, elemAttr, elasticityAttr);
         for (int vI = 0; vI < X.size; ++vI) {

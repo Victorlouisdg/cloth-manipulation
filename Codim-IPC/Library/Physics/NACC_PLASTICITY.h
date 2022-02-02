@@ -35,7 +35,7 @@ void Project_Strain_NACC(NEOHOOKEAN_BORDEN<T, dim>& nhb) {
         for (int i = 0; i < dim; ++i){
             J *= sigma(i);
             B_hat_trial(i) = sigma(i) * sigma(i);
-        } 
+        }
 
         //Compute sHatTrial
         VECTOR<T,dim> s_hat_trial = mu * pow(J, -(T)2 / (T)dim) * MATH_TOOLS::Deviatoric(B_hat_trial);
@@ -98,7 +98,7 @@ void Project_Strain_NACC(NEOHOOKEAN_BORDEN<T, dim>& nhb) {
         //1 -> q based
         if (p0 > 1e-4 && p_trial < pMax - 1e-4 && p_trial > 1e-4 - pMin) {
             T dAlpha = 0, dOmega = 0;
-            
+
             T p_center = p0 * ((1 - beta) / (T)2);
             T q_trial = sqrt(((T)6 - (T)dim) / (T)2) * s_hat_trial.length();
             VECTOR<T, 2> direction;

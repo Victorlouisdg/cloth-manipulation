@@ -6,20 +6,20 @@ namespace JGSL {
 
 template <class T, int dim, bool elasticIPC>
 bool Compute_SLP_Energy( // SLP: strain limiting projection
-    MESH_NODE<T, dim>& X, 
-    MESH_NODE<T, dim>& Xn, 
-    MESH_NODE<T, dim>& X_prim, 
-    CSR_MATRIX<T>& M, 
-    MESH_NODE_ATTR<T, dim>& nodeAttr, 
-    MESH_ELEM<dim - 1>& Elem, 
-    MESH_ELEM_ATTR<T, dim - 1>& elemAttr, 
-    FIXED_COROTATED<T, dim - 1>& elasticityAttr, 
-    std::vector<bool>& DBCb, 
+    MESH_NODE<T, dim>& X,
+    MESH_NODE<T, dim>& Xn,
+    MESH_NODE<T, dim>& X_prim,
+    CSR_MATRIX<T>& M,
+    MESH_NODE_ATTR<T, dim>& nodeAttr,
+    MESH_ELEM<dim - 1>& Elem,
+    MESH_ELEM_ATTR<T, dim - 1>& elemAttr,
+    FIXED_COROTATED<T, dim - 1>& elasticityAttr,
+    std::vector<bool>& DBCb,
     std::vector<bool>& DBCb_fixed,
     VECTOR_STORAGE<T, dim + 1>& DBC,
     T DBCStiff,
-    bool staticSolve, T h, 
-    VECTOR<T, 2>& s, VECTOR<T, 2>& sHat, VECTOR<T, 2>& kappa_s, 
+    bool staticSolve, T h,
+    VECTOR<T, 2>& s, VECTOR<T, 2>& sHat, VECTOR<T, 2>& kappa_s,
     bool withCollision,
     const std::vector<VECTOR<int, dim + 1>>& constraintSet,
     const std::vector<VECTOR<T, 2>>& stencilInfo, // weight, dHat2
@@ -29,13 +29,13 @@ bool Compute_SLP_Energy( // SLP: strain limiting projection
     const std::vector<Eigen::Matrix<T, dim, dim - 1>>& tanBasis,
     const std::vector<T>& normalForce,
     T epsv2, T mu,
-    T& E) 
+    T& E)
 {
     TIMER_FLAG("Compute_SLP_Energy");
     E = 0;
 
     if (kappa_s[0] > 0) {
-        if (!Compute_Inextensibility_Energy(Elem, staticSolve ? 1.0 : h, s, sHat, kappa_s, 
+        if (!Compute_Inextensibility_Energy(Elem, staticSolve ? 1.0 : h, s, sHat, kappa_s,
             DBCb, X, nodeAttr, elemAttr, elasticityAttr, E))
         {
             return false;
@@ -70,19 +70,19 @@ bool Compute_SLP_Energy( // SLP: strain limiting projection
 
 template <class T, int dim, bool elasticIPC>
 void Compute_SLP_Gradient( // SLP: strain limiting projection
-    MESH_NODE<T, dim>& X, 
-    MESH_NODE<T, dim>& Xn, 
-    MESH_NODE<T, dim>& X_prim, 
-    CSR_MATRIX<T>& M, 
-    MESH_NODE_ATTR<T, dim>& nodeAttr, 
-    MESH_ELEM<dim - 1>& Elem, 
-    MESH_ELEM_ATTR<T, dim - 1>& elemAttr, 
-    FIXED_COROTATED<T, dim - 1>& elasticityAttr, 
-    std::vector<bool>& DBCb, 
+    MESH_NODE<T, dim>& X,
+    MESH_NODE<T, dim>& Xn,
+    MESH_NODE<T, dim>& X_prim,
+    CSR_MATRIX<T>& M,
+    MESH_NODE_ATTR<T, dim>& nodeAttr,
+    MESH_ELEM<dim - 1>& Elem,
+    MESH_ELEM_ATTR<T, dim - 1>& elemAttr,
+    FIXED_COROTATED<T, dim - 1>& elasticityAttr,
+    std::vector<bool>& DBCb,
     std::vector<bool>& DBCb_fixed,
     VECTOR_STORAGE<T, dim + 1>& DBC,
-    T DBCStiff, 
-    bool staticSolve, T h, 
+    T DBCStiff,
+    bool staticSolve, T h,
     VECTOR<T, 2>& s, VECTOR<T, 2>& sHat, VECTOR<T, 2>& kappa_s,
     bool withCollision,
     const std::vector<VECTOR<int, dim + 1>>& constraintSet,
@@ -93,13 +93,13 @@ void Compute_SLP_Gradient( // SLP: strain limiting projection
     const std::vector<Eigen::Matrix<T, dim, dim - 1>>& tanBasis,
     const std::vector<T>& normalForce,
     T epsv2, T mu,
-    std::vector<T>& rhs) 
+    std::vector<T>& rhs)
 {
     TIMER_FLAG("Compute_SLP_Gradient");
     nodeAttr.template Fill<FIELDS<MESH_NODE_ATTR<T, dim>>::g>(VECTOR<T, dim>(0));
 
     if (kappa_s[0] > 0) {
-        Compute_Inextensibility_Gradient(Elem, staticSolve ? 1.0 : h, s, sHat, kappa_s, 
+        Compute_Inextensibility_Gradient(Elem, staticSolve ? 1.0 : h, s, sHat, kappa_s,
             DBCb, X, nodeAttr, elemAttr, elasticityAttr);
     }
 
@@ -158,19 +158,19 @@ void Compute_SLP_Gradient( // SLP: strain limiting projection
 
 template <class T, int dim, bool elasticIPC>
 void Compute_SLP_Hessian( // SLP: strain limiting projection
-    MESH_NODE<T, dim>& X, 
-    MESH_NODE<T, dim>& Xn, 
-    MESH_NODE<T, dim>& X_prim, 
-    CSR_MATRIX<T>& M, 
-    MESH_NODE_ATTR<T, dim>& nodeAttr, 
-    MESH_ELEM<dim - 1>& Elem, 
-    MESH_ELEM_ATTR<T, dim - 1>& elemAttr, 
-    FIXED_COROTATED<T, dim - 1>& elasticityAttr, 
-    std::vector<bool>& DBCb, 
-    std::vector<bool>& DBCb_fixed, 
+    MESH_NODE<T, dim>& X,
+    MESH_NODE<T, dim>& Xn,
+    MESH_NODE<T, dim>& X_prim,
+    CSR_MATRIX<T>& M,
+    MESH_NODE_ATTR<T, dim>& nodeAttr,
+    MESH_ELEM<dim - 1>& Elem,
+    MESH_ELEM_ATTR<T, dim - 1>& elemAttr,
+    FIXED_COROTATED<T, dim - 1>& elasticityAttr,
+    std::vector<bool>& DBCb,
+    std::vector<bool>& DBCb_fixed,
     VECTOR_STORAGE<T, dim + 1>& DBC,
     T DBCStiff,
-    bool staticSolve, T h, 
+    bool staticSolve, T h,
     VECTOR<T, 2>& s, VECTOR<T, 2>& sHat, VECTOR<T, 2>& kappa_s,
     bool withCollision,
     const std::vector<VECTOR<int, dim + 1>>& constraintSet,
@@ -185,10 +185,10 @@ void Compute_SLP_Hessian( // SLP: strain limiting projection
     CSR_MATRIX<T>& sysMtr)
 {
     TIMER_FLAG("Compute_SLP_Hessian");
-    std::vector<Eigen::Triplet<T>> triplets; 
+    std::vector<Eigen::Triplet<T>> triplets;
 
     if (kappa_s[0] > 0) {
-        Compute_Inextensibility_Hessian(Elem, staticSolve ? 1.0 : h, projectSPD, s, sHat, kappa_s, 
+        Compute_Inextensibility_Hessian(Elem, staticSolve ? 1.0 : h, projectSPD, s, sHat, kappa_s,
             DBCb, X, nodeAttr, elemAttr, elasticityAttr, triplets);
     }
 
@@ -220,14 +220,14 @@ void DBC_Info_Init(
     MESH_NODE<T, dim>& X,
     MESH_NODE<T, dim>& Xn,
     MESH_NODE_ATTR<T, dim>& nodeAttr,
-    MESH_ELEM<dim - 1>& Elem, 
+    MESH_ELEM<dim - 1>& Elem,
     MESH_ELEM_ATTR<T, dim - 1>& elemAttr,
     FIXED_COROTATED<T, dim - 1>& elasticityAttr,
     VECTOR_STORAGE<T, dim + 1>& DBC,
-    std::vector<bool>& DBCb, 
-    std::vector<bool>& DBCb_fixed, 
+    std::vector<bool>& DBCb,
+    std::vector<bool>& DBCb_fixed,
     std::vector<T>& DBCDisp,
-    bool staticSolve, T h, 
+    bool staticSolve, T h,
     VECTOR<T, 2>& s, VECTOR<T, 2>& sHat, VECTOR<T, 2>& kappa_s,
     T& DBCStiff, T& DBCAlpha, T& DBCPenaltyXn)
 {
@@ -235,7 +235,7 @@ void DBC_Info_Init(
         auto &[dbcI] = data;
         int vI = dbcI(0);
         const VECTOR<T, dim> &x = std::get<0>(X.Get_Unchecked(vI));
-        
+
         DBCDisp[vI * dim] = dbcI(1) - x(0);
         DBCDisp[vI * dim + 1] = dbcI(2) - x(1);
         if constexpr (dim == 3) {
@@ -270,7 +270,7 @@ void DBC_Info_Init(
             valid = true;
             if (kappa_s[0] > 0) {
                 T E;
-                valid &= Compute_Inextensibility_Energy(Elem, staticSolve ? 1.0 : h, s, sHat, kappa_s, 
+                valid &= Compute_Inextensibility_Energy(Elem, staticSolve ? 1.0 : h, s, sHat, kappa_s,
                     std::vector<bool>(X.size, false), X, nodeAttr, elemAttr, elasticityAttr, E);
             }
 
@@ -302,20 +302,20 @@ void DBC_Info_Init(
 
 template <class T, int dim, bool elasticIPC>
 void DBC_Dual_Update(
-    MESH_NODE<T, dim>& X, 
-    MESH_NODE<T, dim>& Xn, 
-    MESH_NODE<T, dim>& X_prim, 
-    CSR_MATRIX<T>& M, 
-    MESH_NODE_ATTR<T, dim>& nodeAttr, 
-    MESH_ELEM<dim - 1>& Elem, 
-    MESH_ELEM_ATTR<T, dim - 1>& elemAttr, 
-    FIXED_COROTATED<T, dim - 1>& elasticityAttr, 
-    std::vector<bool>& DBCb, 
+    MESH_NODE<T, dim>& X,
+    MESH_NODE<T, dim>& Xn,
+    MESH_NODE<T, dim>& X_prim,
+    CSR_MATRIX<T>& M,
+    MESH_NODE_ATTR<T, dim>& nodeAttr,
+    MESH_ELEM<dim - 1>& Elem,
+    MESH_ELEM_ATTR<T, dim - 1>& elemAttr,
+    FIXED_COROTATED<T, dim - 1>& elasticityAttr,
+    std::vector<bool>& DBCb,
     std::vector<bool>& DBCb_fixed,
     VECTOR_STORAGE<T, dim + 1>& DBC,
     T& DBCStiff,
-    bool staticSolve, T h, 
-    VECTOR<T, 2>& s, VECTOR<T, 2>& sHat, VECTOR<T, 2>& kappa_s, 
+    bool staticSolve, T h,
+    VECTOR<T, 2>& s, VECTOR<T, 2>& sHat, VECTOR<T, 2>& kappa_s,
     bool withCollision,
     const std::vector<VECTOR<int, dim + 1>>& constraintSet,
     const std::vector<VECTOR<T, 2>>& stencilInfo, // weight, dHat2
@@ -339,9 +339,9 @@ void DBC_Dual_Update(
             if (DBCStiff < 1e10) {
                 DBCStiff *= 2;
                 printf("updated DBCStiff to %le\n", DBCStiff);
-                
-                Compute_SLP_Energy<T, dim, elasticIPC>(X, Xn, X_prim, M, nodeAttr, Elem, elemAttr, elasticityAttr, 
-                    DBCb, DBCb_fixed, DBC, DBCStiff, staticSolve, h, s, sHat, kappa_s, 
+
+                Compute_SLP_Energy<T, dim, elasticIPC>(X, Xn, X_prim, M, nodeAttr, Elem, elemAttr, elasticityAttr,
+                    DBCb, DBCb_fixed, DBC, DBCStiff, staticSolve, h, s, sHat, kappa_s,
                     withCollision, constraintSet, stencilInfo, dHat2, kappa, thickness,
                     fricConstraintSet, closestPoint, tanBasis, normalForce, epsv2, mu, Eprev);
             }
@@ -352,8 +352,8 @@ void DBC_Dual_Update(
         DBCStiff = 0;
         printf("DBC moved to target, turn off Augmented Lagrangian\n");
 
-        Compute_SLP_Energy<T, dim, elasticIPC>(X, Xn, X_prim, M, nodeAttr, Elem, elemAttr, elasticityAttr, 
-            DBCb, DBCb_fixed, DBC, DBCStiff, staticSolve, h, s, sHat, kappa_s, 
+        Compute_SLP_Energy<T, dim, elasticIPC>(X, Xn, X_prim, M, nodeAttr, Elem, elemAttr, elasticityAttr,
+            DBCb, DBCb_fixed, DBC, DBCStiff, staticSolve, h, s, sHat, kappa_s,
             withCollision, constraintSet, stencilInfo, dHat2, kappa, thickness,
             fricConstraintSet, closestPoint, tanBasis, normalForce, epsv2, mu, Eprev);
     }
@@ -371,7 +371,7 @@ int Advance_One_Step_SIE_Discrete_Shell(
     const VECTOR<T, 4>& fiberStiffMult, // aniso strain-limiting
     const VECTOR<T, 3>& fiberLimit, // aniso strain-limiting
     VECTOR<T, 2>& s, VECTOR<T, 2>& sHat, VECTOR<T, 2>& kappa_s,  // isotropic strain-limiting
-    const std::vector<T>& b, 
+    const std::vector<T>& b,
     T h, T NewtonTol,
     bool withCollision,
     T dHat2, VECTOR<T, 3>& kappaVec,
@@ -410,7 +410,7 @@ int Advance_One_Step_SIE_Discrete_Shell(
         s, sHat, zero2T, // kappa_s
         b, h, NewtonTol, false, // withCollision
         dHat2, kappaVec, mu, epsv2, 1, compNodeRange, muComp, staticSolve,
-        X, nodeAttr, M, elemAttr, elasticityAttr, tet, tetAttr, tetElasticityAttr, 
+        X, nodeAttr, M, elemAttr, elasticityAttr, tet, tetAttr, tetElasticityAttr,
         rod, rodInfo, rodHinge, rodHingeInfo, stitchInfo, stitchRatio, 0, particle, outputFolder);
     FILE *out = fopen((outputFolder + "/counter.txt").c_str(), "a+");
     fprintf(out, "%d", PNIter);
@@ -444,7 +444,7 @@ int Advance_One_Step_SIE_Discrete_Shell(
 
             Find_Surface_Primitives_And_Compute_Area(X, Tri, boundaryNode, boundaryEdge, boundaryTri,
                 BNArea, BEArea, BTArea);
-            
+
             boundaryEdge.insert(boundaryEdge.end(), seg.begin(), seg.end());
             for (const auto& segI : seg) {
                 boundaryNode.emplace_back(segI[0]);
@@ -460,12 +460,12 @@ int Advance_One_Step_SIE_Discrete_Shell(
                 const VECTOR<T, dim>& v0 = std::get<0>(X.Get_Unchecked(segI[0]));
                 const VECTOR<T, dim>& v1 = std::get<0>(X.Get_Unchecked(segI[1]));
                 BEArea.emplace_back((v0 - v1).length() * M_PI * rodInfo[segIInd][2] / 6); // 1/6 of the cylinder surface participate in one contact
-                
+
                 rodNodeArea[segI[0]] += BEArea.back() / 2;
                 rodNodeArea[segI[1]] += BEArea.back() / 2;
 
                 BEArea.back() /= 2; // due to PE approx of \int_E PP and EE approx of \int_E PE
-                
+
                 ++segIInd;
             }
             codimBNStartInd[0] = boundaryNode.size();
@@ -503,21 +503,21 @@ int Advance_One_Step_SIE_Discrete_Shell(
 
     // compute energy record
     if (withCollision) {
-        Compute_Constraint_Set<T, dim, false, elasticIPC>(X, nodeAttr, boundaryNode, boundaryEdge, boundaryTri, 
+        Compute_Constraint_Set<T, dim, false, elasticIPC>(X, nodeAttr, boundaryNode, boundaryEdge, boundaryTri,
             particle, rod, std::map<int, std::set<int>>(), BNArea, BEArea, BTArea, codimBNStartInd, DBCb, dHat2, thickness, false, constraintSet, constraintSetPTEE, stencilInfo);
         if (mu > 0 || (muComp.size() && muComp.size() == compNodeRange.size() * compNodeRange.size())) {
             Compute_Friction_Basis<T, dim, elasticIPC>(X, constraintSet, stencilInfo, fricConstraintSet, closestPoint, tanBasis, normalForce, dHat2, kappa, thickness);
             if (muComp.size() && muComp.size() == compNodeRange.size() * compNodeRange.size()) {
-                Compute_Friction_Coef<T, dim>(fricConstraintSet, compNodeRange, muComp, normalForce, mu); 
+                Compute_Friction_Coef<T, dim>(fricConstraintSet, compNodeRange, muComp, normalForce, mu);
                 // mu will be set to 1, normalForce will be multipled with different mu's in muComp
             }
         }
     }
     T Eprev;
-    if (!Compute_SLP_Energy<T, dim, elasticIPC>(X, Xn, X_prim, M, nodeAttr, Elem, elemAttr, elasticityAttr, 
-        DBCb, DBCb_fixed, DBC, DBCStiff, staticSolve, h, s, sHat, kappa_s, 
+    if (!Compute_SLP_Energy<T, dim, elasticIPC>(X, Xn, X_prim, M, nodeAttr, Elem, elemAttr, elasticityAttr,
+        DBCb, DBCb_fixed, DBC, DBCStiff, staticSolve, h, s, sHat, kappa_s,
         withCollision, constraintSet, stencilInfo, dHat2, kappa, thickness,
-        fricConstraintSet, closestPoint, tanBasis, normalForce, epsv2, mu, Eprev)) 
+        fricConstraintSet, closestPoint, tanBasis, normalForce, epsv2, mu, Eprev))
     {
         printf("beginning of time step X violate strain limit!\n");
         exit(-1);
@@ -530,15 +530,15 @@ int Advance_One_Step_SIE_Discrete_Shell(
     do
     {
         // compute gradient
-        Compute_SLP_Gradient<T, dim, elasticIPC>(X, Xn, X_prim, M, nodeAttr, Elem, elemAttr, elasticityAttr, 
+        Compute_SLP_Gradient<T, dim, elasticIPC>(X, Xn, X_prim, M, nodeAttr, Elem, elemAttr, elasticityAttr,
             DBCb, DBCb_fixed, DBC, DBCStiff, staticSolve, h, s, sHat, kappa_s,
             withCollision, constraintSet, stencilInfo, dHat2, kappa, thickness,
             fricConstraintSet, closestPoint, tanBasis, normalForce, epsv2, mu, rhs);
 
         // compute Hessian
         if (!useGD) {
-            Compute_SLP_Hessian<T, dim, elasticIPC>(X, Xn, X_prim, M, nodeAttr, Elem, elemAttr, elasticityAttr, 
-                DBCb, DBCb_fixed, DBC, DBCStiff, staticSolve, h, s, sHat, kappa_s, 
+            Compute_SLP_Hessian<T, dim, elasticIPC>(X, Xn, X_prim, M, nodeAttr, Elem, elemAttr, elasticityAttr,
+                DBCb, DBCb_fixed, DBC, DBCStiff, staticSolve, h, s, sHat, kappa_s,
                 withCollision, constraintSet, stencilInfo, dHat2, kappa, thickness,
                 fricConstraintSet, closestPoint, tanBasis, normalForce, epsv2, mu, true, sysMtr);
         }
@@ -574,7 +574,7 @@ int Advance_One_Step_SIE_Discrete_Shell(
         T alpha = 1, feasibleAlpha = 0, E;
         T minDist2;
         if (withCollision) {
-            Compute_Intersection_Free_StepSize<T, dim, false, elasticIPC>(X, boundaryNode, boundaryEdge, boundaryTri, 
+            Compute_Intersection_Free_StepSize<T, dim, false, elasticIPC>(X, boundaryNode, boundaryEdge, boundaryTri,
                 particle, rod, std::map<int, std::set<int>>(), codimBNStartInd, DBCb, sol, thickness, alpha); // CCD
             printf("intersection free step size = %le\n", alpha);
         }
@@ -588,8 +588,8 @@ int Advance_One_Step_SIE_Discrete_Shell(
                 }
             });
 
-            valid = Compute_SLP_Energy<T, dim, elasticIPC>(X, Xn, X_prim, M, nodeAttr, Elem, elemAttr, elasticityAttr, 
-                DBCb, DBCb_fixed, DBC, DBCStiff, staticSolve, h, s, sHat, kappa_s, 
+            valid = Compute_SLP_Energy<T, dim, elasticIPC>(X, Xn, X_prim, M, nodeAttr, Elem, elemAttr, elasticityAttr,
+                DBCb, DBCb_fixed, DBC, DBCStiff, staticSolve, h, s, sHat, kappa_s,
                 false, constraintSet, stencilInfo, dHat2, kappa, thickness,
                 fricConstraintSet, closestPoint, tanBasis, normalForce, epsv2, mu, E);
             if (valid) {
@@ -597,7 +597,7 @@ int Advance_One_Step_SIE_Discrete_Shell(
                     feasibleAlpha = alpha;
                 }
                 if (withCollision) {
-                    Compute_Constraint_Set<T, dim, false, elasticIPC>(X, nodeAttr, boundaryNode, boundaryEdge, boundaryTri, 
+                    Compute_Constraint_Set<T, dim, false, elasticIPC>(X, nodeAttr, boundaryNode, boundaryEdge, boundaryTri,
                         particle, rod, std::map<int, std::set<int>>(), BNArea, BEArea, BTArea, codimBNStartInd, DBCb, dHat2, thickness, false, constraintSet, constraintSetPTEE, stencilInfo);
                     if (!constraintSet.empty()) {
                         std::vector<T> dist2;
@@ -611,13 +611,13 @@ int Advance_One_Step_SIE_Discrete_Shell(
                         }
                     }
 
-                    Compute_SLP_Energy<T, dim, elasticIPC>(X, Xn, X_prim, M, nodeAttr, Elem, elemAttr, elasticityAttr, 
-                        DBCb, DBCb_fixed, DBC, DBCStiff, staticSolve, h, s, sHat, kappa_s, 
+                    Compute_SLP_Energy<T, dim, elasticIPC>(X, Xn, X_prim, M, nodeAttr, Elem, elemAttr, elasticityAttr,
+                        DBCb, DBCb_fixed, DBC, DBCStiff, staticSolve, h, s, sHat, kappa_s,
                         withCollision, constraintSet, stencilInfo, dHat2, kappa, thickness,
                         fricConstraintSet, closestPoint, tanBasis, normalForce, epsv2, mu, E);
                 }
             }
-            
+
             alpha /= 2;
             printf("E %le, Eprev %le, alpha %le, valid %d\n", E, Eprev, alpha * 2, valid ? 1 : 0);
         } while (E > Eprev || !valid);
@@ -668,9 +668,9 @@ int Advance_One_Step_SIE_Discrete_Shell(
                 Eigen::VectorXd pe(sol.size()), mge(rhs.size());
                 std::memcpy(pe.data(), sol.data(), sizeof(T) * sol.size());
                 std::memcpy(mge.data(), rhs.data(), sizeof(T) * rhs.size());
-                printf("-gdotp = %le, -gpcos = %le\n", mge.dot(pe), 
+                printf("-gdotp = %le, -gpcos = %le\n", mge.dot(pe),
                     mge.dot(pe) / std::sqrt(mge.squaredNorm() * pe.squaredNorm()));
-                printf("linear solve relErr = %le\n", 
+                printf("linear solve relErr = %le\n",
                     std::sqrt((sysMtr.Get_Matrix() * pe - mge).squaredNorm() / mge.squaredNorm()));
             }
             else {
@@ -682,7 +682,7 @@ int Advance_One_Step_SIE_Discrete_Shell(
         }
 
         if (DBCStiff) {
-            DBC_Dual_Update<T, dim, elasticIPC>(X, Xn, X_prim, M, nodeAttr, Elem, elemAttr, elasticityAttr, 
+            DBC_Dual_Update<T, dim, elasticIPC>(X, Xn, X_prim, M, nodeAttr, Elem, elemAttr, elasticityAttr,
                 DBCb, DBCb_fixed, DBC, DBCStiff, staticSolve, h, s, sHat, kappa_s,
                 withCollision, constraintSet, stencilInfo, dHat2, kappa, thickness,
                 fricConstraintSet, closestPoint, tanBasis, normalForce, epsv2, mu,

@@ -9,8 +9,8 @@ namespace JGSL {
 //NOTE: squared distance
 
 template <class T, int dim>
-int Point_Edge_Distance_Type(const Eigen::Matrix<T, dim, 1>& p, 
-    const Eigen::Matrix<T, dim, 1>& e0, 
+int Point_Edge_Distance_Type(const Eigen::Matrix<T, dim, 1>& p,
+    const Eigen::Matrix<T, dim, 1>& e0,
     const Eigen::Matrix<T, dim, 1>& e1,
     T& ratio)
 {
@@ -29,8 +29,8 @@ int Point_Edge_Distance_Type(const Eigen::Matrix<T, dim, 1>& p,
 
 template <class T>
 int Point_Triangle_Distance_Type(
-    const Eigen::Matrix<T, 3, 1>& p, 
-    const Eigen::Matrix<T, 3, 1>& t0, 
+    const Eigen::Matrix<T, 3, 1>& p,
+    const Eigen::Matrix<T, 3, 1>& t0,
     const Eigen::Matrix<T, 3, 1>& t1,
     const Eigen::Matrix<T, 3, 1>& t2)
 {

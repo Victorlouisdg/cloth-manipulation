@@ -9,9 +9,9 @@ namespace JGSL {
 //NOTE: squared distance
 
 template <class T, int dim>
-void Point_Edge_Distance(const Eigen::Matrix<T, dim, 1>& p, 
-    const Eigen::Matrix<T, dim, 1>& e0, 
-    const Eigen::Matrix<T, dim, 1>& e1, 
+void Point_Edge_Distance(const Eigen::Matrix<T, dim, 1>& p,
+    const Eigen::Matrix<T, dim, 1>& e0,
+    const Eigen::Matrix<T, dim, 1>& e1,
     T& dist2)
 {
     if constexpr (dim == 2) {
@@ -113,9 +113,9 @@ void g_PE3D(T v01, T v02, T v03, T v11, T v12, T v13,
 }
 
 template <class T, int dim>
-void Point_Edge_Distance_Gradient(const Eigen::Matrix<T, dim, 1>& p, 
-    const Eigen::Matrix<T, dim, 1>& e0, 
-    const Eigen::Matrix<T, dim, 1>& e1, 
+void Point_Edge_Distance_Gradient(const Eigen::Matrix<T, dim, 1>& p,
+    const Eigen::Matrix<T, dim, 1>& e0,
+    const Eigen::Matrix<T, dim, 1>& e1,
     Eigen::Matrix<T, dim * 3, 1>& grad)
 {
     if constexpr (dim == 2) {
@@ -587,9 +587,9 @@ void H_PE3D(T v01, T v02, T v03, T v11, T v12, T v13,
 }
 
 template <class T, int dim>
-void Point_Edge_Distance_Hessian(const Eigen::Matrix<T, dim, 1>& p, 
-    const Eigen::Matrix<T, dim, 1>& e0, 
-    const Eigen::Matrix<T, dim, 1>& e1, 
+void Point_Edge_Distance_Hessian(const Eigen::Matrix<T, dim, 1>& p,
+    const Eigen::Matrix<T, dim, 1>& e0,
+    const Eigen::Matrix<T, dim, 1>& e1,
     Eigen::Matrix<T, dim * 3, dim * 3>& Hessian)
 {
     if constexpr (dim == 2) {

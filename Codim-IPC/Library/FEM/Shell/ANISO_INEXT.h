@@ -65,13 +65,13 @@ bool Check_Fiber_Feasibility(
                 B(0, 1) = X3[0] - X1[0];
                 B(1, 1) = X3[2] - X1[2];
                 Eigen::Matrix<T, dim, dim - 1> A;
-                for (int d = 0; d < 3; ++d) { 
+                for (int d = 0; d < 3; ++d) {
                     A(d, 0) = x2[d] - x1[d];
                     A(d, 1) = x3[d] - x1[d];
                 }
                 Eigen::Matrix<T, dim, dim - 1> F = A * B.inverse();
                 Eigen::Matrix<T, dim - 1, dim - 1> tildeE = 0.5 * (F.transpose() * F - Eigen::Matrix<T, dim - 1, dim - 1>::Identity());
-                
+
                 if (std::abs(tildeE(0, 0)) >= fiberLimit[0] ||
                     std::abs(tildeE(1, 1)) >= fiberLimit[1] ||
                     std::abs(tildeE(0, 1)) >= fiberLimit[2])
@@ -119,16 +119,16 @@ void Compute_Fiber_Energy(
                 B(0, 1) = X3[0] - X1[0];
                 B(1, 1) = X3[2] - X1[2];
                 Eigen::Matrix<T, dim, dim - 1> A;
-                for (int d = 0; d < 3; ++d) { 
+                for (int d = 0; d < 3; ++d) {
                     A(d, 0) = x2[d] - x1[d];
                     A(d, 1) = x3[d] - x1[d];
                 }
                 Eigen::Matrix<T, dim, dim - 1> F = A * B.inverse();
                 Eigen::Matrix<T, dim - 1, dim - 1> tildeE = 0.5 * (F.transpose() * F - Eigen::Matrix<T, dim - 1, dim - 1>::Identity());
-                
-                E += h * h * vol * (fiberStiffMult[0] / 2 * eta(tildeE(0, 0) * tildeE(0, 0), fiberLimit[0] * fiberLimit[0]) + 
+
+                E += h * h * vol * (fiberStiffMult[0] / 2 * eta(tildeE(0, 0) * tildeE(0, 0), fiberLimit[0] * fiberLimit[0]) +
                     fiberStiffMult[1] * eta(tildeE(0, 0) * tildeE(1, 1), fiberLimit[0] * fiberLimit[1]) +
-                    fiberStiffMult[2] / 2 * eta(tildeE(1, 1) * tildeE(1, 1), fiberLimit[1] * fiberLimit[1]) + 
+                    fiberStiffMult[2] / 2 * eta(tildeE(1, 1) * tildeE(1, 1), fiberLimit[1] * fiberLimit[1]) +
                     fiberStiffMult[3] * eta(tildeE(0, 1) * tildeE(0, 1), fiberLimit[2] * fiberLimit[2]));
             }
         });
@@ -169,7 +169,7 @@ void Compute_Fiber_Gradient(
                 B(1, 1) = X3[2] - X1[2];
                 Eigen::Matrix<T, dim - 1, dim - 1> IB = B.inverse();
                 Eigen::Matrix<T, dim, dim - 1> A;
-                for (int d = 0; d < 3; ++d) { 
+                for (int d = 0; d < 3; ++d) {
                     A(d, 0) = x2[d] - x1[d];
                     A(d, 1) = x3[d] - x1[d];
                 }
@@ -178,14 +178,14 @@ void Compute_Fiber_Gradient(
 
                 Eigen::Matrix<T, 1, 4> dpsi_div_dtildeE;
                 T eg_tE0011 = eta_g(tildeE(0, 0) * tildeE(1, 1), fiberLimit[0] * fiberLimit[1]);
-                dpsi_div_dtildeE[0] = fiberStiffMult[0] * eta_g(tildeE(0, 0) * tildeE(0, 0), fiberLimit[0] * fiberLimit[0]) * tildeE(0, 0) + 
+                dpsi_div_dtildeE[0] = fiberStiffMult[0] * eta_g(tildeE(0, 0) * tildeE(0, 0), fiberLimit[0] * fiberLimit[0]) * tildeE(0, 0) +
                     fiberStiffMult[1] * eg_tE0011 * tildeE(1, 1);
                 dpsi_div_dtildeE[1] = 0;
                 dpsi_div_dtildeE[2] = 2 * fiberStiffMult[3] * eta_g(tildeE(0, 1) * tildeE(0, 1), fiberLimit[2] * fiberLimit[2]) * tildeE(0, 1);
                 dpsi_div_dtildeE[3] = fiberStiffMult[2] * eta_g(tildeE(1, 1) * tildeE(1, 1), fiberLimit[1] * fiberLimit[1]) * tildeE(1, 1) +
                     fiberStiffMult[1] * eg_tE0011 * tildeE(0, 0);
                 dpsi_div_dtildeE *= h * h * vol;
-                
+
                 Eigen::Matrix<T, 4, 6> dtildeE_div_dF;
                 dtildeE_div_dF.setZero();
                 for (int i = 0; i < 2; ++i) {
@@ -219,7 +219,7 @@ void Compute_Fiber_Gradient(
 
 template<class T, int dim>
 void Compute_Fiber_Hessian(
-    MESH_ELEM<dim - 1>& Elem, 
+    MESH_ELEM<dim - 1>& Elem,
     T h, bool projectSPD,
     const VECTOR<T, 4>& fiberStiffMult,
     const VECTOR<T, 3>& fiberLimit,
@@ -266,7 +266,7 @@ void Compute_Fiber_Hessian(
                 B(1, 1) = X3[2] - X1[2];
                 Eigen::Matrix<T, dim - 1, dim - 1> IB = B.inverse();
                 Eigen::Matrix<T, dim, dim - 1> A;
-                for (int d = 0; d < 3; ++d) { 
+                for (int d = 0; d < 3; ++d) {
                     A(d, 0) = x2[d] - x1[d];
                     A(d, 1) = x3[d] - x1[d];
                 }
@@ -283,7 +283,7 @@ void Compute_Fiber_Hessian(
                 T lim0011 = fiberLimit[0] * fiberLimit[1];
                 T lim0101 = fiberLimit[2] * fiberLimit[2];
                 T w = h * h * vol;
-                dpsi_div_dtildeE[0] = fiberStiffMult[0] * eta_g(tE0000, lim0000) * tildeE(0, 0) + 
+                dpsi_div_dtildeE[0] = fiberStiffMult[0] * eta_g(tE0000, lim0000) * tildeE(0, 0) +
                     fiberStiffMult[1] * eta_g(tE0011, lim0011) * tildeE(1, 1);
                 dpsi_div_dtildeE[1] = 0;
                 dpsi_div_dtildeE[2] = 2 * fiberStiffMult[3] * eta_g(tE0101, lim0101) * tildeE(0, 1);
@@ -292,11 +292,11 @@ void Compute_Fiber_Hessian(
                 dpsi_div_dtildeE *= w;
                 Eigen::Matrix<T, 4, 4> d2psi_div_dtildeE2 = Eigen::Matrix<T, 4, 4>::Zero();
                 d2psi_div_dtildeE2(0, 0) = w * (2 * fiberStiffMult[0] * eta_H(tE0000, lim0000) * tE0000 +
-                    fiberStiffMult[0] * eta_g(tE0000, lim0000) + 
+                    fiberStiffMult[0] * eta_g(tE0000, lim0000) +
                     fiberStiffMult[1] * eta_H(tE0011, lim0011) * tE1111);
                 d2psi_div_dtildeE2(0, 3) = d2psi_div_dtildeE2(3, 0) = w * fiberStiffMult[1] * (eta_H(tE0011, lim0011) * tE0011 + eta_g(tE0011, lim0011));
                 d2psi_div_dtildeE2(3, 3) = w * (2 * fiberStiffMult[2] * eta_H(tE1111, lim1111) * tE1111 +
-                    fiberStiffMult[2] * eta_g(tE1111, lim1111) + 
+                    fiberStiffMult[2] * eta_g(tE1111, lim1111) +
                     fiberStiffMult[1] * eta_H(tE0011, lim0011) * tE0000);
                 d2psi_div_dtildeE2(2, 2) = w * 2 * fiberStiffMult[3] * (2 * eta_H(tE0101, lim0101) * tE0101 + eta_g(tE0101, lim0101));
 
@@ -326,30 +326,30 @@ void Compute_Fiber_Hessian(
 
                 Eigen::Matrix<T, 9, 6> intermediate;
                 for (int colI = 0; colI < 6; ++colI) {
-                    intermediate.col(colI).template segment<dim>(0) = -(IB(0, 0) + IB(1, 0)) * d2W_div_dF2.col(colI).template segment<dim>(0) - 
+                    intermediate.col(colI).template segment<dim>(0) = -(IB(0, 0) + IB(1, 0)) * d2W_div_dF2.col(colI).template segment<dim>(0) -
                         (IB(0, 1) + IB(1, 1)) * d2W_div_dF2.col(colI).template segment<dim>(3);
-                    intermediate.col(colI).template segment<dim>(3) = IB(0, 0) * d2W_div_dF2.col(colI).template segment<dim>(0) + 
+                    intermediate.col(colI).template segment<dim>(3) = IB(0, 0) * d2W_div_dF2.col(colI).template segment<dim>(0) +
                         IB(0, 1) * d2W_div_dF2.col(colI).template segment<dim>(3);
-                    intermediate.col(colI).template segment<dim>(6) = IB(1, 0) * d2W_div_dF2.col(colI).template segment<dim>(0) + 
+                    intermediate.col(colI).template segment<dim>(6) = IB(1, 0) * d2W_div_dF2.col(colI).template segment<dim>(0) +
                         IB(1, 1) * d2W_div_dF2.col(colI).template segment<dim>(3);
                 }
                 Eigen::Matrix<T, 9, 9> Hessian;
                 for (int i = 0; i < 9; ++i) {
-                    Hessian.row(i).template segment<dim>(0) = -(IB(0, 0) + IB(1, 0)) * intermediate.row(i).template segment<dim>(0) - 
+                    Hessian.row(i).template segment<dim>(0) = -(IB(0, 0) + IB(1, 0)) * intermediate.row(i).template segment<dim>(0) -
                         (IB(0, 1) + IB(1, 1)) * intermediate.row(i).template segment<dim>(3);
-                    Hessian.row(i).template segment<dim>(3) = IB(0, 0) * intermediate.row(i).template segment<dim>(0) + 
+                    Hessian.row(i).template segment<dim>(3) = IB(0, 0) * intermediate.row(i).template segment<dim>(0) +
                         IB(0, 1) * intermediate.row(i).template segment<dim>(3);
-                    Hessian.row(i).template segment<dim>(6) = IB(1, 0) * intermediate.row(i).template segment<dim>(0) + 
+                    Hessian.row(i).template segment<dim>(6) = IB(1, 0) * intermediate.row(i).template segment<dim>(0) +
                         IB(1, 1) * intermediate.row(i).template segment<dim>(3);
                 }
-                
+
                 int startInd = tripletStartInd[id];
                 for (int i = 0; i < 3; ++i) {
                     for (int id = 0; id < 3; ++id) {
                         for (int j = 0; j < 3; ++j) {
                             for (int jd = 0; jd < 3; ++jd) {
                                 triplets[startInd + (i * 3 + id) * 9 + j * 3 + jd] = std::move(
-                                    Eigen::Triplet<T>(elemVInd[i] * 3 + id, elemVInd[j] * 3 + jd, 
+                                    Eigen::Triplet<T>(elemVInd[i] * 3 + id, elemVInd[j] * 3 + jd,
                                     Hessian(i * 3 + id, j * 3 + jd)));
                             }
                         }
@@ -376,16 +376,16 @@ void Check_Fiber_Gradient(
     T eps = 1.0e-6;
 
     T E0 = 0;
-    Compute_Fiber_Energy(Elem, 1.0, fiberStiffMult, fiberLimit, DBCb, X, nodeAttr, elemAttr, elasticityAttr, E0); 
+    Compute_Fiber_Energy(Elem, 1.0, fiberStiffMult, fiberLimit, DBCb, X, nodeAttr, elemAttr, elasticityAttr, E0);
     nodeAttr.template Fill<FIELDS<MESH_NODE_ATTR<T, dim>>::g>(VECTOR<T, dim>(0));
-    Compute_Fiber_Gradient(Elem, 1.0, fiberStiffMult, fiberLimit, DBCb, X, nodeAttr, elemAttr, elasticityAttr); 
+    Compute_Fiber_Gradient(Elem, 1.0, fiberStiffMult, fiberLimit, DBCb, X, nodeAttr, elemAttr, elasticityAttr);
 
     std::vector<T> grad_FD(X.size * dim);
     for (int i = 0; i < X.size * dim; ++i) {
         MESH_NODE<T, dim> Xperturb;
         Append_Attribute(X, Xperturb);
         std::get<0>(Xperturb.Get_Unchecked(i / dim))[i % dim] += eps;
-        
+
         T E = 0;
         Compute_Fiber_Energy(Elem, 1.0, fiberStiffMult, fiberLimit, DBCb, Xperturb, nodeAttr, elemAttr, elasticityAttr, E);
         grad_FD[i] = (E - E0) / eps;
@@ -412,7 +412,7 @@ void Check_Fiber_Gradient(
 template <class T, int dim>
 void Check_Fiber_Hessian(
     MESH_ELEM<dim - 1>& Elem,
-    const VECTOR_STORAGE<T, dim + 1>& DBC, 
+    const VECTOR_STORAGE<T, dim + 1>& DBC,
     T h, const VECTOR<T, 4>& fiberStiffMult,
     const VECTOR<T, 3>& fiberLimit,
     const std::vector<bool>& DBCb,
@@ -429,7 +429,7 @@ void Check_Fiber_Hessian(
     nodeAttr0.template Fill<FIELDS<MESH_NODE_ATTR<T, dim>>::g>(VECTOR<T, dim>(0));
     Compute_Fiber_Gradient(Elem, 1.0, fiberStiffMult, fiberLimit, DBCb, X, nodeAttr0, elemAttr, elasticityAttr);
     std::vector<Eigen::Triplet<T>> HStriplets;
-    Compute_Fiber_Hessian(Elem, 1.0, false, fiberStiffMult, fiberLimit, DBCb, X, nodeAttr, elemAttr, elasticityAttr, HStriplets); 
+    Compute_Fiber_Hessian(Elem, 1.0, false, fiberStiffMult, fiberLimit, DBCb, X, nodeAttr, elemAttr, elasticityAttr, HStriplets);
     CSR_MATRIX<T> HS;
     HS.Construct_From_Triplet(X.size * dim, X.size * dim, HStriplets);
 
@@ -439,7 +439,7 @@ void Check_Fiber_Hessian(
         MESH_NODE<T, dim> Xperturb;
         Append_Attribute(X, Xperturb);
         std::get<0>(Xperturb.Get_Unchecked(i / dim))[i % dim] += eps;
-        
+
         nodeAttr.template Fill<FIELDS<MESH_NODE_ATTR<T, dim>>::g>(VECTOR<T, dim>(0));
         Compute_Fiber_Gradient(Elem, 1.0, fiberStiffMult, fiberLimit, DBCb, Xperturb, nodeAttr, elemAttr, elasticityAttr);
         for (int vI = 0; vI < X.size; ++vI) {

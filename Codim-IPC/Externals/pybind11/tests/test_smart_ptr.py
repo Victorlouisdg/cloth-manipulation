@@ -1,6 +1,6 @@
 import pytest
-from pybind11_tests import smart_ptr as m
 from pybind11_tests import ConstructorStats
+from pybind11_tests import smart_ptr as m
 
 
 def test_smart_ptr(capture):
@@ -14,8 +14,7 @@ def test_smart_ptr(capture):
             m.print_object_4(o)
         assert capture == "MyObject1[{i}]\n".format(i=i) * 4
 
-    for i, o in enumerate([m.make_myobject1_1(), m.make_myobject1_2(), m.MyObject1(6), 7],
-                          start=4):
+    for i, o in enumerate([m.make_myobject1_1(), m.make_myobject1_2(), m.MyObject1(6), 7], start=4):
         print(o)
         with capture:
             if not isinstance(o, int):
@@ -31,7 +30,7 @@ def test_smart_ptr(capture):
 
     cstats = ConstructorStats.get(m.MyObject1)
     assert cstats.alive() == 0
-    expected_values = ['MyObject1[{}]'.format(i) for i in range(1, 7)] + ['MyObject1[7]'] * 4
+    expected_values = ["MyObject1[{}]".format(i) for i in range(1, 7)] + ["MyObject1[7]"] * 4
     assert cstats.values() == expected_values
     assert cstats.default_constructions == 0
     assert cstats.copy_constructions == 0
@@ -53,7 +52,7 @@ def test_smart_ptr(capture):
     assert cstats.alive() == 1
     o = None
     assert cstats.alive() == 0
-    assert cstats.values() == ['MyObject2[8]', 'MyObject2[6]', 'MyObject2[7]']
+    assert cstats.values() == ["MyObject2[8]", "MyObject2[6]", "MyObject2[7]"]
     assert cstats.default_constructions == 0
     assert cstats.copy_constructions == 0
     # assert cstats.move_constructions >= 0 # Doesn't invoke any
@@ -74,7 +73,7 @@ def test_smart_ptr(capture):
     assert cstats.alive() == 1
     o = None
     assert cstats.alive() == 0
-    assert cstats.values() == ['MyObject3[9]', 'MyObject3[8]', 'MyObject3[9]']
+    assert cstats.values() == ["MyObject3[9]", "MyObject3[8]", "MyObject3[9]"]
     assert cstats.default_constructions == 0
     assert cstats.copy_constructions == 0
     # assert cstats.move_constructions >= 0 # Doesn't invoke any
@@ -94,7 +93,7 @@ def test_smart_ptr(capture):
     # ref<>
     cstats = m.cstats_ref()
     assert cstats.alive() == 0
-    assert cstats.values() == ['from pointer'] * 10
+    assert cstats.values() == ["from pointer"] * 10
     assert cstats.default_constructions == 30
     assert cstats.copy_constructions == 12
     # assert cstats.move_constructions >= 0 # Doesn't invoke any
@@ -272,8 +271,7 @@ def test_smart_ptr_from_default():
     instance = m.HeldByDefaultHolder()
     with pytest.raises(RuntimeError) as excinfo:
         m.HeldByDefaultHolder.load_shared_ptr(instance)
-    assert "Unable to load a custom holder type from a " \
-           "default-holder instance" in str(excinfo.value)
+    assert "Unable to load a custom holder type from a " "default-holder instance" in str(excinfo.value)
 
 
 def test_shared_ptr_gc():

@@ -1,4 +1,5 @@
-from scipy.spatial.transform import Slerp, Rotation
+from scipy.spatial.transform import Rotation, Slerp
+
 from cm_utils.geometry import update_4x4_with_3x3
 
 

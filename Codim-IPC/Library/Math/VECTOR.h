@@ -109,19 +109,19 @@ public:
     JGSL_FORCE_INLINE VECTOR<T, dim>& operator*=(T o) { (*this) = (*this) * o; return *this; }
     JGSL_FORCE_INLINE VECTOR<T, dim>& operator/=(T o) { (*this) = (*this) / o; return *this; }
 
-    JGSL_FORCE_INLINE VECTOR<T, dim>& operator+=(const T* o) { 
+    JGSL_FORCE_INLINE VECTOR<T, dim>& operator+=(const T* o) {
         for (int d = 0; d < dim; ++d) {
             data[d] += o[d];
         }
-        return *this; 
+        return *this;
     }
 
-    JGSL_FORCE_INLINE bool operator==(const VECTOR<T, dim>& o) const{ 
+    JGSL_FORCE_INLINE bool operator==(const VECTOR<T, dim>& o) const{
         for (int d = 0; d < dim; ++d) if ((*this)(d) != o(d)) return false;
         return true;
     }
 
-    JGSL_FORCE_INLINE bool operator<(const VECTOR<T, dim>& o) const{ 
+    JGSL_FORCE_INLINE bool operator<(const VECTOR<T, dim>& o) const{
         for (int d = 0; d < dim; ++d) {
             if ((*this)(d) < o(d)) {
                 return true;
@@ -241,7 +241,7 @@ public:
     }
 };
 template <class T, int dim> JGSL_FORCE_INLINE VECTOR<T, dim> operator*(T a, const VECTOR<T, dim>& o) { return o * a; }
-template <class T> JGSL_FORCE_INLINE T det(const VECTOR<T, 2>& col0, const VECTOR<T, 2>& col1) { 
+template <class T> JGSL_FORCE_INLINE T det(const VECTOR<T, 2>& col0, const VECTOR<T, 2>& col1) {
     return col0[0] * col1[1] - col0[1] * col1[0];
 }
 
@@ -383,7 +383,7 @@ public:
             exit(-1);
         }
 
-        if constexpr (dim == 2) { 
+        if constexpr (dim == 2) {
             T temp = (*this)(0, 0);
             (*this)(0, 0) = (*this)(1, 1);
             (*this)(1, 1) = temp;

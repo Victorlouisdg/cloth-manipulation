@@ -20,7 +20,7 @@ void Compute_Friction_Basis(MESH_NODE<T, dim>& X,
     std::vector<VECTOR<int, dim + 1>>& constraintSet,
     std::vector<Eigen::Matrix<T, dim - 1, 1>>& closestPoint,
     std::vector<Eigen::Matrix<T, dim, dim - 1>>& tanBasis,
-    std::vector<T>& normalForce, 
+    std::vector<T>& normalForce,
     T dHat2, T kappa[], T thickness)
 {
     TIMER_FLAG("Compute_Friction_Basis");
@@ -88,7 +88,7 @@ void Compute_Friction_Basis(MESH_NODE<T, dim>& X,
                     Point_Edge_Distance(p, e0, e1, dist2);
                 }
                 else {
-                    // -+++ PT 
+                    // -+++ PT
                     const VECTOR<T, 3>& Xt0 = std::get<0>(X.Get_Unchecked(cIVInd[1]));
                     const VECTOR<T, 3>& Xt1 = std::get<0>(X.Get_Unchecked(cIVInd[2]));
                     const VECTOR<T, 3>& Xt2 = std::get<0>(X.Get_Unchecked(cIVInd[3]));
@@ -158,7 +158,7 @@ void Compute_Friction_Coef(
                     // -++[-] PE, last digit stores muliplicity
                 // }
                 // else {
-                    // -+++ PT 
+                    // -+++ PT
                 // }
             }
             normalForce[cI] *= muComp[compI0 + compI1 * compNodeRange.size()];
@@ -227,7 +227,7 @@ void Compute_Friction_Potential(
                     Point_Edge_RelDX(dp, de0, de1, closestPoint[cI][0], relDX3D);
                 }
                 else {
-                    // -+++ PT 
+                    // -+++ PT
                     const VECTOR<T, 3>& dXt0 = std::get<0>(dX.Get_Unchecked(cIVInd[1]));
                     const VECTOR<T, 3>& dXt1 = std::get<0>(dX.Get_Unchecked(cIVInd[2]));
                     const VECTOR<T, 3>& dXt2 = std::get<0>(dX.Get_Unchecked(cIVInd[3]));
@@ -348,7 +348,7 @@ void Compute_Friction_Gradient(
                     }
                 }
                 else {
-                    // -+++ PT 
+                    // -+++ PT
                     const VECTOR<T, 3>& dXt0 = std::get<0>(dX.Get_Unchecked(cIVInd[1]));
                     const VECTOR<T, 3>& dXt1 = std::get<0>(dX.Get_Unchecked(cIVInd[2]));
                     const VECTOR<T, 3>& dXt2 = std::get<0>(dX.Get_Unchecked(cIVInd[3]));
@@ -362,7 +362,7 @@ void Compute_Friction_Gradient(
                     relDX *= f1_div_relDXNorm * mu * normalForce[cI];
 
                     Eigen::Matrix<T, 12, 1> TTTDX;
-                    Point_Triangle_RelDXTan_To_Mesh(relDX, tanBasis[cI], 
+                    Point_Triangle_RelDXTan_To_Mesh(relDX, tanBasis[cI],
                         closestPoint[cI][0], closestPoint[cI][1], TTTDX);
 
                     for (int i = 0; i < 4; ++i) {
@@ -411,7 +411,7 @@ void Compute_Friction_Hessian(
             }
             else if (cIVInd[2] >= 0) {
                 // PE, 9x9
-                curStartInd += 81;    
+                curStartInd += 81;
             }
             else {
                 // PP, 6x6
@@ -598,7 +598,7 @@ void Compute_Friction_Hessian(
                     }
                 }
                 else {
-                    // -+++ PT 
+                    // -+++ PT
                     const VECTOR<T, 3>& dXt0 = std::get<0>(dX.Get_Unchecked(cIVInd[1]));
                     const VECTOR<T, 3>& dXt1 = std::get<0>(dX.Get_Unchecked(cIVInd[2]));
                     const VECTOR<T, 3>& dXt2 = std::get<0>(dX.Get_Unchecked(cIVInd[3]));

@@ -27,4 +27,3 @@ void makePD(Eigen::Matrix<T, size, size>& symMtr)
 }
 
 }
-

@@ -28,7 +28,7 @@ public: // API
     void Build(MESH_NODE<T, dim>& X,
         const std::vector<int>& boundaryNode,
         const std::vector<VECTOR<int, 2>>& boundaryEdge,
-        const std::vector<VECTOR<int, 3>>& boundaryTri, 
+        const std::vector<VECTOR<int, 3>>& boundaryTri,
         T voxelSize)
     {
         BASE_STORAGE<int> threadsP(boundaryNode.size());
@@ -432,7 +432,7 @@ public: // API
     void Build(MESH_NODE<T, dim>& X,
         const std::vector<int>& boundaryNode,
         const std::vector<VECTOR<int, 2>>& boundaryEdge,
-        const std::vector<VECTOR<int, 3>>& boundaryTri, 
+        const std::vector<VECTOR<int, 3>>& boundaryTri,
         const std::vector<T>& searchDir,
         T& curMaxStepSize, T voxelSize, T thickness)
     {
@@ -621,7 +621,7 @@ public: // API
         }
     }
 
-    void Query_Point_For_Primitives(int svI, 
+    void Query_Point_For_Primitives(int svI,
         std::unordered_set<int>& sPointInds,
         std::unordered_set<int>& sEdgeInds,
         std::unordered_set<int>& sTriInds) const

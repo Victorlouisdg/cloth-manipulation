@@ -1,5 +1,5 @@
-import sys
 import os
+import sys
 
 from cm_utils.materials.material import Material
 
@@ -10,11 +10,30 @@ CIPC_BUILD_PATH = os.path.join(CIPC_PATH, "build")
 sys.path.insert(0, CIPC_PYTHON_PATH)
 sys.path.insert(0, CIPC_BUILD_PATH)
 
-from JGSL import *
+import bpy
+from JGSL import (
+    CSR_MATRIX_D,
+    FEM,
+    FIXED_COROTATED_2,
+    FIXED_COROTATED_3,
+    TIMER_FLUSH,
+    Kokkos_Initialize,
+    MeshIO,
+    StdMapPairiToi,
+    StdVectorVector2i,
+    StdVectorVector3d,
+    StdVectorVector3i,
+    StdVectorVector4i,
+    StdVectorXd,
+    StdVectorXi,
+    Storage,
+    Vector2d,
+    Vector3d,
+    Vector4d,
+)
+
 from cm_utils import export_as_obj
 from cm_utils.keyframe import keyframe_visibility
-
-import bpy
 
 translation0 = Vector3d(0, 0, 0)
 scale1 = Vector3d(1, 1, 1)
@@ -71,12 +90,8 @@ class SimulationCIPC:
         self.edge_to_triangle = StdMapPairiToi()
         # Contains a hinge edge + the two other vertices affected by the hinge
         self.hinges = StdVectorVector4i()
-        self.edge_info = (
-            StdVectorVector3d()
-        )  # dihedral angle, edge length, sometinhg with normals
-        self.node_attributes = (
-            Storage.V3dV3dV3dSdStorage()
-        )  # x0, v, g, mass, see DATA_TYPE.h
+        self.edge_info = StdVectorVector3d()  # dihedral angle, edge length, sometinhg with normals
+        self.node_attributes = Storage.V3dV3dV3dSdStorage()  # x0, v, g, mass, see DATA_TYPE.h
         self.mass_matrix = CSR_MATRIX_D()
         self.body_force = StdVectorXd()
         self.triangle_attributes = Storage.M2dM2dSdStorage()  # IB, P
@@ -249,8 +264,7 @@ class SimulationCIPC:
 
         # All the CIPC shells are saved and imported as single mesh that we split up.
         object = bpy.context.selected_objects[0]
-        object.data.materials.clear() # Remove the default material
-
+        object.data.materials.clear()  # Remove the default material
 
         vertex_counts = self.vertex_counts
         vertex_counts.pop(-1)  # We don't need to split the last object
@@ -267,7 +281,6 @@ class SimulationCIPC:
 
         for object in objects:
             keyframe_visibility(object, frame, frame)
-
 
         self.blender_objects_output[frame] = objects
 

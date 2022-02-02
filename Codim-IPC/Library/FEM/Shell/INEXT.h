@@ -93,7 +93,7 @@ void Compute_Inextensibility(
             B(0, 1) = Bsqr(0, 1) / B(0, 0);
             B(1, 1) = std::sqrt(Bsqr(1, 1) - Bsqr(0, 1) * Bsqr(0, 1) / Bsqr(0, 0));
             Eigen::Matrix<T, dim, dim - 1> A;
-            for (int d = 0; d < 3; ++d) { 
+            for (int d = 0; d < 3; ++d) {
                 A(d, 0) = x2[d] - x1[d];
                 A(d, 1) = x3[d] - x1[d];
             }
@@ -145,7 +145,7 @@ bool Compute_Inextensibility_Energy(
                 B(0, 1) = Bsqr(0, 1) / B(0, 0);
                 B(1, 1) = std::sqrt(Bsqr(1, 1) - Bsqr(0, 1) * Bsqr(0, 1) / Bsqr(0, 0));
                 Eigen::Matrix<T, dim, dim - 1> A;
-                for (int d = 0; d < 3; ++d) { 
+                for (int d = 0; d < 3; ++d) {
                     A(d, 0) = x2[d] - x1[d];
                     A(d, 1) = x3[d] - x1[d];
                 }
@@ -210,7 +210,7 @@ void Compute_Inextensibility_Gradient(
                 B(1, 1) = std::sqrt(Bsqr(1, 1) - Bsqr(0, 1) * Bsqr(0, 1) / Bsqr(0, 0));
                 Eigen::Matrix<T, dim - 1, dim - 1> IB = B.inverse();
                 Eigen::Matrix<T, dim, dim - 1> A;
-                for (int d = 0; d < 3; ++d) { 
+                for (int d = 0; d < 3; ++d) {
                     A(d, 0) = x2[d] - x1[d];
                     A(d, 1) = x3[d] - x1[d];
                 }
@@ -308,7 +308,7 @@ void Compute_DU_And_DV_Div_DF(const Eigen::JacobiSVD<Eigen::Matrix<T, 3, 2>>& sv
 
 template<class T, int dim>
 void Compute_Inextensibility_Hessian(
-    MESH_ELEM<dim - 1>& Elem, 
+    MESH_ELEM<dim - 1>& Elem,
     T h, bool projectSPD,
     VECTOR<T, 2>& s, VECTOR<T, 2>& sHat, VECTOR<T, 2>& kappa_s,
     const std::vector<bool>& DBCb,
@@ -340,7 +340,7 @@ void Compute_Inextensibility_Hessian(
                 B(1, 1) = std::sqrt(Bsqr(1, 1) - Bsqr(0, 1) * Bsqr(0, 1) / Bsqr(0, 0));
                 IBs[id] = B.inverse();
                 Eigen::Matrix<T, dim, dim - 1> A;
-                for (int d = 0; d < 3; ++d) { 
+                for (int d = 0; d < 3; ++d) {
                     A(d, 0) = x2[d] - x1[d];
                     A(d, 1) = x3[d] - x1[d];
                 }
@@ -387,10 +387,10 @@ void Compute_Inextensibility_Hessian(
                         dS_div_dF_reshaped.template segment<dim>(0) = dS_div_dF.col(0);
                         dS_div_dF_reshaped.template segment<dim>(dim) = dS_div_dF.col(1);
                         d2b_div_dF2 += (dS_div_dF_reshaped * d2b_div_dS2) * dS_div_dF_reshaped.transpose();
-                        
+
                         Eigen::Matrix<T, 6, 6> d2S_div_dF2;
                         for (int Fij = 0; Fij < 6; ++Fij) {
-                            Eigen::Matrix<T, 3, 2> d2S_div_dF2ij = dU_div_dF.template block<3, 1>(i * 3, Fij) * svds[id].matrixV().col(i).transpose() + 
+                            Eigen::Matrix<T, 3, 2> d2S_div_dF2ij = dU_div_dF.template block<3, 1>(i * 3, Fij) * svds[id].matrixV().col(i).transpose() +
                                 svds[id].matrixU().col(i) * dV_div_dF.template block<2, 1>(i * 2, Fij).transpose();
                             d2S_div_dF2.template block<3, 1>(0, Fij) = d2S_div_dF2ij.col(0);
                             d2S_div_dF2.template block<3, 1>(3, Fij) = d2S_div_dF2ij.col(1);
@@ -411,10 +411,10 @@ void Compute_Inextensibility_Hessian(
                             dS_div_dF_reshaped.template segment<dim>(0) = dS_div_dF.col(0);
                             dS_div_dF_reshaped.template segment<dim>(dim) = dS_div_dF.col(1);
                             d2b_div_dF2 += (dS_div_dF_reshaped * d2b_div_dS2) * dS_div_dF_reshaped.transpose();
-                            
+
                             Eigen::Matrix<T, 6, 6> d2S_div_dF2;
                             for (int Fij = 0; Fij < 6; ++Fij) {
-                                Eigen::Matrix<T, 3, 2> d2S_div_dF2ij = dU_div_dF.template block<3, 1>(i * 3, Fij) * svds[id].matrixV().col(i).transpose() + 
+                                Eigen::Matrix<T, 3, 2> d2S_div_dF2ij = dU_div_dF.template block<3, 1>(i * 3, Fij) * svds[id].matrixV().col(i).transpose() +
                                     svds[id].matrixU().col(i) * dV_div_dF.template block<2, 1>(i * 2, Fij).transpose();
                                 d2S_div_dF2.template block<3, 1>(0, Fij) = d2S_div_dF2ij.col(0);
                                 d2S_div_dF2.template block<3, 1>(3, Fij) = d2S_div_dF2ij.col(1);
@@ -432,29 +432,29 @@ void Compute_Inextensibility_Hessian(
                 const Eigen::Matrix<T, dim - 1, dim - 1>& IB = IBs[id];
                 Eigen::Matrix<T, 9, 6> intermediate;
                 for (int colI = 0; colI < 6; ++colI) {
-                    intermediate.col(colI).template segment<dim>(0) = -(IB(0, 0) + IB(1, 0)) * d2b_div_dF2.col(colI).template segment<dim>(0) - 
+                    intermediate.col(colI).template segment<dim>(0) = -(IB(0, 0) + IB(1, 0)) * d2b_div_dF2.col(colI).template segment<dim>(0) -
                         (IB(0, 1) + IB(1, 1)) * d2b_div_dF2.col(colI).template segment<dim>(3);
-                    intermediate.col(colI).template segment<dim>(3) = IB(0, 0) * d2b_div_dF2.col(colI).template segment<dim>(0) + 
+                    intermediate.col(colI).template segment<dim>(3) = IB(0, 0) * d2b_div_dF2.col(colI).template segment<dim>(0) +
                         IB(0, 1) * d2b_div_dF2.col(colI).template segment<dim>(3);
-                    intermediate.col(colI).template segment<dim>(6) = IB(1, 0) * d2b_div_dF2.col(colI).template segment<dim>(0) + 
+                    intermediate.col(colI).template segment<dim>(6) = IB(1, 0) * d2b_div_dF2.col(colI).template segment<dim>(0) +
                         IB(1, 1) * d2b_div_dF2.col(colI).template segment<dim>(3);
                 }
                 Eigen::Matrix<T, 9, 9> Hessian;
                 for (int i = 0; i < 9; ++i) {
-                    Hessian.row(i).template segment<dim>(0) = -(IB(0, 0) + IB(1, 0)) * intermediate.row(i).template segment<dim>(0) - 
+                    Hessian.row(i).template segment<dim>(0) = -(IB(0, 0) + IB(1, 0)) * intermediate.row(i).template segment<dim>(0) -
                         (IB(0, 1) + IB(1, 1)) * intermediate.row(i).template segment<dim>(3);
-                    Hessian.row(i).template segment<dim>(3) = IB(0, 0) * intermediate.row(i).template segment<dim>(0) + 
+                    Hessian.row(i).template segment<dim>(3) = IB(0, 0) * intermediate.row(i).template segment<dim>(0) +
                         IB(0, 1) * intermediate.row(i).template segment<dim>(3);
-                    Hessian.row(i).template segment<dim>(6) = IB(1, 0) * intermediate.row(i).template segment<dim>(0) + 
+                    Hessian.row(i).template segment<dim>(6) = IB(1, 0) * intermediate.row(i).template segment<dim>(0) +
                         IB(1, 1) * intermediate.row(i).template segment<dim>(3);
                 }
-                
+
                 for (int i = 0; i < 3; ++i) {
                     for (int id = 0; id < 3; ++id) {
                         for (int j = 0; j < 3; ++j) {
                             for (int jd = 0; jd < 3; ++jd) {
                                 triplets[startInd + (i * 3 + id) * 9 + j * 3 + jd] = std::move(
-                                    Eigen::Triplet<T>(elemVInd[i] * 3 + id, elemVInd[j] * 3 + jd, 
+                                    Eigen::Triplet<T>(elemVInd[i] * 3 + id, elemVInd[j] * 3 + jd,
                                     Hessian(i * 3 + id, j * 3 + jd)));
                             }
                         }

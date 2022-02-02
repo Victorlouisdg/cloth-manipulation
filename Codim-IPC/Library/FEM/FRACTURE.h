@@ -234,7 +234,7 @@ void Initialize_Fracture(
             if constexpr (dim == 2) {
                 for (int i = 0; i < 3; ++i) {
                     const auto nbFinder = edge2tri.find(VECTOR<int, dim>(elemVInd[(i + 1) % 3], elemVInd[i]));
-                    if (nbFinder != edge2tri.end()) { 
+                    if (nbFinder != edge2tri.end()) {
                         if (elemLabel[nbFinder->second] == -1) {
                             elemLabel[nbFinder->second] = curElemI[1];
                             toSpread.push_back(std::move(VECTOR<int, 2>(nbFinder->second, curElemI[1])));
@@ -255,7 +255,7 @@ void Initialize_Fracture(
                 for (int i = 0; i < 4; ++i) {
                     std::map<VECTOR<int, 3>, int>::iterator tetFinder;
                     findTetByTri(edge2tri, faceVInd[i], tetFinder);
-                    if (tetFinder != edge2tri.end()) { 
+                    if (tetFinder != edge2tri.end()) {
                         if (elemLabel[tetFinder->second] == -1) {
                             elemLabel[tetFinder->second] = curElemI[1];
                             toSpread.push_back(std::move(VECTOR<int, 2>(tetFinder->second, curElemI[1])));
@@ -549,7 +549,7 @@ void Update_Fracture(
                         std::cout << "boundary node record inconsistent!" << std::endl;
                         exit(-1);
                     }
-                    
+
                     VECTOR<T, dim> movDir;
                     if constexpr (dim == 2) {
                         const VECTOR<T, dim>& e0v0 = std::get<0>(X.Get_Unchecked(boundaryEdge[finder->second[0]][0]));
@@ -608,7 +608,7 @@ void Test_Fracture(void)
         std::vector<int> isFracture_edge;
         std::vector<VECTOR<int, 4>> incTriV_edge;
         std::vector<T> incTriRestDist2_edge;
-        Initialize_Fracture<T, 2>(X, Elem, -1, T(2), T(2), edge_dupV, isFracture_edge, 
+        Initialize_Fracture<T, 2>(X, Elem, -1, T(2), T(2), edge_dupV, isFracture_edge,
             incTriV_edge, incTriRestDist2_edge);
 
         std::vector<int> finalV2old;
@@ -634,7 +634,7 @@ void Test_Fracture(void)
         std::vector<int> isFracture_edge;
         std::vector<VECTOR<int, 4>> incTriV_edge;
         std::vector<T> incTriRestDist2_edge;
-        Initialize_Fracture<T, 3>(X, Elem, 2, T(2), T(2), edge_dupV, isFracture_edge, 
+        Initialize_Fracture<T, 3>(X, Elem, 2, T(2), T(2), edge_dupV, isFracture_edge,
             incTriV_edge, incTriRestDist2_edge);
 
         std::vector<int> finalV2old;

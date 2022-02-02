@@ -148,7 +148,7 @@ int Advance_One_Step_IE(MESH_ELEM<dim>& Elem,
     }
     if (withCollision) {
         Compute_Intersection_Free_StepSize<T, dim, false, elasticIPC>(X, boundaryNode, boundaryEdge, boundaryTri,
-            std::vector<int>(), std::vector<VECTOR<int, 2>>(), std::map<int, std::set<int>>(), 
+            std::vector<int>(), std::vector<VECTOR<int, 2>>(), std::map<int, std::set<int>>(),
             VECTOR<int, 2>(boundaryNode.size(), boundaryNode.size()),
             DBCb, DBCDisp, T(0), DBCAlpha); // CCD
         printf("DBCAlpha under contact: %le\n", DBCAlpha);
@@ -307,8 +307,8 @@ int Advance_One_Step_IE(MESH_ELEM<dim>& Elem,
             printf("inversion free step size = %le\n", alpha);
         }
         if (withCollision) {
-            Compute_Intersection_Free_StepSize<T, dim, shell, elasticIPC>(X, boundaryNode, boundaryEdge, boundaryTri, 
-                std::vector<int>(), std::vector<VECTOR<int, 2>>(), std::map<int, std::set<int>>(), 
+            Compute_Intersection_Free_StepSize<T, dim, shell, elasticIPC>(X, boundaryNode, boundaryEdge, boundaryTri,
+                std::vector<int>(), std::vector<VECTOR<int, 2>>(), std::map<int, std::set<int>>(),
                 VECTOR<int, 2>(boundaryNode.size(), boundaryNode.size()),
                 DBCb, sol, T(0), alpha); // CCD
             printf("intersection free step size = %le\n", alpha);
@@ -326,7 +326,7 @@ int Advance_One_Step_IE(MESH_ELEM<dim>& Elem,
             });
             Compute_Deformation_Gradient(X, Elem, elemAttr, elasticityAttr);
             if (withCollision) {
-                Compute_Constraint_Set<T, dim, shell, elasticIPC>(X, nodeAttr, boundaryNode, boundaryEdge, boundaryTri, 
+                Compute_Constraint_Set<T, dim, shell, elasticIPC>(X, nodeAttr, boundaryNode, boundaryEdge, boundaryTri,
                     std::vector<int>(), std::vector<VECTOR<int, 2>>(), std::map<int, std::set<int>>(), BNArea, BEArea, BTArea,
                     VECTOR<int, 2>(boundaryNode.size(), boundaryNode.size()),
                     DBCb, dHat2, T(0), false, constraintSet, constraintSetPTEE, stencilInfo);

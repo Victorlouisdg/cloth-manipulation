@@ -10,6 +10,7 @@ except OSError:
 import math
 
 from JGSL import *
+
 from .SimulationBase import SimulationBase
 
 
@@ -22,20 +23,12 @@ class FEMDiscreteShellBase(SimulationBase):
         self.Elem = Storage.V2iStorage() if self.dim == 2 else Storage.V3iStorage()
         self.segs = StdVectorVector2i()
         self.outputSeg = False
-        self.nodeAttr = (
-            Storage.V2dV2dV2dSdStorage()
-            if self.dim == 2
-            else Storage.V3dV3dV3dSdStorage()
-        )
+        self.nodeAttr = Storage.V2dV2dV2dSdStorage() if self.dim == 2 else Storage.V3dV3dV3dSdStorage()
         self.massMatrix = CSR_MATRIX_D()
         self.elemAttr = Storage.M2dM2dSdStorage()
         self.elasticity = FIXED_COROTATED_2.Create()  # TODO: different material switch
         self.DBC = Storage.V3dStorage() if self.dim == 2 else Storage.V4dStorage()
-        self.DBCMotion = (
-            Storage.V2iV2dV2dV2dSdStorage()
-            if self.dim == 2
-            else Storage.V2iV3dV3dV3dSdStorage()
-        )
+        self.DBCMotion = Storage.V2iV2dV2dV2dSdStorage() if self.dim == 2 else Storage.V2iV3dV3dV3dSdStorage()
         self.gravity = self.Vec(0, -9.81) if self.dim == 2 else self.Vec(0, -9.81, 0)
         self.bodyForce = StdVectorXd()
         self.edge2tri = StdMapPairiToi()
@@ -45,7 +38,7 @@ class FEMDiscreteShellBase(SimulationBase):
         self.bendingStiffMult = 1
         self.fiberStiffMult = Vector4d(0, 0, 0, 0)
         self.inextLimit = Vector3d(0, 0, 0)
-        self.s = Vector2d(1.01, 0) # strain limiting: 1.01 means max 1% stretching
+        self.s = Vector2d(1.01, 0)  # strain limiting: 1.01 means max 1% stretching
         self.sHat = Vector2d(1, 1)
         self.kappa_s = Vector2d(0, 0)
         self.withCollision = False
@@ -105,9 +98,7 @@ class FEMDiscreteShellBase(SimulationBase):
         self.withVol = False
         self.tet = Storage.V4iStorage()
         self.tetAttr = Storage.M3dM3dSdStorage()
-        self.tetElasticity = (
-            FIXED_COROTATED_3.Create()
-        )  # TODO: different material switch
+        self.tetElasticity = FIXED_COROTATED_3.Create()  # TODO: different material switch
         self.TriVI2TetVI = Storage.SiStorage()  # TODO: together?
         self.Tri = Storage.V3iStorage()
         self.outputRod = False
@@ -135,11 +126,7 @@ class FEMDiscreteShellBase(SimulationBase):
         self.DBCPopBackStep = 1
         self.DBCPopBackBatch = 1
 
-        self.DBCMotion2 = (
-            Storage.V2iV2dV2dV2dSdStorage()
-            if self.dim == 2
-            else Storage.V2iV3dV3dV3dSdStorage()
-        )
+        self.DBCMotion2 = Storage.V2iV2dV2dV2dSdStorage() if self.dim == 2 else Storage.V2iV3dV3dV3dSdStorage()
         self.MDBC_tmax2 = -1
         self.MDBC_tmin2 = 0
         self.MDBC_period2 = 1e10
@@ -178,9 +165,7 @@ class FEMDiscreteShellBase(SimulationBase):
             self.compNodeRange,
         )
 
-    def add_shell_with_scale_3D(
-        self, filePath, translate, scale, rotCenter, rotAxis, rotDeg
-    ):
+    def add_shell_with_scale_3D(self, filePath, translate, scale, rotCenter, rotAxis, rotDeg):
         return FEM.DiscreteShell.Add_Shell(
             filePath,
             translate,
@@ -251,55 +236,35 @@ class FEMDiscreteShellBase(SimulationBase):
 
     def add_seg_3D(self, filePath, translate, rotCenter, rotAxis, rotDeg, scale):
         meshCounter = MeshIO.Read_SegMesh_Seg(filePath, self.X, self.segs)
-        MeshIO.Transform_Points(
-            translate, rotCenter, rotAxis, rotDeg, scale, meshCounter, self.X
-        )
+        MeshIO.Transform_Points(translate, rotCenter, rotAxis, rotDeg, scale, meshCounter, self.X)
         self.outputSeg = True
 
     def add_rod_3D(self, filePath, translate, rotCenter, rotAxis, rotDeg, scale):
         meshCounter = MeshIO.Read_SegMesh_Seg(filePath, self.X, self.rod)
-        MeshIO.Transform_Points(
-            translate, rotCenter, rotAxis, rotDeg, scale, meshCounter, self.X
-        )
+        MeshIO.Transform_Points(translate, rotCenter, rotAxis, rotDeg, scale, meshCounter, self.X)
         self.outputRod = True
 
-    def make_and_add_rod_3D(
-        self, rLen, nSeg, translate, rotCenter, rotAxis, rotDeg, scale
-    ):
+    def make_and_add_rod_3D(self, rLen, nSeg, translate, rotCenter, rotAxis, rotDeg, scale):
         meshCounter = FEM.DiscreteShell.Make_Rod(rLen, nSeg, self.X, self.rod)
-        MeshIO.Transform_Points(
-            translate, rotCenter, rotAxis, rotDeg, scale, meshCounter, self.X
-        )
+        MeshIO.Transform_Points(translate, rotCenter, rotAxis, rotDeg, scale, meshCounter, self.X)
         self.outputRod = True
 
-    def make_and_add_rod_net_3D(
-        self, rLen, nSeg, midPointAmt, translate, rotCenter, rotAxis, rotDeg, scale
-    ):
-        meshCounter = FEM.DiscreteShell.Make_Rod_Net(
-            rLen, nSeg, midPointAmt, self.X, self.rod
-        )
-        MeshIO.Transform_Points(
-            translate, rotCenter, rotAxis, rotDeg, scale, meshCounter, self.X
-        )
+    def make_and_add_rod_net_3D(self, rLen, nSeg, midPointAmt, translate, rotCenter, rotAxis, rotDeg, scale):
+        meshCounter = FEM.DiscreteShell.Make_Rod_Net(rLen, nSeg, midPointAmt, self.X, self.rod)
+        MeshIO.Transform_Points(translate, rotCenter, rotAxis, rotDeg, scale, meshCounter, self.X)
         self.outputRod = True
 
-    def add_particle_3D(
-        self, boxLen, num, randScale, translate, rotCenter, rotAxis, rotDeg, scale
-    ):
+    def add_particle_3D(self, boxLen, num, randScale, translate, rotCenter, rotAxis, rotDeg, scale):
         meshCounter = FEM.DiscreteShell.Add_Discrete_Particles(
             boxLen, num, randScale, self.X, self.discrete_particle, self.compNodeRange
         )
-        MeshIO.Transform_Points(
-            translate, rotCenter, rotAxis, rotDeg, scale, meshCounter, self.X
-        )
+        MeshIO.Transform_Points(translate, rotCenter, rotAxis, rotDeg, scale, meshCounter, self.X)
         return meshCounter
 
     def add_object_3D(self, filePath, translate, rotCenter, rotAxis, rotDeg, scale):
         self.withVol = True
         meshCounter = MeshIO.Read_TetMesh_Vtk(filePath, self.X, self.tet)
-        MeshIO.Transform_Points(
-            translate, rotCenter, rotAxis, rotDeg, scale, meshCounter, self.X
-        )
+        MeshIO.Transform_Points(translate, rotCenter, rotAxis, rotDeg, scale, meshCounter, self.X)
         return meshCounter
 
     def initialize(self, p_density, E, nu, thickness, caseI):
@@ -362,9 +327,7 @@ class FEMDiscreteShellBase(SimulationBase):
         vol = Storage.SdStorage()
         FEM.Compute_Vol_And_Inv_Basis(self.X, self.tet, vol, self.tetAttr)
         FIXED_COROTATED_3.All_Append_FEM(self.tetElasticity, vol, E, nu)
-        FEM.Compute_Mass_And_Init_Velocity_NoAlloc(
-            self.X, self.tet, vol, p_density, velocity, self.nodeAttr
-        )
+        FEM.Compute_Mass_And_Init_Velocity_NoAlloc(self.X, self.tet, vol, p_density, velocity, self.nodeAttr)
         FEM.Augment_Mass_Matrix_And_Body_Force(
             self.X,
             self.tet,
@@ -421,9 +384,7 @@ class FEMDiscreteShellBase(SimulationBase):
         )
 
     def initialize_EIPC(self, E, nu, thickness, h):
-        self.dHat2 = FEM.DiscreteShell.Initialize_EIPC(
-            E, nu, thickness, h, self.massMatrix, self.kappa
-        )
+        self.dHat2 = FEM.DiscreteShell.Initialize_EIPC(E, nu, thickness, h, self.massMatrix, self.kappa)
         self.elasticIPC = True
 
     def initialize_OIPC(self, thickness, offset, stiffMult=1):
@@ -458,9 +419,7 @@ class FEMDiscreteShellBase(SimulationBase):
             Vector4i(0, 0, 1000000000, -1),
         )
 
-    def set_DBC_with_range(
-        self, DBCRangeMin, DBCRangeMax, v, rotCenter, rotAxis, angVelDeg, vIndRange
-    ):
+    def set_DBC_with_range(self, DBCRangeMin, DBCRangeMax, v, rotCenter, rotAxis, angVelDeg, vIndRange):
         FEM.Init_Dirichlet(
             self.X,
             DBCRangeMin,
@@ -474,9 +433,7 @@ class FEMDiscreteShellBase(SimulationBase):
             vIndRange,
         )
 
-    def set_DBC2_with_range(
-        self, DBCRangeMin, DBCRangeMax, v, rotCenter, rotAxis, angVelDeg, vIndRange
-    ):
+    def set_DBC2_with_range(self, DBCRangeMin, DBCRangeMax, v, rotCenter, rotAxis, angVelDeg, vIndRange):
         FEM.Init_Dirichlet(
             self.X,
             DBCRangeMin,
@@ -491,9 +448,7 @@ class FEMDiscreteShellBase(SimulationBase):
         )
 
     def magnify_body_force(self, DBCRangeMin, DBCRangeMax, magnifyFactor):
-        FEM.Magnify_Body_Force(
-            self.X, DBCRangeMin, DBCRangeMax, magnifyFactor, self.bodyForce
-        )
+        FEM.Magnify_Body_Force(self.X, DBCRangeMin, DBCRangeMax, magnifyFactor, self.bodyForce)
 
     def advance_one_time_step(self, dt):
         # TODO: self.tol
@@ -507,10 +462,7 @@ class FEMDiscreteShellBase(SimulationBase):
             # self.initialize_OIPC(math.sqrt(self.dHat2), 0)
         if self.t < self.MDBC_tmax and self.t > self.MDBC_tmin:
             if self.seqDBC < 0:
-                if (
-                    self.t - self.MDBC_tmin
-                    >= self.MDBC_period * self.MDBC_periodCounter
-                ):
+                if self.t - self.MDBC_tmin >= self.MDBC_period * self.MDBC_periodCounter:
                     self.MDBC_periodCounter += 1
                     FEM.Turn_Dirichlet(self.DBCMotion)
                 FEM.Step_Dirichlet(self.DBCMotion, dt, self.DBC)
@@ -543,9 +495,7 @@ class FEMDiscreteShellBase(SimulationBase):
             # load next frame target as rest shape
             newX = Storage.V2dStorage() if self.dim == 2 else Storage.V3dStorage()
             newElem = Storage.V2iStorage() if self.dim == 2 else Storage.V3iStorage()
-            MeshIO.Read_TriMesh_Obj(
-                self.seqDBCPath + "/" + str(self.lv_fn) + ".obj", newX, newElem
-            )
+            MeshIO.Read_TriMesh_Obj(self.seqDBCPath + "/" + str(self.lv_fn) + ".obj", newX, newElem)
             print("Initialize_Shell_Hinge_EIPC")
             # reset rest shape info:
             FEM.DiscreteShell.Initialize_Shell_Hinge_EIPC(
@@ -584,105 +534,187 @@ class FEMDiscreteShellBase(SimulationBase):
         if self.elasticIPC:
             if self.split:
                 print("Advance_One_Step_SIE_Hinge_EIPC")
-                self.PNIterCount = (
-                    self.PNIterCount
-                    + FEM.DiscreteShell.Advance_One_Step_SIE_Hinge_EIPC(
-                        self.Elem,
-                        self.segs,
-                        self.DBC,
-                        self.edge2tri,
-                        self.edgeStencil,
-                        self.edgeInfo,
-                        self.thickness,
-                        self.bendingStiffMult,
-                        self.fiberStiffMult,
-                        self.inextLimit,
-                        self.s,
-                        self.sHat,
-                        self.kappa_s,
-                        self.bodyForce,
-                        self.dt,
-                        self.PNTol,
-                        self.withCollision,
-                        self.dHat2,
-                        self.kappa,
-                        self.mu,
-                        self.epsv2,
-                        self.fricIterAmt,
-                        self.compNodeRange,
-                        self.muComp,
-                        self.staticSolve,
-                        self.X,
-                        self.nodeAttr,
-                        self.massMatrix,
-                        self.elemAttr,
-                        self.elasticity,
-                        self.tet,
-                        self.tetAttr,
-                        self.tetElasticity,
-                        self.rod,
-                        self.rodInfo,
-                        self.rodHinge,
-                        self.rodHingeInfo,
-                        self.discrete_particle,
-                        self.output_folder,
-                    )
+                self.PNIterCount = self.PNIterCount + FEM.DiscreteShell.Advance_One_Step_SIE_Hinge_EIPC(
+                    self.Elem,
+                    self.segs,
+                    self.DBC,
+                    self.edge2tri,
+                    self.edgeStencil,
+                    self.edgeInfo,
+                    self.thickness,
+                    self.bendingStiffMult,
+                    self.fiberStiffMult,
+                    self.inextLimit,
+                    self.s,
+                    self.sHat,
+                    self.kappa_s,
+                    self.bodyForce,
+                    self.dt,
+                    self.PNTol,
+                    self.withCollision,
+                    self.dHat2,
+                    self.kappa,
+                    self.mu,
+                    self.epsv2,
+                    self.fricIterAmt,
+                    self.compNodeRange,
+                    self.muComp,
+                    self.staticSolve,
+                    self.X,
+                    self.nodeAttr,
+                    self.massMatrix,
+                    self.elemAttr,
+                    self.elasticity,
+                    self.tet,
+                    self.tetAttr,
+                    self.tetElasticity,
+                    self.rod,
+                    self.rodInfo,
+                    self.rodHinge,
+                    self.rodHingeInfo,
+                    self.discrete_particle,
+                    self.output_folder,
                 )
             else:
                 print("Advance_One_Step_IE_Hinge_EIPC")
-                self.PNIterCount = (
-                    self.PNIterCount
-                    + FEM.DiscreteShell.Advance_One_Step_IE_Hinge_EIPC(
-                        self.Elem,
-                        self.segs,
-                        self.DBC,
-                        self.edge2tri,
-                        self.edgeStencil,
-                        self.edgeInfo,
-                        self.thickness,
-                        self.bendingStiffMult,
-                        self.fiberStiffMult,
-                        self.inextLimit,
-                        self.s,
-                        self.sHat,
-                        self.kappa_s,
-                        self.bodyForce,
-                        self.dt,
-                        self.PNTol,
-                        self.withCollision,
-                        self.dHat2,
-                        self.kappa,
-                        self.mu,
-                        self.epsv2,
-                        self.fricIterAmt,
-                        self.compNodeRange,
-                        self.muComp,
-                        self.staticSolve,
-                        self.X,
-                        self.nodeAttr,
-                        self.massMatrix,
-                        self.elemAttr,
-                        self.elasticity,
-                        self.tet,
-                        self.tetAttr,
-                        self.tetElasticity,
-                        self.rod,
-                        self.rodInfo,
-                        self.rodHinge,
-                        self.rodHingeInfo,
-                        self.stitchInfo,
-                        self.stitchRatio,
-                        self.k_stitch,
-                        self.discrete_particle,
-                        self.output_folder,
-                    )
+                self.PNIterCount = self.PNIterCount + FEM.DiscreteShell.Advance_One_Step_IE_Hinge_EIPC(
+                    self.Elem,
+                    self.segs,
+                    self.DBC,
+                    self.edge2tri,
+                    self.edgeStencil,
+                    self.edgeInfo,
+                    self.thickness,
+                    self.bendingStiffMult,
+                    self.fiberStiffMult,
+                    self.inextLimit,
+                    self.s,
+                    self.sHat,
+                    self.kappa_s,
+                    self.bodyForce,
+                    self.dt,
+                    self.PNTol,
+                    self.withCollision,
+                    self.dHat2,
+                    self.kappa,
+                    self.mu,
+                    self.epsv2,
+                    self.fricIterAmt,
+                    self.compNodeRange,
+                    self.muComp,
+                    self.staticSolve,
+                    self.X,
+                    self.nodeAttr,
+                    self.massMatrix,
+                    self.elemAttr,
+                    self.elasticity,
+                    self.tet,
+                    self.tetAttr,
+                    self.tetElasticity,
+                    self.rod,
+                    self.rodInfo,
+                    self.rodHinge,
+                    self.rodHingeInfo,
+                    self.stitchInfo,
+                    self.stitchRatio,
+                    self.k_stitch,
+                    self.discrete_particle,
+                    self.output_folder,
                 )
         else:
             if self.flow:
                 print("Advance_One_Step_IE_Flow")
-                self.PNIterCount = (
-                    self.PNIterCount
-                    + FEM.DiscreteShell.Advance_One_Step_IE_Flow(
+                self.PNIterCount = self.PNIterCount + FEM.DiscreteShell.Advance_One_Step_IE_Flow(
+                    self.Elem,
+                    self.segs,
+                    self.DBC,
+                    self.edge2tri,
+                    self.edgeStencil,
+                    self.edgeInfo,
+                    self.thickness,
+                    self.bendingStiffMult,
+                    self.fiberStiffMult,
+                    self.inextLimit,
+                    self.s,
+                    self.sHat,
+                    self.kappa_s,
+                    self.bodyForce,
+                    self.dt,
+                    self.PNTol,
+                    self.withCollision,
+                    self.dHat2,
+                    self.kappa,
+                    self.mu,
+                    self.epsv2,
+                    self.fricIterAmt,
+                    self.compNodeRange,
+                    self.muComp,
+                    self.staticSolve,
+                    self.X,
+                    self.nodeAttr,
+                    self.massMatrix,
+                    self.elemAttr,
+                    self.elasticity,
+                    self.tet,
+                    self.tetAttr,
+                    self.tetElasticity,
+                    self.rod,
+                    self.rodInfo,
+                    self.rodHinge,
+                    self.rodHingeInfo,
+                    self.stitchInfo,
+                    self.stitchRatio,
+                    self.k_stitch,
+                    self.discrete_particle,
+                    self.output_folder,
+                )
+            else:
+                if self.split:
+                    print("Advance_One_Step_SIE_Hinge")
+                    self.PNIterCount = self.PNIterCount + FEM.DiscreteShell.Advance_One_Step_SIE_Hinge(
+                        self.Elem,
+                        self.segs,
+                        self.DBC,
+                        self.edge2tri,
+                        self.edgeStencil,
+                        self.edgeInfo,
+                        self.thickness,
+                        self.bendingStiffMult,
+                        self.fiberStiffMult,
+                        self.inextLimit,
+                        self.s,
+                        self.sHat,
+                        self.kappa_s,
+                        self.bodyForce,
+                        self.dt,
+                        self.PNTol,
+                        self.withCollision,
+                        self.dHat2,
+                        self.kappa,
+                        self.mu,
+                        self.epsv2,
+                        self.fricIterAmt,
+                        self.compNodeRange,
+                        self.muComp,
+                        self.staticSolve,
+                        self.X,
+                        self.nodeAttr,
+                        self.massMatrix,
+                        self.elemAttr,
+                        self.elasticity,
+                        self.tet,
+                        self.tetAttr,
+                        self.tetElasticity,
+                        self.rod,
+                        self.rodInfo,
+                        self.rodHinge,
+                        self.rodHingeInfo,
+                        self.discrete_particle,
+                        self.output_folder,
+                    )
+                else:
+                    print("Advance_One_Step_IE_Hinge")
+                    self.PNIterCount = self.PNIterCount + FEM.DiscreteShell.Advance_One_Step_IE_Hinge(
                         self.Elem,
                         self.segs,
                         self.DBC,
@@ -726,111 +758,10 @@ class FEMDiscreteShellBase(SimulationBase):
                         self.discrete_particle,
                         self.output_folder,
                     )
-                )
-            else:
-                if self.split:
-                    print("Advance_One_Step_SIE_Hinge")
-                    self.PNIterCount = (
-                        self.PNIterCount
-                        + FEM.DiscreteShell.Advance_One_Step_SIE_Hinge(
-                            self.Elem,
-                            self.segs,
-                            self.DBC,
-                            self.edge2tri,
-                            self.edgeStencil,
-                            self.edgeInfo,
-                            self.thickness,
-                            self.bendingStiffMult,
-                            self.fiberStiffMult,
-                            self.inextLimit,
-                            self.s,
-                            self.sHat,
-                            self.kappa_s,
-                            self.bodyForce,
-                            self.dt,
-                            self.PNTol,
-                            self.withCollision,
-                            self.dHat2,
-                            self.kappa,
-                            self.mu,
-                            self.epsv2,
-                            self.fricIterAmt,
-                            self.compNodeRange,
-                            self.muComp,
-                            self.staticSolve,
-                            self.X,
-                            self.nodeAttr,
-                            self.massMatrix,
-                            self.elemAttr,
-                            self.elasticity,
-                            self.tet,
-                            self.tetAttr,
-                            self.tetElasticity,
-                            self.rod,
-                            self.rodInfo,
-                            self.rodHinge,
-                            self.rodHingeInfo,
-                            self.discrete_particle,
-                            self.output_folder,
-                        )
-                    )
-                else:
-                    print("Advance_One_Step_IE_Hinge")
-                    self.PNIterCount = (
-                        self.PNIterCount
-                        + FEM.DiscreteShell.Advance_One_Step_IE_Hinge(
-                            self.Elem,
-                            self.segs,
-                            self.DBC,
-                            self.edge2tri,
-                            self.edgeStencil,
-                            self.edgeInfo,
-                            self.thickness,
-                            self.bendingStiffMult,
-                            self.fiberStiffMult,
-                            self.inextLimit,
-                            self.s,
-                            self.sHat,
-                            self.kappa_s,
-                            self.bodyForce,
-                            self.dt,
-                            self.PNTol,
-                            self.withCollision,
-                            self.dHat2,
-                            self.kappa,
-                            self.mu,
-                            self.epsv2,
-                            self.fricIterAmt,
-                            self.compNodeRange,
-                            self.muComp,
-                            self.staticSolve,
-                            self.X,
-                            self.nodeAttr,
-                            self.massMatrix,
-                            self.elemAttr,
-                            self.elasticity,
-                            self.tet,
-                            self.tetAttr,
-                            self.tetElasticity,
-                            self.rod,
-                            self.rodInfo,
-                            self.rodHinge,
-                            self.rodHingeInfo,
-                            self.stitchInfo,
-                            self.stitchRatio,
-                            self.k_stitch,
-                            self.discrete_particle,
-                            self.output_folder,
-                        )
-                    )
         self.t += dt
         print("Total PN iteration count: ", self.PNIterCount, "\n")
         # self.load_velocity('/Users/minchen/Desktop/JGSL/Projects/FEMShell/output/shrink/', 1, dt)
-        if (
-            self.scaleXMultStep != 1
-            or self.scaleYMultStep != 1
-            or self.scaleZMultStep != 1
-        ):
+        if self.scaleXMultStep != 1 or self.scaleYMultStep != 1 or self.scaleZMultStep != 1:
             self.scaleX *= self.scaleXMultStep
             self.scaleY *= self.scaleYMultStep
             self.scaleZ *= self.scaleZMultStep
@@ -846,9 +777,7 @@ class FEMDiscreteShellBase(SimulationBase):
                 self.scaleZMultStep < 1 and self.scaleZ < self.scaleZTarget
             ):
                 self.scaleZ = self.scaleZTarget
-            FEM.Update_Inv_Basis(
-                self.X0, self.tet, self.tetAttr, self.scaleX, self.scaleY, self.scaleZ
-            )
+            FEM.Update_Inv_Basis(self.X0, self.tet, self.tetAttr, self.scaleX, self.scaleY, self.scaleZ)
         if self.zeroVel:
             MeshIO.Zero_Velocity(self.nodeAttr)
 
@@ -864,6 +793,4 @@ class FEMDiscreteShellBase(SimulationBase):
         if self.outputRod:
             MeshIO.Write_SegMesh_Obj(self.X, self.rod, rod_path)
         if self.withVol:
-            MeshIO.Write_Surface_TriMesh_Obj(
-                self.X, self.TriVI2TetVI, self.Tri, vol_path
-            )
+            MeshIO.Write_Surface_TriMesh_Obj(self.X, self.TriVI2TetVI, self.Tri, vol_path)

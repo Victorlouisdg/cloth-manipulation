@@ -96,11 +96,11 @@ public:
         // for (int i = 1; i <= rows; ++i) {
         //     A.outerIndexPtr()[i] += A.outerIndexPtr()[i - 1];
         // }
-        
+
         // A.reserve(A.outerIndexPtr()[rows]);
         // // copy inner index and values of CSR
         // threads.Par_Each([&](int rowI, auto data) {
-        //     std::memcpy(A.valuePtr() + A.outerIndexPtr()[rowI], valuePerRow[rowI].data(), 
+        //     std::memcpy(A.valuePtr() + A.outerIndexPtr()[rowI], valuePerRow[rowI].data(),
         //         valuePerRow[rowI].size() * sizeof(T));
         //     std::memcpy(A.innerIndexPtr() + A.outerIndexPtr()[rowI], colIndPerRow[rowI].data(),
         //         colIndPerRow[rowI].size() * sizeof(colIndPerRow[rowI][0]));
@@ -176,7 +176,7 @@ public:
     //#################################################################
     // Function Size
     //#################################################################
-    std::pair<size_t, size_t> Size() {return std::make_pair<size_t, size_t>(A.rows(), A.cols());} 
+    std::pair<size_t, size_t> Size() {return std::make_pair<size_t, size_t>(A.rows(), A.cols());}
 };
 
 //#####################################################################

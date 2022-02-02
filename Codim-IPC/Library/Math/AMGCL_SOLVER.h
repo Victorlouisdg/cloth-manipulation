@@ -66,7 +66,7 @@ boost::property_tree::ptree Default_FEM_Params(){
 
 template <class T>
 std::tuple<size_t, double, double> Solve(CSR_MATRIX<T> &A, const std::vector<T> &residual, std::vector<T> &x, T rel_tol=-1, int max_iter=-1, boost::property_tree::ptree prm=Default_Params(), bool verbose=false) {
-    if (rel_tol > 0) 
+    if (rel_tol > 0)
         prm.put("solver.tol", rel_tol); // relative
     else
         prm.put("solver.tol", T(1e-8));
@@ -89,7 +89,7 @@ std::tuple<size_t, double, double> Solve(CSR_MATRIX<T> &A, const std::vector<T> 
     using Solver = amgcl::make_solver<
         amgcl::runtime::preconditioner<Backend>,
         amgcl::runtime::solver::wrapper<Backend>>;
-    
+
     typename Backend::params bprm;
 
     prof.tic("AMGCL Solve");
@@ -110,7 +110,7 @@ std::tuple<size_t, double, double> Solve(CSR_MATRIX<T> &A, const std::vector<T> 
         size_t iters;
         double resid;
 
-        
+
         std::vector<T> F(residual.data(), residual.data() + residual.size());
         std::vector<T> X(x.data(), x.data() + x.size());
 
@@ -179,9 +179,9 @@ void Write_Matrix(std::string filename, CSR_MATRIX<T> A){
 }
 
 template <class T>
-void Export_AMGCL_Impl(py::module& m) { 
+void Export_AMGCL_Impl(py::module& m) {
     m.def("Solve", &Solve<T>);
-    m.def("Params", 
+    m.def("Params",
         [](pybind11::dict params_dict) {
             boost::property_tree::ptree params = Default_Params();
             for (auto item : params_dict) {

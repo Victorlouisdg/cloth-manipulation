@@ -1,6 +1,6 @@
-import sys
 import os
 import re
+import sys
 
 sys.path.insert(0, "../../build")
 from JGSL import *
@@ -30,9 +30,7 @@ class SimulationBase:
         self.symplectic = True
         self.output_folder = output_folder
         if self.output_folder == None:
-            self.output_folder = (
-                "output/" + os.path.splitext(os.path.basename(sys.argv[0]))[0] + "/"
-            )
+            self.output_folder = "output/" + os.path.splitext(os.path.basename(sys.argv[0]))[0] + "/"
             make_directory(self.output_folder)
             if len(sys.argv) > 1:
                 self.output_folder += sys.argv[1]
@@ -133,9 +131,7 @@ class SimulationBase:
         upper = np.amax(particles, axis=0)
         if self.dim == 2:
             self.camera_scale = 0.8 / (upper - lower).max()
-            self.camera_offset = (
-                np.array([0.5, 0.5]) - ((upper + lower) * 0.5) * self.camera_scale
-            )
+            self.camera_offset = np.array([0.5, 0.5]) - ((upper + lower) * 0.5) * self.camera_scale
         else:
             self.camera_scale = 1.0 / (upper - lower).max()
             self.camera_offset = -((upper + lower) * 0.5) * self.camera_scale

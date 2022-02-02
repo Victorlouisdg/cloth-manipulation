@@ -30,7 +30,6 @@ def test_multiple_inheritance_mix1():
 
 
 def test_multiple_inheritance_mix2():
-
     class Base2:
         def __init__(self, i):
             self.i = i
@@ -50,7 +49,6 @@ def test_multiple_inheritance_mix2():
 
 
 def test_multiple_inheritance_python():
-
     class MI1(m.Base1, m.Base2):
         def __init__(self, i, j):
             m.Base1.__init__(self, i)
@@ -156,7 +154,6 @@ def test_multiple_inheritance_python():
 
 
 def test_multiple_inheritance_python_many_bases():
-
     class MIMany14(m.BaseN1, m.BaseN2, m.BaseN3, m.BaseN4):
         def __init__(self):
             m.BaseN1.__init__(self, 1)
@@ -171,8 +168,7 @@ def test_multiple_inheritance_python_many_bases():
             m.BaseN7.__init__(self, 7)
             m.BaseN8.__init__(self, 8)
 
-    class MIMany916(m.BaseN9, m.BaseN10, m.BaseN11, m.BaseN12, m.BaseN13, m.BaseN14, m.BaseN15,
-                    m.BaseN16):
+    class MIMany916(m.BaseN9, m.BaseN10, m.BaseN11, m.BaseN12, m.BaseN13, m.BaseN14, m.BaseN15, m.BaseN16):
         def __init__(self):
             m.BaseN9.__init__(self, 9)
             m.BaseN10.__init__(self, 10)
@@ -218,7 +214,6 @@ def test_multiple_inheritance_python_many_bases():
 
 
 def test_multiple_inheritance_virtbase():
-
     class MITypePy(m.Base12a):
         def __init__(self, i, j):
             m.Base12a.__init__(self, i, j)
@@ -231,7 +226,7 @@ def test_multiple_inheritance_virtbase():
 
 def test_mi_static_properties():
     """Mixing bases with and without static properties should be possible
-     and the result should be independent of base definition order"""
+    and the result should be independent of base definition order"""
 
     for d in (m.VanillaStaticMix1(), m.VanillaStaticMix2()):
         assert d.vanilla() == "Vanilla"

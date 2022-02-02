@@ -74,7 +74,7 @@ void Add_Garment_3D(
     MESH_NODE<T, dim>& X, // mid-surface node coordinates
     MESH_NODE<T, dim>& X_stage, // mid-surface node coordinates
     MESH_ELEM<dim - 1>& Elem, // the mid-surface triangles
-    std::vector<VECTOR<int, 3>>& stitchNodes, 
+    std::vector<VECTOR<int, 3>>& stitchNodes,
     std::vector<T>& stitchRatio,
     std::vector<int>& compNodeRange)
 {
@@ -162,7 +162,7 @@ void Compute_Discrete_Shell_Inv_Basis(
             T mnorms[3];
             MATRIX<T, dim - 1> D; // for second fundamental form
             Compute_SFF(X, Elem, edge2tri, id, cNormal, oppNormals, mnorms, D);
-            
+
             elemAttr.Append(IB, D);
         });
 
@@ -199,13 +199,13 @@ void Compute_Discrete_Shell_Inv_Basis(
                         const VECTOR<T, dim>& X2 = std::get<0>(X.Get_Unchecked(elemVInd[2]));
                         const VECTOR<T, dim>& X3 = std::get<0>(X.Get_Unchecked(v3I));
                         Eigen::Matrix<T, dim, 1> X0e(X0.data), X1e(X1.data), X2e(X2.data), X3e(X3.data);
-                        
+
                         edgeInfo.resize(edgeInfo.size() + 1);
                         Compute_Dihedral_Angle(X0e, X1e, X2e, X3e, edgeInfo.back()[0]);
                         edgeInfo.back()[1] = (X1 - X2).length();
                         VECTOR<T, 3> n1 = cross(X1 - X0, X2 - X0);
                         VECTOR<T, 3> n2 = cross(X2 - X3, X1 - X3);
-                        edgeInfo.back()[2] = (n1.length() + n2.length()) / (edgeInfo.back()[1] * 6); 
+                        edgeInfo.back()[2] = (n1.length() + n2.length()) / (edgeInfo.back()[1] * 6);
                     }
                 }
             }
@@ -396,8 +396,8 @@ void Update_Normal_Flow_Neumann(
 
 template <class T, int dim>
 T Update_Material_With_Tex_Shell(
-    const std::string& filePath, 
-    int vIndStart, int triIndStart, 
+    const std::string& filePath,
+    int vIndStart, int triIndStart,
     T rho0, T thickness,
     const std::map<std::pair<int, int>, int>& edge2tri,
     const std::vector<VECTOR<int, 4>>& edgeStencil,
@@ -486,10 +486,10 @@ T Update_Material_With_Tex_Shell(
             edgeInfo[eI][1] = (tri0X0 - tri0X1).length();
             VECTOR<T, 3> n1 = cross(tri0X1 - tri0X0, tri0X2 - tri0X0);
             VECTOR<T, 3> n2 = cross(tri1X1 - tri1X0, tri1X2 - tri1X0);
-            edgeInfo[eI][2] = (n1.length() + n2.length()) / (edgeInfo[eI][1] * 6); 
+            edgeInfo[eI][2] = (n1.length() + n2.length()) / (edgeInfo[eI][1] * 6);
         }
         printf("bending updated\n");
-        
+
         // mass matrix and body force
         std::vector<T> b_cur(X.size * dim, 0);
         for (int i = vIndStart; i < vIndStart + X.size; ++i) {
@@ -553,7 +553,7 @@ void Adjust_Material(
 }
 
 template <class T, bool elasticIPC = true, int dim = 3>
-T Initialize_EIPC(T E, T nu, T thickness, T h, 
+T Initialize_EIPC(T E, T nu, T thickness, T h,
     CSR_MATRIX<T>& M, // mass matrix
     VECTOR<T, 3>& kappa, T stiffMult = 1)
 {
@@ -577,9 +577,9 @@ T Initialize_EIPC(T E, T nu, T thickness, T h,
 }
 
 template <class T, int dim = 3>
-T Initialize_OIPC_VecM(T dHat2, 
+T Initialize_OIPC_VecM(T dHat2,
     MESH_NODE_ATTR<T, dim>& nodeAttr, // mass
-    VECTOR<T, 3>& kappa, 
+    VECTOR<T, 3>& kappa,
     T stiffMult = 1)
 {
     T avgmass = 0;
@@ -805,9 +805,9 @@ void XZ_As_Texture(
         });
         Elem.Each([&](int id, auto data) {
             auto &[elemVInd] = data;
-            fprintf(out, "f %d/%d %d/%d %d/%d\n", 
+            fprintf(out, "f %d/%d %d/%d %d/%d\n",
                 elemVInd[0] + 1, elemVInd[0] + 1,
-                elemVInd[1] + 1, elemVInd[1] + 1, 
+                elemVInd[1] + 1, elemVInd[1] + 1,
                 elemVInd[2] + 1, elemVInd[2] + 1);
         });
 
@@ -870,7 +870,7 @@ void Construct_Surface_Mesh(
         std::vector<VECTOR<int, 3>> boundaryTri;
         std::vector<T> BNArea, BEArea, BTArea;
         Find_Surface_Primitives_And_Compute_Area(X, Elem, boundaryNode, boundaryEdge, boundaryTri, BNArea, BEArea, BTArea);
-        
+
         MESH_NODE_ATTR<T, dim> nodeAttr(X.size);
         for (int i = 0; i < X.size; ++i) {
             nodeAttr.Append(std::get<0>(X.Get_Unchecked(i)), VECTOR<T, dim>(), VECTOR<T, dim>(), 0);
@@ -967,7 +967,7 @@ void Construct_Surface_Mesh(
                 }
 
                 if (cIVInd[3] >= 0) {
-                    // -+++ PT 
+                    // -+++ PT
                     // assert(cIVInd[2] >= 0);
                     // const VECTOR<T, 3>& Xt0 = std::get<0>(X.Get_Unchecked(cIVInd[1]));
                     // const VECTOR<T, 3>& Xt1 = std::get<0>(X.Get_Unchecked(cIVInd[2]));

@@ -1,7 +1,8 @@
-import bpy
 import argparse
-import sys
 import os
+import sys
+
+import bpy
 
 
 def export_as_obj(object, path):
@@ -21,11 +22,10 @@ def export_as_obj(object, path):
 
 if __name__ == "__main__":
     if "--" in sys.argv:
-        argv = sys.argv[sys.argv.index("--") + 1 :]
+        arg_start = sys.argv.index("--") + 1
+        argv = sys.argv[arg_start:]
         parser = argparse.ArgumentParser()
         parser.add_argument("object_name")
-        parser.add_argument(
-            "-o", "--output", dest="output_dir", metavar="OUTPUT_FILEPATH"
-        )
+        parser.add_argument("-o", "--output", dest="output_dir", metavar="OUTPUT_FILEPATH")
         args = parser.parse_known_args(argv)[0]
         export_as_obj(args.object_name, args.output_dir)

@@ -1,5 +1,6 @@
-import wandb
 import pprint
+
+import wandb
 
 sweep_config = {
     "project": "cloth-manipulation",

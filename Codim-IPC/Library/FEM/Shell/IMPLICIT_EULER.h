@@ -17,8 +17,8 @@ void Line_Search(
     const T thickness, T bendingStiffMult,
     const VECTOR<T, 4>& fiberStiffMult,
     const VECTOR<T, 3>& fiberLimit,
-    VECTOR<T, 2>& s, VECTOR<T, 2>& sHat, VECTOR<T, 2>& kappa_s, 
-    const std::vector<T>& b, 
+    VECTOR<T, 2>& s, VECTOR<T, 2>& sHat, VECTOR<T, 2>& kappa_s,
+    const std::vector<T>& b,
     T h, T NewtonTol,
     bool withCollision,
     T dHat2, const VECTOR<T, 3>& kappaVec,
@@ -81,10 +81,10 @@ void Line_Search(
                     x[2] = xprev[2] + alpha * sol[id * dim + 2];
                 }
             });
-            valid = Compute_IncPotential<T, dim, KL, elasticIPC, flow>(Elem, h, edge2tri, edgeStencil, edgeInfo, thickness, bendingStiffMult, fiberStiffMult, 
-                fiberLimit, s, sHat, kappa_s, DBCb, X, Xtilde, nodeAttr, M, elemAttr, elasticityAttr, 
-                false, constraintSet, stencilInfo, dHat2, kappa, staticSolve, b, 
-                tet, tetAttr, tetElasticityAttr, rod, rodInfo, rodHinge, rodHingeInfo, 
+            valid = Compute_IncPotential<T, dim, KL, elasticIPC, flow>(Elem, h, edge2tri, edgeStencil, edgeInfo, thickness, bendingStiffMult, fiberStiffMult,
+                fiberLimit, s, sHat, kappa_s, DBCb, X, Xtilde, nodeAttr, M, elemAttr, elasticityAttr,
+                false, constraintSet, stencilInfo, dHat2, kappa, staticSolve, b,
+                tet, tetAttr, tetElasticityAttr, rod, rodInfo, rodHinge, rodHingeInfo,
                 stitchInfo, stitchRatio, k_stitch, E);
             if (!valid) {
                 alpha /= 2.0;
@@ -94,7 +94,7 @@ void Line_Search(
         printf("inextensibility feasible alpha = %le\n", alpha);
     }
     if (withCollision) {
-        Compute_Intersection_Free_StepSize<T, dim, false, elasticIPC>(X, boundaryNode, boundaryEdge, boundaryTri, 
+        Compute_Intersection_Free_StepSize<T, dim, false, elasticIPC>(X, boundaryNode, boundaryEdge, boundaryTri,
             particle, rod, NNExclusion, codimBNStartInd, DBCb, sol, thickness, alpha); // CCD
         printf("intersection free step size = %le\n", alpha);
     }
@@ -109,13 +109,13 @@ void Line_Search(
             }
         });
         valid = Compute_IncPotential<T, dim, KL, elasticIPC, flow>(Elem, h, edge2tri, edgeStencil, edgeInfo, thickness, bendingStiffMult, fiberStiffMult, fiberLimit,
-            s, sHat, kappa_s, DBCb, X, Xtilde, nodeAttr, M, elemAttr, elasticityAttr, 
-            false, constraintSet, stencilInfo, dHat2, kappa, staticSolve, b, 
-            tet, tetAttr, tetElasticityAttr, rod, rodInfo, rodHinge, rodHingeInfo, 
+            s, sHat, kappa_s, DBCb, X, Xtilde, nodeAttr, M, elemAttr, elasticityAttr,
+            false, constraintSet, stencilInfo, dHat2, kappa, staticSolve, b,
+            tet, tetAttr, tetElasticityAttr, rod, rodInfo, rodHinge, rodHingeInfo,
             stitchInfo, stitchRatio, k_stitch, E);
         if (valid) {
             if (withCollision) {
-                Compute_Constraint_Set<T, dim, false, elasticIPC>(X, nodeAttr, boundaryNode, boundaryEdge, boundaryTri, 
+                Compute_Constraint_Set<T, dim, false, elasticIPC>(X, nodeAttr, boundaryNode, boundaryEdge, boundaryTri,
                     particle, rod, NNExclusion, BNArea, BEArea, BTArea, codimBNStartInd, DBCb, dHat2, thickness, false, constraintSet, constraintSetPTEE, stencilInfo);
                 if (!constraintSet.empty()) {
                     T minDist2;
@@ -129,10 +129,10 @@ void Line_Search(
                     }
                 }
             }
-            valid = Compute_IncPotential<T, dim, KL, elasticIPC, flow>(Elem, h, edge2tri, edgeStencil, edgeInfo, thickness, bendingStiffMult, fiberStiffMult, 
-                fiberLimit, s, sHat, kappa_s, DBCb, X, Xtilde, nodeAttr, M, elemAttr, elasticityAttr, 
-                withCollision, constraintSet, stencilInfo, dHat2, kappa, staticSolve, b, 
-                tet, tetAttr, tetElasticityAttr, rod, rodInfo, rodHinge, rodHingeInfo, 
+            valid = Compute_IncPotential<T, dim, KL, elasticIPC, flow>(Elem, h, edge2tri, edgeStencil, edgeInfo, thickness, bendingStiffMult, fiberStiffMult,
+                fiberLimit, s, sHat, kappa_s, DBCb, X, Xtilde, nodeAttr, M, elemAttr, elasticityAttr,
+                withCollision, constraintSet, stencilInfo, dHat2, kappa, staticSolve, b,
+                tet, tetAttr, tetElasticityAttr, rod, rodInfo, rodHinge, rodHingeInfo,
                 stitchInfo, stitchRatio, k_stitch, E);
             if (valid && withCollision && mu > 0) {
                 Compute_Friction_Potential(X, Xn, fricConstraintSet, closestPoint, tanBasis, normalForce, epsv2 * h * h, mu, E);
@@ -159,8 +159,8 @@ int Advance_One_Step_IE_Discrete_Shell(
     const T thickness, T bendingStiffMult,
     const VECTOR<T, 4>& fiberStiffMult,
     const VECTOR<T, 3>& fiberLimit,
-    VECTOR<T, 2>& s, VECTOR<T, 2>& sHat, VECTOR<T, 2>& kappa_s, 
-    const std::vector<T>& b, 
+    VECTOR<T, 2>& s, VECTOR<T, 2>& sHat, VECTOR<T, 2>& kappa_s,
+    const std::vector<T>& b,
     T h, T NewtonTol,
     bool withCollision,
     T dHat2, VECTOR<T, 3>& kappaVec,
@@ -239,7 +239,7 @@ int Advance_One_Step_IE_Discrete_Shell(
 
             Find_Surface_Primitives_And_Compute_Area(X, Tri, boundaryNode, boundaryEdge, boundaryTri,
                 BNArea, BEArea, BTArea);
-            
+
             boundaryEdge.insert(boundaryEdge.end(), seg.begin(), seg.end());
             for (const auto& segI : seg) {
                 boundaryNode.emplace_back(segI[0]);
@@ -255,12 +255,12 @@ int Advance_One_Step_IE_Discrete_Shell(
                 const VECTOR<T, dim>& v0 = std::get<0>(X.Get_Unchecked(segI[0]));
                 const VECTOR<T, dim>& v1 = std::get<0>(X.Get_Unchecked(segI[1]));
                 BEArea.emplace_back((v0 - v1).length() * M_PI * rodInfo[segIInd][2] / 6); // 1/6 of the cylinder surface participate in one contact
-                
+
                 rodNodeArea[segI[0]] += BEArea.back() / 2;
                 rodNodeArea[segI[1]] += BEArea.back() / 2;
 
                 BEArea.back() /= 2; // due to PE approx of \int_E PP and EE approx of \int_E PE
-                
+
                 ++segIInd;
             }
             codimBNStartInd[0] = boundaryNode.size();
@@ -283,7 +283,7 @@ int Advance_One_Step_IE_Discrete_Shell(
                 NNExclusion[stitchI[2]].insert(stitchI[0]);
             }
 
-            // although avoiding barrier terms on indirect stitches, 
+            // although avoiding barrier terms on indirect stitches,
             // this can cause layer interpenetration at the seams
             // std::map<int, std::set<int>> NNExclusionBK = NNExclusion;
             // for (const auto& i: NNExclusionBK) {
@@ -310,7 +310,7 @@ int Advance_One_Step_IE_Discrete_Shell(
         auto &[dbcI] = data;
         int vI = dbcI(0);
         const VECTOR<T, dim> &x = std::get<0>(X.Get_Unchecked(vI));
-        
+
         DBCDisp[vI * dim] = dbcI(1) - x(0);
         DBCDisp[vI * dim + 1] = dbcI(2) - x(1);
         if constexpr (dim == 3) {
@@ -328,7 +328,7 @@ int Advance_One_Step_IE_Discrete_Shell(
         DBCb[dbcI(0)] = true; // bool array cannot be written in parallel by entries
     });
     if (withCollision) {
-        Compute_Intersection_Free_StepSize<T, dim, false, elasticIPC>(X, boundaryNode, boundaryEdge, boundaryTri, 
+        Compute_Intersection_Free_StepSize<T, dim, false, elasticIPC>(X, boundaryNode, boundaryEdge, boundaryTri,
             particle, rod, NNExclusion, codimBNStartInd, DBCb, DBCDisp, thickness, DBCAlpha);
         printf("DBCAlpha under contact: %le\n", DBCAlpha);
     }
@@ -338,7 +338,7 @@ int Advance_One_Step_IE_Discrete_Shell(
             Compute_Max_And_Avg_Stretch(Elem, staticSolve ? 1.0 : h, fiberStiffMult, DBCb, X, nodeAttr, elemAttr, elasticityAttr, maxs, avgs, minc, avgc);
             printf("maxs = %le, avgs = %le, minc = %le, avgc = %le\n", maxs, avgs, minc, avgc);
         }
-        
+
         bool valid = false;
         T E;
         do {
@@ -355,7 +355,7 @@ int Advance_One_Step_IE_Discrete_Shell(
             });
             valid = true;
             if (kappa_s[0] > 0) {
-                valid &= Compute_Inextensibility_Energy(Elem, staticSolve ? 1.0 : h, s, sHat, kappa_s, 
+                valid &= Compute_Inextensibility_Energy(Elem, staticSolve ? 1.0 : h, s, sHat, kappa_s,
                     DBCb, X, nodeAttr, elemAttr, elasticityAttr, E);
             }
             if (fiberStiffMult[0] > 0) {
@@ -416,21 +416,21 @@ int Advance_One_Step_IE_Discrete_Shell(
     std::vector<T> normalForce;
     printf("computing initial energy\n");
     if (withCollision) {
-        Compute_Constraint_Set<T, dim, false, elasticIPC>(X, nodeAttr, boundaryNode, boundaryEdge, boundaryTri, 
+        Compute_Constraint_Set<T, dim, false, elasticIPC>(X, nodeAttr, boundaryNode, boundaryEdge, boundaryTri,
             particle, rod, NNExclusion, BNArea, BEArea, BTArea, codimBNStartInd, DBCb, dHat2, thickness, false, constraintSet, constraintSetPTEE, stencilInfo);
         if (mu > 0 || (muComp.size() && muComp.size() == compNodeRange.size() * compNodeRange.size())) {
             Compute_Friction_Basis<T, dim, elasticIPC>(X, constraintSet, stencilInfo, fricConstraintSet, closestPoint, tanBasis, normalForce, dHat2, kappa, thickness);
             if (muComp.size() && muComp.size() == compNodeRange.size() * compNodeRange.size()) {
-                Compute_Friction_Coef<T, dim>(fricConstraintSet, compNodeRange, muComp, normalForce, mu); 
+                Compute_Friction_Coef<T, dim>(fricConstraintSet, compNodeRange, muComp, normalForce, mu);
                 // mu will be set to 1, normalForce will be multipled with different mu's in muComp
             }
         }
     }
     T Eprev;
     Compute_IncPotential<T, dim, KL, elasticIPC, flow>(Elem, h, edge2tri, edgeStencil, edgeInfo, thickness, bendingStiffMult, fiberStiffMult, fiberLimit,
-        s, sHat, kappa_s, DBCb, X, Xtilde, nodeAttr, M, elemAttr, elasticityAttr, 
-        withCollision, constraintSet, stencilInfo, dHat2, kappa, staticSolve, b, 
-        tet, tetAttr, tetElasticityAttr, rod, rodInfo, rodHinge, rodHingeInfo, 
+        s, sHat, kappa_s, DBCb, X, Xtilde, nodeAttr, M, elemAttr, elasticityAttr,
+        withCollision, constraintSet, stencilInfo, dHat2, kappa, staticSolve, b,
+        tet, tetAttr, tetElasticityAttr, rod, rodInfo, rodHinge, rodHingeInfo,
         stitchInfo, stitchRatio, k_stitch, Eprev);
     if (withCollision && mu > 0) {
         Compute_Friction_Potential(X, Xn, fricConstraintSet, closestPoint, tanBasis, normalForce, epsv2 * h * h, mu, Eprev);
@@ -456,8 +456,8 @@ int Advance_One_Step_IE_Discrete_Shell(
 
         // compute gradient
         Compute_IncPotential_Gradient<T, dim, KL, elasticIPC, flow>(Elem, h, edge2tri, edgeStencil, edgeInfo, thickness, bendingStiffMult, fiberStiffMult, fiberLimit,
-            s, sHat, kappa_s, DBCb, X, Xtilde, nodeAttr, M, elemAttr, 
-            withCollision, constraintSet, stencilInfo, dHat2, kappa, staticSolve, b, elasticityAttr, 
+            s, sHat, kappa_s, DBCb, X, Xtilde, nodeAttr, M, elemAttr,
+            withCollision, constraintSet, stencilInfo, dHat2, kappa, staticSolve, b, elasticityAttr,
             tet, tetAttr, tetElasticityAttr, rod, rodInfo, rodHinge, rodHingeInfo,
             stitchInfo, stitchRatio, k_stitch);
         if (withCollision && mu > 0) {
@@ -493,10 +493,10 @@ int Advance_One_Step_IE_Discrete_Shell(
         // compute Hessian
         if (!useGD) {
             Compute_IncPotential_Hessian<T, dim, KL, elasticIPC, flow>(Elem, h, edge2tri, edgeStencil, edgeInfo, thickness, bendingStiffMult, fiberStiffMult, fiberLimit,
-                s, sHat, kappa_s, DBC, DBCb, DBCb_fixed, DBCStiff, X, Xn, Xtilde, nodeAttr, M, elemAttr, 
+                s, sHat, kappa_s, DBC, DBCb, DBCb_fixed, DBCStiff, X, Xn, Xtilde, nodeAttr, M, elemAttr,
                 withCollision, constraintSet, stencilInfo, fricConstraintSet, closestPoint, tanBasis, normalForce,
-                dHat2, kappa, mu, epsv2, staticSolve, b, elasticityAttr, 
-                tet, tetAttr, tetElasticityAttr, rod, rodInfo, rodHinge, rodHingeInfo, 
+                dHat2, kappa, mu, epsv2, staticSolve, b, elasticityAttr,
+                tet, tetAttr, tetElasticityAttr, rod, rodInfo, rodHinge, rodHingeInfo,
                 stitchInfo, stitchRatio, k_stitch, true, sysMtr);
         }
 
@@ -532,11 +532,11 @@ int Advance_One_Step_IE_Discrete_Shell(
                     FILE *out = fopen((outputFolder + "/Hessian_info.txt").c_str(), "a+");
                     fprintf(out, "Hessian not SPD in PNIter%d\n", PNIter);
                     fclose(out);
-                    
+
                     // Compute_IncPotential_Hessian<T, dim, KL, elasticIPC, flow>(Elem, h, edge2tri, edgeStencil, edgeInfo, thickness, bendingStiffMult, fiberStiffMult, fiberLimit,
-                    //     s, sHat, kappa_s, DBC, DBCb, DBCb_fixed, DBCStiff, X, Xn, Xtilde, nodeAttr, M, elemAttr, 
+                    //     s, sHat, kappa_s, DBC, DBCb, DBCb_fixed, DBCStiff, X, Xn, Xtilde, nodeAttr, M, elemAttr,
                     //     withCollision, constraintSet, fricConstraintSet, closestPoint, tanBasis, normalForce,
-                    //     dHat2, kappa, mu, epsv2, staticSolve, b, elasticityAttr, 
+                    //     dHat2, kappa, mu, epsv2, staticSolve, b, elasticityAttr,
                     //     tet, tetAttr, tetElasticityAttr, rod, rodInfo, rodHinge, rodHingeInfo, true, sysMtr);
                     // if(!Solve_Direct(sysMtr, rhs, sol)) {
                         useGD = true;
@@ -554,13 +554,13 @@ int Advance_One_Step_IE_Discrete_Shell(
         }
 
         T alpha, feasibleAlpha;
-        Line_Search<T, dim, KL, elasticIPC, flow>(Elem, seg, DBC, edge2tri, edgeStencil, edgeInfo, 
-            thickness, bendingStiffMult, fiberStiffMult, fiberLimit, s, sHat, kappa_s, 
-            b, h, NewtonTol, withCollision, dHat2, kappaVec, mu, epsv2, compNodeRange, muComp, 
-            staticSolve, X, nodeAttr, M, elemAttr, elasticityAttr, tet, tetAttr, tetElasticityAttr, 
+        Line_Search<T, dim, KL, elasticIPC, flow>(Elem, seg, DBC, edge2tri, edgeStencil, edgeInfo,
+            thickness, bendingStiffMult, fiberStiffMult, fiberLimit, s, sHat, kappa_s,
+            b, h, NewtonTol, withCollision, dHat2, kappaVec, mu, epsv2, compNodeRange, muComp,
+            staticSolve, X, nodeAttr, M, elemAttr, elasticityAttr, tet, tetAttr, tetElasticityAttr,
             rod, rodInfo, rodHinge, rodHingeInfo, stitchInfo, stitchRatio, k_stitch, particle, outputFolder,
-            sol, DBCb, Xn, Xtilde, constraintSet, stencilInfo, constraintSetPTEE, kappa, 
-            boundaryNode, boundaryEdge, boundaryTri, NNExclusion, BNArea, BEArea, BTArea, codimBNStartInd, 
+            sol, DBCb, Xn, Xtilde, constraintSet, stencilInfo, constraintSetPTEE, kappa,
+            boundaryNode, boundaryEdge, boundaryTri, NNExclusion, BNArea, BEArea, BTArea, codimBNStartInd,
             fricConstraintSet, closestPoint, tanBasis, normalForce, DBCStiff, Eprev, alpha, feasibleAlpha);
 
         if constexpr (!elasticIPC) {
@@ -580,9 +580,9 @@ int Advance_One_Step_IE_Discrete_Shell(
                     kappaVec[0] *= 2;
 
                     Compute_IncPotential<T, dim, KL, elasticIPC, flow>(Elem, h, edge2tri, edgeStencil, edgeInfo, thickness, bendingStiffMult, fiberStiffMult, fiberLimit,
-                        s, sHat, kappa_s, DBCb, X, Xtilde, nodeAttr, M, elemAttr, elasticityAttr, 
-                        withCollision, constraintSet, stencilInfo, dHat2, kappa, staticSolve, b, 
-                        tet, tetAttr, tetElasticityAttr, rod, rodInfo, rodHinge, rodHingeInfo, 
+                        s, sHat, kappa_s, DBCb, X, Xtilde, nodeAttr, M, elemAttr, elasticityAttr,
+                        withCollision, constraintSet, stencilInfo, dHat2, kappa, staticSolve, b,
+                        tet, tetAttr, tetElasticityAttr, rod, rodInfo, rodHinge, rodHingeInfo,
                         stitchInfo, stitchRatio, k_stitch, Eprev);
                     if (withCollision && mu > 0) {
                         Compute_Friction_Potential(X, Xn, fricConstraintSet, closestPoint, tanBasis, normalForce, epsv2 * h * h, mu, Eprev);
@@ -614,11 +614,11 @@ int Advance_One_Step_IE_Discrete_Shell(
                 }
             }
             printf("minSLSlack = %le, kappa_s = %le\n", minSLSlack, kappa_s[0]);
-            
+
             bool updateKappa_s = 0;
             if (strain_prev.size()) {
                 for (int i = 0; i < strain.size(); ++i) {
-                    if ((s[0] - strain_prev[i][0] < 1.0e-4 * (s[0] - sHat[0])) && 
+                    if ((s[0] - strain_prev[i][0] < 1.0e-4 * (s[0] - sHat[0])) &&
                         (s[0] - strain[i][0] < 1.0e-4 * (s[0] - sHat[0])))
                     {
                         updateKappa_s = true;
@@ -630,9 +630,9 @@ int Advance_One_Step_IE_Discrete_Shell(
                 kappa_s[0] *= 2;
 
                 Compute_IncPotential<T, dim, KL, elasticIPC, flow>(Elem, h, edge2tri, edgeStencil, edgeInfo, thickness, bendingStiffMult, fiberStiffMult, fiberLimit,
-                    s, sHat, kappa_s, DBCb, X, Xtilde, nodeAttr, M, elemAttr, elasticityAttr, 
-                    withCollision, constraintSet, stencilInfo, dHat2, kappa, staticSolve, b, 
-                    tet, tetAttr, tetElasticityAttr, rod, rodInfo, rodHinge, rodHingeInfo, 
+                    s, sHat, kappa_s, DBCb, X, Xtilde, nodeAttr, M, elemAttr, elasticityAttr,
+                    withCollision, constraintSet, stencilInfo, dHat2, kappa, staticSolve, b,
+                    tet, tetAttr, tetElasticityAttr, rod, rodInfo, rodHinge, rodHingeInfo,
                     stitchInfo, stitchRatio, k_stitch, Eprev);
                 if (withCollision && mu > 0) {
                     Compute_Friction_Potential(X, Xn, fricConstraintSet, closestPoint, tanBasis, normalForce, epsv2 * h * h, mu, Eprev);
@@ -685,9 +685,9 @@ int Advance_One_Step_IE_Discrete_Shell(
                 Eigen::VectorXd pe(sol.size()), mge(rhs.size());
                 std::memcpy(pe.data(), sol.data(), sizeof(T) * sol.size());
                 std::memcpy(mge.data(), rhs.data(), sizeof(T) * rhs.size());
-                printf("-gdotp = %le, -gpcos = %le\n", mge.dot(pe), 
+                printf("-gdotp = %le, -gpcos = %le\n", mge.dot(pe),
                     mge.dot(pe) / std::sqrt(mge.squaredNorm() * pe.squaredNorm()));
-                printf("linear solve relErr = %le\n", 
+                printf("linear solve relErr = %le\n",
                     std::sqrt((sysMtr.Get_Matrix() * pe - mge).squaredNorm() / mge.squaredNorm()));
             }
             else {
@@ -726,9 +726,9 @@ int Advance_One_Step_IE_Discrete_Shell(
                     if (DBCStiff < 1e8) {
                         DBCStiff *= 2;
                         Compute_IncPotential<T, dim, KL, elasticIPC, flow>(Elem, h, edge2tri, edgeStencil, edgeInfo, thickness, bendingStiffMult, fiberStiffMult, fiberLimit,
-                            s, sHat, kappa_s, DBCb, X, Xtilde, nodeAttr, M, elemAttr, elasticityAttr, 
-                            withCollision, constraintSet, stencilInfo, dHat2, kappa, staticSolve, b, 
-                            tet, tetAttr, tetElasticityAttr, rod, rodInfo, rodHinge, rodHingeInfo, 
+                            s, sHat, kappa_s, DBCb, X, Xtilde, nodeAttr, M, elemAttr, elasticityAttr,
+                            withCollision, constraintSet, stencilInfo, dHat2, kappa, staticSolve, b,
+                            tet, tetAttr, tetElasticityAttr, rod, rodInfo, rodHinge, rodHingeInfo,
                             stitchInfo, stitchRatio, k_stitch, Eprev);
                         if (withCollision && mu > 0) {
                             Compute_Friction_Potential(X, Xn, fricConstraintSet, closestPoint, tanBasis, normalForce, epsv2 * h * h, mu, Eprev);
@@ -743,10 +743,10 @@ int Advance_One_Step_IE_Discrete_Shell(
             else {
                 DBCStiff = 0;
 
-                Compute_IncPotential<T, dim, KL, elasticIPC, flow>(Elem, h, edge2tri, edgeStencil, edgeInfo, thickness, bendingStiffMult, fiberStiffMult, 
-                    fiberLimit, s, sHat, kappa_s, DBCb, X, Xtilde, nodeAttr, M, elemAttr, elasticityAttr, 
-                    withCollision, constraintSet, stencilInfo, dHat2, kappa, staticSolve, b, 
-                    tet, tetAttr, tetElasticityAttr, rod, rodInfo, rodHinge, rodHingeInfo, 
+                Compute_IncPotential<T, dim, KL, elasticIPC, flow>(Elem, h, edge2tri, edgeStencil, edgeInfo, thickness, bendingStiffMult, fiberStiffMult,
+                    fiberLimit, s, sHat, kappa_s, DBCb, X, Xtilde, nodeAttr, M, elemAttr, elasticityAttr,
+                    withCollision, constraintSet, stencilInfo, dHat2, kappa, staticSolve, b,
+                    tet, tetAttr, tetElasticityAttr, rod, rodInfo, rodHinge, rodHingeInfo,
                     stitchInfo, stitchRatio, k_stitch, Eprev);
                 if (withCollision && mu > 0) {
                     Compute_Friction_Potential(X, Xn, fricConstraintSet, closestPoint, tanBasis, normalForce, epsv2 * h * h, mu, Eprev);
@@ -763,14 +763,14 @@ int Advance_One_Step_IE_Discrete_Shell(
                     if (mu > 0 || muComp.size() == compNodeRange.size() * compNodeRange.size()) {
                         Compute_Friction_Basis<T, dim, elasticIPC>(X, constraintSet, stencilInfo, fricConstraintSet, closestPoint, tanBasis, normalForce, dHat2, kappa, thickness);
                         if (muComp.size() == compNodeRange.size() * compNodeRange.size()) {
-                            Compute_Friction_Coef<T, dim>(fricConstraintSet, compNodeRange, muComp, normalForce, mu); 
+                            Compute_Friction_Coef<T, dim>(fricConstraintSet, compNodeRange, muComp, normalForce, mu);
                             // mu will be set to 1, normalForce will be multipled with different mu's in muComp
                         }
 
                         // compute gradient
                         Compute_IncPotential_Gradient<T, dim, KL, elasticIPC, flow>(Elem, h, edge2tri, edgeStencil, edgeInfo, thickness, bendingStiffMult, fiberStiffMult, fiberLimit,
-                            s, sHat, kappa_s, DBCb, X, Xtilde, nodeAttr, M, elemAttr, 
-                            withCollision, constraintSet, stencilInfo, dHat2, kappa, staticSolve, b, elasticityAttr, 
+                            s, sHat, kappa_s, DBCb, X, Xtilde, nodeAttr, M, elemAttr,
+                            withCollision, constraintSet, stencilInfo, dHat2, kappa, staticSolve, b, elasticityAttr,
                             tet, tetAttr, tetElasticityAttr, rod, rodInfo, rodHinge, rodHingeInfo,
                             stitchInfo, stitchRatio, k_stitch);
                         Compute_Friction_Gradient(X, Xn, fricConstraintSet, closestPoint, tanBasis, normalForce, epsv2 * h * h, mu, nodeAttr);
@@ -799,10 +799,10 @@ int Advance_One_Step_IE_Discrete_Shell(
                         });
                         // compute Hessian
                         Compute_IncPotential_Hessian<T, dim, KL, elasticIPC, flow>(Elem, h, edge2tri, edgeStencil, edgeInfo, thickness, bendingStiffMult, fiberStiffMult, fiberLimit,
-                            s, sHat, kappa_s, DBC, DBCb, DBCb_fixed, DBCStiff, X, Xn, Xtilde, nodeAttr, M, elemAttr, 
+                            s, sHat, kappa_s, DBC, DBCb, DBCb_fixed, DBCStiff, X, Xn, Xtilde, nodeAttr, M, elemAttr,
                             withCollision, constraintSet, stencilInfo, fricConstraintSet, closestPoint, tanBasis, normalForce,
-                            dHat2, kappa, mu, epsv2, staticSolve, b, elasticityAttr, 
-                            tet, tetAttr, tetElasticityAttr, rod, rodInfo, rodHinge, rodHingeInfo, 
+                            dHat2, kappa, mu, epsv2, staticSolve, b, elasticityAttr,
+                            tet, tetAttr, tetElasticityAttr, rod, rodInfo, rodHinge, rodHingeInfo,
                             stitchInfo, stitchRatio, k_stitch, true, sysMtr);
                         // compute search direction
                         {
@@ -833,9 +833,9 @@ int Advance_One_Step_IE_Discrete_Shell(
                         printf("friction updated Newton res = %le, tol = %le\n", L2Norm, NewtonTol);
                         if (L2Norm > NewtonTol) {
                             Compute_IncPotential<T, dim, KL, elasticIPC, flow>(Elem, h, edge2tri, edgeStencil, edgeInfo, thickness, bendingStiffMult, fiberStiffMult, fiberLimit,
-                                s, sHat, kappa_s, DBCb, X, Xtilde, nodeAttr, M, elemAttr, elasticityAttr, 
-                                withCollision, constraintSet, stencilInfo, dHat2, kappa, staticSolve, b, 
-                                tet, tetAttr, tetElasticityAttr, rod, rodInfo, rodHinge, rodHingeInfo, 
+                                s, sHat, kappa_s, DBCb, X, Xtilde, nodeAttr, M, elemAttr, elasticityAttr,
+                                withCollision, constraintSet, stencilInfo, dHat2, kappa, staticSolve, b,
+                                tet, tetAttr, tetElasticityAttr, rod, rodInfo, rodHinge, rodHingeInfo,
                                 stitchInfo, stitchRatio, k_stitch, Eprev);
                             Compute_Friction_Potential(X, Xn, fricConstraintSet, closestPoint, tanBasis, normalForce, epsv2 * h * h, mu, Eprev);
                             if (DBCStiff) {

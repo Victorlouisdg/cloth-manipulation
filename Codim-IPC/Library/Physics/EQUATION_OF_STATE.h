@@ -55,7 +55,7 @@ public:
 
     static void Compute_First_PiolaKirchoff_Stress_Derivative(STORAGE& eos, T scale, DIFFERENTIAL& ddJ) {
         //TODO
-    } 
+    }
 };
 
 }

@@ -1,7 +1,8 @@
 import struct
+
 import pytest
-from pybind11_tests import buffers as m
 from pybind11_tests import ConstructorStats
+from pybind11_tests import buffers as m
 
 pytestmark = pytest.requires_numpy
 
@@ -44,8 +45,8 @@ def test_to_python():
     mat[3, 2] = 7.0
     assert mat[2, 3] == 4
     assert mat[3, 2] == 7
-    assert struct.unpack_from('f', mat, (3 * 4 + 2) * 4) == (7, )
-    assert struct.unpack_from('f', mat, (2 * 4 + 3) * 4) == (4, )
+    assert struct.unpack_from("f", mat, (3 * 4 + 2) * 4) == (7,)
+    assert struct.unpack_from("f", mat, (2 * 4 + 3) * 4) == (4,)
 
     mat2 = np.array(mat, copy=False)
     assert mat2.shape == (5, 4)
@@ -83,5 +84,5 @@ def test_pointer_to_member_fn():
     for cls in [m.Buffer, m.ConstBuffer, m.DerivedBuffer]:
         buf = cls()
         buf.value = 0x12345678
-        value = struct.unpack('i', bytearray(buf))[0]
+        value = struct.unpack("i", bytearray(buf))[0]
         assert value == 0x12345678

@@ -1,13 +1,11 @@
-from cm_utils.keyframe import (
-    keyframe_locations,
-    keyframe_orientations,
-    keyframe_visibility,
-)
-import numpy as np
-from mathutils import Vector, Matrix
-import bpy
 from abc import ABC, abstractmethod
+
+import bpy
+import numpy as np
+from mathutils import Matrix, Vector
+
 from cm_utils.geometry import rotate_point, vectors_to_matrix_4x4
+from cm_utils.keyframe import keyframe_locations, keyframe_orientations, keyframe_visibility
 
 
 class Fold(ABC):
@@ -41,7 +39,6 @@ class Fold(ABC):
         The translation of the basis should point to a point on the fold line.
         The basis is later utilized to get the gripper end pose by 180 degree rotation around the x-axis.
         """
-        pass
 
     @abstractmethod
     def init_gripper_start_pose(self):
@@ -131,7 +128,7 @@ class SidedFold(Fold):
         M = start_pose
         M = fold_basis.inverted() @ M
         M = Matrix.Rotation(np.deg2rad(90), 4, "X") @ M
-        sign = 1 if left_or_right is "left" else -1
+        sign = 1 if left_or_right == "left" else -1
         M = Matrix.Translation((sign * offset_ratio * start_to_end_distance, 0, 0)) @ M
         M = fold_basis @ M
         middle_pose = M
@@ -189,16 +186,12 @@ class SleeveFold(SidedFold):
         gripper_Z = up
         gripper_Y = gripper_Z.cross(gripper_X)
 
-        start_pose = vectors_to_matrix_4x4(
-            gripper_X, gripper_Y, gripper_Z, gripper_translation
-        )
+        start_pose = vectors_to_matrix_4x4(gripper_X, gripper_Y, gripper_Z, gripper_translation)
         return start_pose
 
 
 class SideFold(SidedFold):
-    def __init__(
-        self, keypoints, height_ratio, offset_ratio, left_or_right, top_or_bottom
-    ):
+    def __init__(self, keypoints, height_ratio, offset_ratio, left_or_right, top_or_bottom):
         self.left_or_right = left_or_right
         self.top_or_bottom = top_or_bottom
         super().__init__(keypoints, height_ratio, offset_ratio, left_or_right)
@@ -242,24 +235,20 @@ class SideFold(SidedFold):
         right_armpit = keypoints["right_armpit"]
         right_corner_bottom = keypoints["right_corner_bottom"]
 
-        armpit = left_armpit if left_or_right is "left" else right_armpit
-        corner_bottom = (
-            left_corner_bottom if left_or_right is "left" else right_corner_bottom
-        )
+        armpit = left_armpit if left_or_right == "left" else right_armpit
+        corner_bottom = left_corner_bottom if left_or_right == "left" else right_corner_bottom
 
         left_to_right = (right_armpit - left_armpit).normalized()
         right_to_left = (left_armpit - right_armpit).normalized()
 
         up = Vector([0, 0, 1])
 
-        gripper_translation = armpit if top_or_bottom is "top" else corner_bottom
-        gripper_X = left_to_right if left_or_right is "left" else right_to_left
+        gripper_translation = armpit if top_or_bottom == "top" else corner_bottom
+        gripper_X = left_to_right if left_or_right == "left" else right_to_left
         gripper_Z = up
         gripper_Y = gripper_Z.cross(gripper_X)
 
-        start_pose = vectors_to_matrix_4x4(
-            gripper_X, gripper_Y, gripper_Z, gripper_translation
-        )
+        start_pose = vectors_to_matrix_4x4(gripper_X, gripper_Y, gripper_Z, gripper_translation)
         return start_pose
 
 
@@ -316,7 +305,5 @@ class MiddleFold(SidedFold):
         gripper_Z = up
         gripper_Y = gripper_Z.cross(gripper_X)
 
-        start_pose = vectors_to_matrix_4x4(
-            gripper_X, gripper_Y, gripper_Z, gripper_translation
-        )
+        start_pose = vectors_to_matrix_4x4(gripper_X, gripper_Y, gripper_Z, gripper_translation)
         return start_pose

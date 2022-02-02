@@ -128,7 +128,7 @@ public:
             MATRIX<T, dim> U(1), V(1);
             VECTOR<T, dim> sigma;
             Singular_Value_Decomposition(F, U, sigma, V); //TODO: not redo everytime
-            
+
             Compute_DP_Div_DF(U, sigma, V, mu, lambda, w * vol, projectSPD, dP_div_dFI);
         });
     }
@@ -142,7 +142,7 @@ public:
     }
 
     static void Compute_DE_Div_DSigma(const VECTOR<T, dim>& singularValues, T u, T lambda,
-        VECTOR<T, dim>& dE_div_dsigma) 
+        VECTOR<T, dim>& dE_div_dsigma)
     {
         const double log_sigmaProd = std::log(singularValues.prod());
         const double inv0 = 1.0 / singularValues[0];
@@ -312,11 +312,11 @@ public:
             eigenF = Eigen::Matrix<T, dim, dim>::Random();
         }
         MATRIX<T, dim> F;
-        for (int i = 0; i < dim; ++i) 
+        for (int i = 0; i < dim; ++i)
             for (int j = 0; j < dim; ++j)
                 F(i,j) = eigenF(i,j);
         Eigen::Matrix<T, dim*dim, dim*dim> dPdF;
-        Eigen::Matrix<T, dim*dim, dim*dim> dPdF_FD; 
+        Eigen::Matrix<T, dim*dim, dim*dim> dPdF_FD;
         dPdF_FD.setZero();
         MATRIX<T, dim> U(1), V(1);
         VECTOR<T, dim> sigma;
@@ -349,7 +349,7 @@ public:
             Compute_E(sigma, mu, lambda, phi_ijkl);
             dPdF_FD(di, dj) = (phi_ijkl - phi_ij - phi_kl + phi) / (epsilon * epsilon);
         }}}}
-        for (int i = 0; i < dim * dim; ++i) 
+        for (int i = 0; i < dim * dim; ++i)
             for (int j = 0; j < dim * dim; ++j)
                 std::cout << dPdF(i,j) << " " << dPdF_FD(i,j) << std::endl;
     }

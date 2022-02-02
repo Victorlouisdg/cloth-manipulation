@@ -92,7 +92,7 @@ void Compute_Rod_Bending_Hessian(
             makePD(hessian);
         }
 
-        int globalInd[9] = { 
+        int globalInd[9] = {
             hingeI[0] * dim,
             hingeI[0] * dim + 1,
             hingeI[0] * dim + 2,

@@ -54,7 +54,7 @@ public:
             ks += -vol * tau; //tau = P * F.transpose
         });
     }
-    
+
     static void Compute_Psi(STORAGE& nhb, T w, T& Psi) {
         //TODO
         Psi = 0;

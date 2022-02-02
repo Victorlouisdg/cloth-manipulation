@@ -7,22 +7,24 @@
    3) Import first IPC output and last back into blender.
    4) Calculate loss.
 """
-import bpy
-import os
-import sys
 import argparse
-import datetime
-import numpy as np
-import json
+import sys
 
-from cm_utils import export_as_obj, import_cipc_outputs, render, encode_video
+import bpy
+import numpy as np
+
 from cm_utils import (
-    get_grasped_verts_trajectories,
     calcucate_velocities,
+    encode_video,
+    ensure_output_paths,
+    export_as_obj,
+    get_grasped_verts_trajectories,
+    import_cipc_outputs,
+    render,
+    save_dict_as_json,
     set_trajectory_height,
 )
 from cm_utils.cipc import simulate
-from cm_utils import ensure_output_paths, save_dict_as_json
 
 
 def run_experiment(height, run_dir=None):
@@ -82,7 +84,8 @@ def run_experiment(height, run_dir=None):
 
 if __name__ == "__main__":
     if "--" in sys.argv:
-        argv = sys.argv[sys.argv.index("--") + 1 :]
+        arg_start = sys.argv.index("--") + 1
+        argv = sys.argv[arg_start:]
         parser = argparse.ArgumentParser()
         parser.add_argument("-ht", "--height", dest="height", type=float)
         parser.add_argument("-d", "--dir", dest="run_dir", metavar="RUN_DIR")
@@ -94,4 +97,4 @@ if __name__ == "__main__":
         for k, v in losses.items():
             print(f"{k} = {v}")
     else:
-        print(f"Please rerun with arguments.")
+        print("Please rerun with arguments.")

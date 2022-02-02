@@ -22,7 +22,7 @@ public:
     T dHat2, T kappa[],
     double& value
     ) {
-        Compute_Barrier<T, dim, elasticIPC>(X, nodeAttr, constraintSet, 
+        Compute_Barrier<T, dim, elasticIPC>(X, nodeAttr, constraintSet,
             std::vector<VECTOR<T, 2>>(constraintSet.size(), VECTOR<T, 2>(1, dHat2)),
             dHat2, kappa, T(0), value);
     }
@@ -37,7 +37,7 @@ public:
             std::vector<VECTOR<int, dim + 1>>& constraintSet,
     T dHat2, T kappa[]
     ) {
-        Compute_Barrier_Gradient<T, dim, elasticIPC>(X, constraintSet, 
+        Compute_Barrier_Gradient<T, dim, elasticIPC>(X, constraintSet,
             std::vector<VECTOR<T, 2>>(constraintSet.size(), VECTOR<T, 2>(1, dHat2)),
             dHat2, kappa, T(0), nodeAttr);
     }

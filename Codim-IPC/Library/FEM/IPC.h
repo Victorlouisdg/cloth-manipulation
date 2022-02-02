@@ -77,7 +77,7 @@ void Compute_Constraint_Set(MESH_NODE<T, dim>& X,
             for (const auto& eI : boundaryEdge) {
 #endif
                 if (nI == eI[0] || nI == eI[1] ||
-                    (DBCb[nI] && DBCb[eI[0]] && DBCb[eI[1]])) 
+                    (DBCb[nI] && DBCb[eI[0]] && DBCb[eI[1]]))
                 {
                     continue;
                 }
@@ -169,7 +169,7 @@ void Compute_Constraint_Set(MESH_NODE<T, dim>& X,
             {
                 const VECTOR<int, 3>& sfVInd = boundaryTri[sfI];
                 if (!(vI == sfVInd[0] || vI == sfVInd[1] || vI == sfVInd[2]) &&
-                    !(DBCb[vI] && DBCb[sfVInd[0]] && DBCb[sfVInd[1]] && DBCb[sfVInd[2]])) 
+                    !(DBCb[vI] && DBCb[sfVInd[0]] && DBCb[sfVInd[1]] && DBCb[sfVInd[2]]))
                 {
                     auto NNEFinder = NNExclusion.find(vI);
                     if (NNEFinder != NNExclusion.end() &&
@@ -382,14 +382,14 @@ void Compute_Constraint_Set(MESH_NODE<T, dim>& X,
 #endif
                 const VECTOR<int, 2>& meshEJ = boundaryEdge[eJ];
                 if (!(meshEI[0] == meshEJ[0] || meshEI[0] == meshEJ[1] || meshEI[1] == meshEJ[0] || meshEI[1] == meshEJ[1] || eI > eJ) &&
-                    !(DBCb[meshEI[0]] && DBCb[meshEI[1]] && DBCb[meshEJ[0]] && DBCb[meshEJ[1]])) 
+                    !(DBCb[meshEI[0]] && DBCb[meshEI[1]] && DBCb[meshEJ[0]] && DBCb[meshEJ[1]]))
                 {
                     auto NNEFinder0 = NNExclusion.find(meshEI[0]);
                     auto NNEFinder1 = NNExclusion.find(meshEI[1]);
                     if ((NNEFinder0 != NNExclusion.end() &&
                         (NNEFinder0->second.find(meshEJ[0]) != NNEFinder0->second.end() ||
                         NNEFinder0->second.find(meshEJ[1]) != NNEFinder0->second.end())) ||
-                        (NNEFinder1 != NNExclusion.end() && 
+                        (NNEFinder1 != NNExclusion.end() &&
                         (NNEFinder1->second.find(meshEJ[0]) != NNEFinder1->second.end() ||
                         NNEFinder1->second.find(meshEJ[1]) != NNEFinder1->second.end())))
                     {
@@ -422,7 +422,7 @@ void Compute_Constraint_Set(MESH_NODE<T, dim>& X,
                     const VECTOR<T, 3>& Xea1_rest = std::get<FIELDS<MESH_NODE_ATTR<T, 3>>::x0>(nodeAttr.Get_Unchecked(meshEI[1]));
                     const VECTOR<T, 3>& Xeb0_rest = std::get<FIELDS<MESH_NODE_ATTR<T, 3>>::x0>(nodeAttr.Get_Unchecked(meshEJ[0]));
                     const VECTOR<T, 3>& Xeb1_rest = std::get<FIELDS<MESH_NODE_ATTR<T, 3>>::x0>(nodeAttr.Get_Unchecked(meshEJ[1]));
-                    Eigen::Matrix<T, 3, 1> ea0_rest(Xea0_rest.data), ea1_rest(Xea1_rest.data), 
+                    Eigen::Matrix<T, 3, 1> ea0_rest(Xea0_rest.data), ea1_rest(Xea1_rest.data),
                         eb0_rest(Xeb0_rest.data), eb1_rest(Xeb1_rest.data);
 
                     T EECrossSqNorm, eps_x;
@@ -559,7 +559,7 @@ void Compute_Constraint_Set(MESH_NODE<T, dim>& X,
                     if (d < dHat2) {
                         constraintInfoEE[eI].emplace_back(BEArea[eI] * BEArea[eJ], dHat2);
                         if ((eI >= boundaryEdge.size() - rod.size()) && (eJ >= boundaryEdge.size() - rod.size())) {
-                            constraintInfoEE[eI].back()[0] *= 2; // no PE and no ij and ji EE at the same time here so *2 to normalize 
+                            constraintInfoEE[eI].back()[0] *= 2; // no PE and no ij and ji EE at the same time here so *2 to normalize
                         }
                     }
                 }
@@ -567,7 +567,7 @@ void Compute_Constraint_Set(MESH_NODE<T, dim>& X,
         });
         } //TIMER_FLAG
 
-        
+
         { TIMER_FLAG("Compute_Constraint_Set_Merge");
         if (getPTEE) {
             cs_PTEE.resize(0);
@@ -693,7 +693,7 @@ void Compute_Constraint_Set(MESH_NODE<T, dim>& X,
 //                 {
 //                     const VECTOR<int, 2>& rodVInd = rod[rodI];
 //                     if (!(vI == rodVInd[0] || vI == rodVInd[1]) &&
-//                         !(DBCb[vI] && DBCb[rodVInd[0]] && DBCb[rodVInd[1]])) 
+//                         !(DBCb[vI] && DBCb[rodVInd[0]] && DBCb[rodVInd[1]]))
 //                     {
 //                         const VECTOR<T, 3>& Xr0 = std::get<0>(X.Get_Unchecked(rodVInd[0]));
 //                         const VECTOR<T, 3>& Xr1 = std::get<0>(X.Get_Unchecked(rodVInd[1]));
@@ -740,7 +740,7 @@ void Compute_Constraint_Set(MESH_NODE<T, dim>& X,
 }
 
 template <class T, int dim, bool elasticIPC = false>
-void Compute_Barrier(MESH_NODE<T, dim>& X, 
+void Compute_Barrier(MESH_NODE<T, dim>& X,
     MESH_NODE_ATTR<T, dim>& nodeAttr,
     const std::vector<VECTOR<int, dim + 1>>& constraintSet,
     const std::vector<VECTOR<T, 2>>& stencilInfo, // weight, dHat2
@@ -766,7 +766,7 @@ void Compute_Barrier(MESH_NODE<T, dim>& X,
                 const VECTOR<T, 2>& Xp0 = std::get<0>(X.Get_Unchecked(cIVInd[0]));
                 const VECTOR<T, 2>& Xp1 = std::get<0>(X.Get_Unchecked(cIVInd[1]));
                 Eigen::Matrix<T, 2, 1> p0(Xp0.data), p1(Xp1.data);
-                
+
                 T dist2;
                 Point_Point_Distance(p0, p1, dist2);
                 dist2 -= thickness2;
@@ -774,7 +774,7 @@ void Compute_Barrier(MESH_NODE<T, dim>& X,
                     printf("%le distance detected during barrier evaluation!\n", dist2);
                     exit(-1);
                 }
-                
+
                 Barrier<elasticIPC>(dist2, dHat2, kappa, barrier[cI]);
             }
             else {
@@ -783,7 +783,7 @@ void Compute_Barrier(MESH_NODE<T, dim>& X,
                 const VECTOR<T, 2>& Xe0 = std::get<0>(X.Get_Unchecked(cIVInd[1]));
                 const VECTOR<T, 2>& Xe1 = std::get<0>(X.Get_Unchecked(cIVInd[2]));
                 Eigen::Matrix<T, 2, 1> p(Xp.data), e0(Xe0.data), e1(Xe1.data);
-                
+
                 T dist2;
                 Point_Edge_Distance(p, e0, e1, dist2);
                 dist2 -= thickness2;
@@ -791,7 +791,7 @@ void Compute_Barrier(MESH_NODE<T, dim>& X,
                     printf("%le distance detected during barrier evaluation!\n", dist2);
                     exit(-1);
                 }
-                
+
                 Barrier<elasticIPC>(dist2, dHat2, kappa, barrier[cI]);
             }
         }
@@ -810,7 +810,7 @@ void Compute_Barrier(MESH_NODE<T, dim>& X,
                     const VECTOR<T, 3>& Xeb0 = std::get<0>(X.Get_Unchecked(cIVInd[2]));
                     const VECTOR<T, 3>& Xeb1 = std::get<0>(X.Get_Unchecked(cIVInd[3]));
                     Eigen::Matrix<T, 3, 1> ea0(Xea0.data), ea1(Xea1.data), eb0(Xeb0.data), eb1(Xeb1.data);
-                    
+
                     T dist2;
                     Edge_Edge_Distance(ea0, ea1, eb0, eb1, dist2);
                     dist2 -= thickness2;
@@ -818,7 +818,7 @@ void Compute_Barrier(MESH_NODE<T, dim>& X,
                         printf("%le distance detected during barrier evaluation!\n", dist2);
                         exit(-1);
                     }
-                    
+
                     Barrier<elasticIPC>(dist2, dHat2, kappa, barrier[cI]);
                 }
                 else {
@@ -837,7 +837,7 @@ void Compute_Barrier(MESH_NODE<T, dim>& X,
                         ea1 = std::move(Eigen::Matrix<T, 3, 1>(Xea1.data));
                         eb0 = std::move(Eigen::Matrix<T, 3, 1>(Xeb0.data));
                         eb1 = std::move(Eigen::Matrix<T, 3, 1>(Xeb1.data));
-                        
+
                         Edge_Edge_Distance(ea0, ea1, eb0, eb1, dist2);
                     }
                     else if (cIVInd[2] >= 0) {
@@ -869,7 +869,7 @@ void Compute_Barrier(MESH_NODE<T, dim>& X,
                         Point_Point_Distance(ea0, eb0, dist2);
                     }
                     dist2 -= thickness2;
-                    
+
                     if (dist2 <= 0) {
                         printf("%le distance detected during barrier evaluation!\n", dist2);
                         exit(-1);
@@ -881,7 +881,7 @@ void Compute_Barrier(MESH_NODE<T, dim>& X,
                     const VECTOR<T, 3>& Xea1_rest = std::get<FIELDS<MESH_NODE_ATTR<T, 3>>::x0>(nodeAttr.Get_Unchecked(edgeVInd[1]));
                     const VECTOR<T, 3>& Xeb0_rest = std::get<FIELDS<MESH_NODE_ATTR<T, 3>>::x0>(nodeAttr.Get_Unchecked(edgeVInd[2]));
                     const VECTOR<T, 3>& Xeb1_rest = std::get<FIELDS<MESH_NODE_ATTR<T, 3>>::x0>(nodeAttr.Get_Unchecked(edgeVInd[3]));
-                    Eigen::Matrix<T, 3, 1> ea0_rest(Xea0_rest.data), ea1_rest(Xea1_rest.data), 
+                    Eigen::Matrix<T, 3, 1> ea0_rest(Xea0_rest.data), ea1_rest(Xea1_rest.data),
                         eb0_rest(Xeb0_rest.data), eb1_rest(Xeb1_rest.data);
                     T eps_x, e;
                     Edge_Edge_Mollifier_Threshold(ea0_rest, ea1_rest, eb0_rest, eb1_rest, eps_x);
@@ -893,14 +893,14 @@ void Compute_Barrier(MESH_NODE<T, dim>& X,
                 // PT, PE, and PP
                 T dist2;
                 if (cIVInd[3] >= 0) {
-                    // -+++ PT 
+                    // -+++ PT
                     assert(cIVInd[2] >= 0);
                     const VECTOR<T, 3>& Xp = std::get<0>(X.Get_Unchecked(-cIVInd[0] - 1));
                     const VECTOR<T, 3>& Xt0 = std::get<0>(X.Get_Unchecked(cIVInd[1]));
                     const VECTOR<T, 3>& Xt1 = std::get<0>(X.Get_Unchecked(cIVInd[2]));
                     const VECTOR<T, 3>& Xt2 = std::get<0>(X.Get_Unchecked(cIVInd[3]));
                     Eigen::Matrix<T, 3, 1> p(Xp.data), t0(Xt0.data), t1(Xt1.data), t2(Xt2.data);
-                    
+
                     Point_Triangle_Distance(p, t0, t1, t2, dist2);
                 }
                 else if (cIVInd[2] >= 0) {
@@ -909,7 +909,7 @@ void Compute_Barrier(MESH_NODE<T, dim>& X,
                     const VECTOR<T, 3>& Xe0 = std::get<0>(X.Get_Unchecked(cIVInd[1]));
                     const VECTOR<T, 3>& Xe1 = std::get<0>(X.Get_Unchecked(cIVInd[2]));
                     Eigen::Matrix<T, 3, 1> p(Xp.data), e0(Xe0.data), e1(Xe1.data);
-                    
+
                     Point_Edge_Distance(p, e0, e1, dist2);
                 }
                 else {
@@ -917,7 +917,7 @@ void Compute_Barrier(MESH_NODE<T, dim>& X,
                     const VECTOR<T, 3>& Xp0 = std::get<0>(X.Get_Unchecked(-cIVInd[0] - 1));
                     const VECTOR<T, 3>& Xp1 = std::get<0>(X.Get_Unchecked(cIVInd[1]));
                     Eigen::Matrix<T, 3, 1> p0(Xp0.data), p1(Xp1.data);
-                    
+
                     Point_Point_Distance(p0, p1, dist2);
                 }
                 dist2 -= thickness2;
@@ -955,7 +955,7 @@ void Compute_Barrier_Gradient(MESH_NODE<T, dim>& X,
 
     const T thickness2 = thickness * thickness;
     dHat2 += 2 * std::sqrt(dHat2) * thickness;
-    
+
     if constexpr (dim == 2) {
         //TODO: parallelize (loop contains write conflict!)
         for (int cI = 0; cI < constraintSet.size(); ++cI) {
@@ -965,7 +965,7 @@ void Compute_Barrier_Gradient(MESH_NODE<T, dim>& X,
                 const VECTOR<T, 2>& Xp0 = std::get<0>(X.Get_Unchecked(cIVInd[0]));
                 const VECTOR<T, 2>& Xp1 = std::get<0>(X.Get_Unchecked(cIVInd[1]));
                 Eigen::Matrix<T, 2, 1> p0(Xp0.data), p1(Xp1.data);
-                
+
                 T dist2;
                 Point_Point_Distance(p0, p1, dist2);
                 dist2 -= thickness2;
@@ -987,7 +987,7 @@ void Compute_Barrier_Gradient(MESH_NODE<T, dim>& X,
                 const VECTOR<T, 2>& Xe0 = std::get<0>(X.Get_Unchecked(cIVInd[1]));
                 const VECTOR<T, 2>& Xe1 = std::get<0>(X.Get_Unchecked(cIVInd[2]));
                 Eigen::Matrix<T, 2, 1> p(Xp.data), e0(Xe0.data), e1(Xe1.data);
-                
+
                 T dist2;
                 Point_Edge_Distance(p, e0, e1, dist2);
                 dist2 -= thickness2;
@@ -1021,13 +1021,13 @@ void Compute_Barrier_Gradient(MESH_NODE<T, dim>& X,
                     const VECTOR<T, 3>& Xeb0 = std::get<0>(X.Get_Unchecked(cIVInd[2]));
                     const VECTOR<T, 3>& Xeb1 = std::get<0>(X.Get_Unchecked(cIVInd[3]));
                     Eigen::Matrix<T, 3, 1> ea0(Xea0.data), ea1(Xea1.data), eb0(Xeb0.data), eb1(Xeb1.data);
-                    
+
                     T dist2;
                     Edge_Edge_Distance(ea0, ea1, eb0, eb1, dist2);
                     dist2 -= thickness2;
                     Eigen::Matrix<T, 12, 1> distGrad;
                     Edge_Edge_Distance_Gradient(ea0, ea1, eb0, eb1, distGrad);
-                    
+
                     T barrierGrad;
                     Barrier_Gradient<elasticIPC>(dist2, dHat2, kappa, barrierGrad);
 
@@ -1051,13 +1051,13 @@ void Compute_Barrier_Gradient(MESH_NODE<T, dim>& X,
                         const VECTOR<T, 3>& Xeb0 = std::get<0>(X.Get_Unchecked(edgeVInd[2]));
                         const VECTOR<T, 3>& Xeb1 = std::get<0>(X.Get_Unchecked(edgeVInd[3]));
                         Eigen::Matrix<T, 3, 1> ea0(Xea0.data), ea1(Xea1.data), eb0(Xeb0.data), eb1(Xeb1.data);
-                        
+
                         T dist2;
                         Edge_Edge_Distance(ea0, ea1, eb0, eb1, dist2);
                         dist2 -= thickness2;
                         Eigen::Matrix<T, 12, 1> distGrad;
                         Edge_Edge_Distance_Gradient(ea0, ea1, eb0, eb1, distGrad);
-                        
+
                         T b, bGrad;
                         Barrier<elasticIPC>(dist2, dHat2, kappa, b);
                         Barrier_Gradient<elasticIPC>(dist2, dHat2, kappa, bGrad);
@@ -1066,7 +1066,7 @@ void Compute_Barrier_Gradient(MESH_NODE<T, dim>& X,
                         const VECTOR<T, 3>& Xea1_rest = std::get<FIELDS<MESH_NODE_ATTR<T, 3>>::x0>(nodeAttr.Get_Unchecked(edgeVInd[1]));
                         const VECTOR<T, 3>& Xeb0_rest = std::get<FIELDS<MESH_NODE_ATTR<T, 3>>::x0>(nodeAttr.Get_Unchecked(edgeVInd[2]));
                         const VECTOR<T, 3>& Xeb1_rest = std::get<FIELDS<MESH_NODE_ATTR<T, 3>>::x0>(nodeAttr.Get_Unchecked(edgeVInd[3]));
-                        Eigen::Matrix<T, 3, 1> ea0_rest(Xea0_rest.data), ea1_rest(Xea1_rest.data), 
+                        Eigen::Matrix<T, 3, 1> ea0_rest(Xea0_rest.data), ea1_rest(Xea1_rest.data),
                             eb0_rest(Xeb0_rest.data), eb1_rest(Xeb1_rest.data);
                         T eps_x, e;
                         Edge_Edge_Mollifier_Threshold(ea0_rest, ea1_rest, eb0_rest, eb1_rest, eps_x);
@@ -1098,7 +1098,7 @@ void Compute_Barrier_Gradient(MESH_NODE<T, dim>& X,
                         dist2 -= thickness2;
                         Eigen::Matrix<T, 9, 1> distGrad;
                         Point_Edge_Distance_Gradient(ea0, eb0, eb1, distGrad);
-                        
+
                         T b, bGrad;
                         Barrier<elasticIPC>(dist2, dHat2, kappa, b);
                         Barrier_Gradient<elasticIPC>(dist2, dHat2, kappa, bGrad);
@@ -1107,7 +1107,7 @@ void Compute_Barrier_Gradient(MESH_NODE<T, dim>& X,
                         const VECTOR<T, 3>& Xea1_rest = std::get<FIELDS<MESH_NODE_ATTR<T, 3>>::x0>(nodeAttr.Get_Unchecked(edgeVInd[1]));
                         const VECTOR<T, 3>& Xeb0_rest = std::get<FIELDS<MESH_NODE_ATTR<T, 3>>::x0>(nodeAttr.Get_Unchecked(edgeVInd[2]));
                         const VECTOR<T, 3>& Xeb1_rest = std::get<FIELDS<MESH_NODE_ATTR<T, 3>>::x0>(nodeAttr.Get_Unchecked(edgeVInd[3]));
-                        Eigen::Matrix<T, 3, 1> ea0_rest(Xea0_rest.data), ea1_rest(Xea1_rest.data), 
+                        Eigen::Matrix<T, 3, 1> ea0_rest(Xea0_rest.data), ea1_rest(Xea1_rest.data),
                             eb0_rest(Xeb0_rest.data), eb1_rest(Xeb1_rest.data);
                         T eps_x, e;
                         Edge_Edge_Mollifier_Threshold(ea0_rest, ea1_rest, eb0_rest, eb1_rest, eps_x);
@@ -1143,7 +1143,7 @@ void Compute_Barrier_Gradient(MESH_NODE<T, dim>& X,
                         dist2 -= thickness2;
                         Eigen::Matrix<T, 6, 1> distGrad;
                         Point_Point_Distance_Gradient(ea0, eb0, distGrad);
-                        
+
                         T b, bGrad;
                         Barrier<elasticIPC>(dist2, dHat2, kappa, b);
                         Barrier_Gradient<elasticIPC>(dist2, dHat2, kappa, bGrad);
@@ -1152,7 +1152,7 @@ void Compute_Barrier_Gradient(MESH_NODE<T, dim>& X,
                         const VECTOR<T, 3>& Xea1_rest = std::get<FIELDS<MESH_NODE_ATTR<T, 3>>::x0>(nodeAttr.Get_Unchecked(edgeVInd[1]));
                         const VECTOR<T, 3>& Xeb0_rest = std::get<FIELDS<MESH_NODE_ATTR<T, 3>>::x0>(nodeAttr.Get_Unchecked(edgeVInd[2]));
                         const VECTOR<T, 3>& Xeb1_rest = std::get<FIELDS<MESH_NODE_ATTR<T, 3>>::x0>(nodeAttr.Get_Unchecked(edgeVInd[3]));
-                        Eigen::Matrix<T, 3, 1> ea0_rest(Xea0_rest.data), ea1_rest(Xea1_rest.data), 
+                        Eigen::Matrix<T, 3, 1> ea0_rest(Xea0_rest.data), ea1_rest(Xea1_rest.data),
                             eb0_rest(Xeb0_rest.data), eb1_rest(Xeb1_rest.data);
                         T eps_x, e;
                         Edge_Edge_Mollifier_Threshold(ea0_rest, ea1_rest, eb0_rest, eb1_rest, eps_x);
@@ -1178,20 +1178,20 @@ void Compute_Barrier_Gradient(MESH_NODE<T, dim>& X,
             else {
                 // PT, PE, and PP
                 if (cIVInd[3] >= 0) {
-                    // -+++ PT 
+                    // -+++ PT
                     assert(cIVInd[2] >= 0);
                     const VECTOR<T, 3>& Xp = std::get<0>(X.Get_Unchecked(-cIVInd[0] - 1));
                     const VECTOR<T, 3>& Xt0 = std::get<0>(X.Get_Unchecked(cIVInd[1]));
                     const VECTOR<T, 3>& Xt1 = std::get<0>(X.Get_Unchecked(cIVInd[2]));
                     const VECTOR<T, 3>& Xt2 = std::get<0>(X.Get_Unchecked(cIVInd[3]));
                     Eigen::Matrix<T, 3, 1> p(Xp.data), t0(Xt0.data), t1(Xt1.data), t2(Xt2.data);
-                    
+
                     T dist2;
                     Point_Triangle_Distance(p, t0, t1, t2, dist2);
                     dist2 -= thickness2;
                     Eigen::Matrix<T, 12, 1> distGrad;
                     Point_Triangle_Distance_Gradient(p, t0, t1, t2, distGrad);
-                    
+
                     T barrierGrad;
                     Barrier_Gradient<elasticIPC>(dist2, dHat2, kappa, barrierGrad);
 
@@ -1211,13 +1211,13 @@ void Compute_Barrier_Gradient(MESH_NODE<T, dim>& X,
                     const VECTOR<T, 3>& Xe0 = std::get<0>(X.Get_Unchecked(cIVInd[1]));
                     const VECTOR<T, 3>& Xe1 = std::get<0>(X.Get_Unchecked(cIVInd[2]));
                     Eigen::Matrix<T, 3, 1> p(Xp.data), e0(Xe0.data), e1(Xe1.data);
-                    
+
                     T dist2;
                     Point_Edge_Distance(p, e0, e1, dist2);
                     dist2 -= thickness2;
                     Eigen::Matrix<T, 9, 1> distGrad;
                     Point_Edge_Distance_Gradient(p, e0, e1, distGrad);
-                    
+
                     T barrierGrad;
                     Barrier_Gradient<elasticIPC>(dist2, dHat2, kappa, barrierGrad);
 
@@ -1234,13 +1234,13 @@ void Compute_Barrier_Gradient(MESH_NODE<T, dim>& X,
                     const VECTOR<T, 3>& Xp0 = std::get<0>(X.Get_Unchecked(-cIVInd[0] - 1));
                     const VECTOR<T, 3>& Xp1 = std::get<0>(X.Get_Unchecked(cIVInd[1]));
                     Eigen::Matrix<T, 3, 1> p0(Xp0.data), p1(Xp1.data);
-                    
+
                     T dist2;
                     Point_Point_Distance(p0, p1, dist2);
                     dist2 -= thickness2;
                     Eigen::Matrix<T, 6, 1> distGrad;
                     Point_Point_Distance_Gradient(p0, p1, distGrad);
-                    
+
                     T barrierGrad;
                     Barrier_Gradient<elasticIPC>(dist2, dHat2, kappa, barrierGrad);
 
@@ -1298,7 +1298,7 @@ void Compute_Barrier_Hessian(MESH_NODE<T, dim>& X,
                 const VECTOR<T, 2>& Xp0 = std::get<0>(X.Get_Unchecked(cIVInd[0]));
                 const VECTOR<T, 2>& Xp1 = std::get<0>(X.Get_Unchecked(cIVInd[1]));
                 Eigen::Matrix<T, 2, 1> p0(Xp0.data), p1(Xp1.data);
-                
+
                 T dist2;
                 Point_Point_Distance(p0, p1, dist2);
                 dist2 -= thickness2;
@@ -1334,7 +1334,7 @@ void Compute_Barrier_Hessian(MESH_NODE<T, dim>& X,
                 const VECTOR<T, 2>& Xe0 = std::get<0>(X.Get_Unchecked(cIVInd[1]));
                 const VECTOR<T, 2>& Xe1 = std::get<0>(X.Get_Unchecked(cIVInd[2]));
                 Eigen::Matrix<T, 2, 1> p(Xp.data), e0(Xe0.data), e1(Xe1.data);
-                
+
                 T dist2;
                 Point_Edge_Distance(p, e0, e1, dist2);
                 dist2 -= thickness2;
@@ -1378,7 +1378,7 @@ void Compute_Barrier_Hessian(MESH_NODE<T, dim>& X,
             }
             else if (cIVInd[2] >= 0) {
                 // PE, 9x9
-                curStartInd += 81;    
+                curStartInd += 81;
             }
             else {
                 // PP, 6x6
@@ -1400,7 +1400,7 @@ void Compute_Barrier_Hessian(MESH_NODE<T, dim>& X,
                     const VECTOR<T, 3>& Xeb0 = std::get<0>(X.Get_Unchecked(cIVInd[2]));
                     const VECTOR<T, 3>& Xeb1 = std::get<0>(X.Get_Unchecked(cIVInd[3]));
                     Eigen::Matrix<T, 3, 1> ea0(Xea0.data), ea1(Xea1.data), eb0(Xeb0.data), eb1(Xeb1.data);
-                    
+
                     T dist2;
                     Edge_Edge_Distance(ea0, ea1, eb0, eb1, dist2);
                     dist2 -= thickness2;
@@ -1408,7 +1408,7 @@ void Compute_Barrier_Hessian(MESH_NODE<T, dim>& X,
                     Edge_Edge_Distance_Gradient(ea0, ea1, eb0, eb1, distGrad);
                     Eigen::Matrix<T, 12, 12> distH;
                     Edge_Edge_Distance_Hessian(ea0, ea1, eb0, eb1, distH);
-                    
+
                     T barrierGrad, barrierH;
                     Barrier_Gradient<elasticIPC>(dist2, dHat2, kappa, barrierGrad);
                     Barrier_Hessian<elasticIPC>(dist2, dHat2, kappa, barrierH);
@@ -1441,7 +1441,7 @@ void Compute_Barrier_Hessian(MESH_NODE<T, dim>& X,
                         const VECTOR<T, 3>& Xeb0 = std::get<0>(X.Get_Unchecked(edgeVInd[2]));
                         const VECTOR<T, 3>& Xeb1 = std::get<0>(X.Get_Unchecked(edgeVInd[3]));
                         Eigen::Matrix<T, 3, 1> ea0(Xea0.data), ea1(Xea1.data), eb0(Xeb0.data), eb1(Xeb1.data);
-                        
+
                         T dist2;
                         Edge_Edge_Distance(ea0, ea1, eb0, eb1, dist2);
                         dist2 -= thickness2;
@@ -1449,7 +1449,7 @@ void Compute_Barrier_Hessian(MESH_NODE<T, dim>& X,
                         Edge_Edge_Distance_Gradient(ea0, ea1, eb0, eb1, distGrad);
                         Eigen::Matrix<T, 12, 12> distH;
                         Edge_Edge_Distance_Hessian(ea0, ea1, eb0, eb1, distH);
-                        
+
                         T b, bGrad, bH;
                         Barrier<elasticIPC>(dist2, dHat2, kappa, b);
                         Barrier_Gradient<elasticIPC>(dist2, dHat2, kappa, bGrad);
@@ -1459,7 +1459,7 @@ void Compute_Barrier_Hessian(MESH_NODE<T, dim>& X,
                         const VECTOR<T, 3>& Xea1_rest = std::get<FIELDS<MESH_NODE_ATTR<T, 3>>::x0>(nodeAttr.Get_Unchecked(edgeVInd[1]));
                         const VECTOR<T, 3>& Xeb0_rest = std::get<FIELDS<MESH_NODE_ATTR<T, 3>>::x0>(nodeAttr.Get_Unchecked(edgeVInd[2]));
                         const VECTOR<T, 3>& Xeb1_rest = std::get<FIELDS<MESH_NODE_ATTR<T, 3>>::x0>(nodeAttr.Get_Unchecked(edgeVInd[3]));
-                        Eigen::Matrix<T, 3, 1> ea0_rest(Xea0_rest.data), ea1_rest(Xea1_rest.data), 
+                        Eigen::Matrix<T, 3, 1> ea0_rest(Xea0_rest.data), ea1_rest(Xea1_rest.data),
                             eb0_rest(Xeb0_rest.data), eb1_rest(Xeb1_rest.data);
                         T eps_x, e;
                         Edge_Edge_Mollifier_Threshold(ea0_rest, ea1_rest, eb0_rest, eb1_rest, eps_x);
@@ -1470,7 +1470,7 @@ void Compute_Barrier_Hessian(MESH_NODE<T, dim>& X,
                         Edge_Edge_Mollifier_Hessian(ea0, ea1, eb0, eb1, eps_x, eH);
 
                         Eigen::Matrix<T, 12, 12> kappa_bGrad_eGradT = (bGrad * distGrad) * eGrad.transpose();
-                        Eigen::Matrix<T, 12, 12> HessianI = kappa_bGrad_eGradT + kappa_bGrad_eGradT.transpose() + 
+                        Eigen::Matrix<T, 12, 12> HessianI = kappa_bGrad_eGradT + kappa_bGrad_eGradT.transpose() +
                             b * eH + (e * bH * distGrad) * distGrad.transpose() + e * bGrad * distH;
                         HessianI *= stencilInfo[cI][0];
                         if (projectSPD) {
@@ -1503,7 +1503,7 @@ void Compute_Barrier_Hessian(MESH_NODE<T, dim>& X,
                         Point_Edge_Distance_Gradient(ea0, eb0, eb1, distGrad);
                         Eigen::Matrix<T, 9, 9> distH;
                         Point_Edge_Distance_Hessian(ea0, eb0, eb1, distH);
-                        
+
                         T b, bGrad, bH;
                         Barrier<elasticIPC>(dist2, dHat2, kappa, b);
                         Barrier_Gradient<elasticIPC>(dist2, dHat2, kappa, bGrad);
@@ -1513,7 +1513,7 @@ void Compute_Barrier_Hessian(MESH_NODE<T, dim>& X,
                         const VECTOR<T, 3>& Xea1_rest = std::get<FIELDS<MESH_NODE_ATTR<T, 3>>::x0>(nodeAttr.Get_Unchecked(edgeVInd[1]));
                         const VECTOR<T, 3>& Xeb0_rest = std::get<FIELDS<MESH_NODE_ATTR<T, 3>>::x0>(nodeAttr.Get_Unchecked(edgeVInd[2]));
                         const VECTOR<T, 3>& Xeb1_rest = std::get<FIELDS<MESH_NODE_ATTR<T, 3>>::x0>(nodeAttr.Get_Unchecked(edgeVInd[3]));
-                        Eigen::Matrix<T, 3, 1> ea0_rest(Xea0_rest.data), ea1_rest(Xea1_rest.data), 
+                        Eigen::Matrix<T, 3, 1> ea0_rest(Xea0_rest.data), ea1_rest(Xea1_rest.data),
                             eb0_rest(Xeb0_rest.data), eb1_rest(Xeb1_rest.data);
                         T eps_x, e;
                         Edge_Edge_Mollifier_Threshold(ea0_rest, ea1_rest, eb0_rest, eb1_rest, eps_x);
@@ -1565,7 +1565,7 @@ void Compute_Barrier_Hessian(MESH_NODE<T, dim>& X,
                         Point_Point_Distance_Gradient(ea0, eb0, distGrad);
                         Eigen::Matrix<T, 6, 6> distH;
                         Point_Point_Distance_Hessian(ea0, eb0, distH);
-                        
+
                         T b, bGrad, bH;
                         Barrier<elasticIPC>(dist2, dHat2, kappa, b);
                         Barrier_Gradient<elasticIPC>(dist2, dHat2, kappa, bGrad);
@@ -1575,7 +1575,7 @@ void Compute_Barrier_Hessian(MESH_NODE<T, dim>& X,
                         const VECTOR<T, 3>& Xea1_rest = std::get<FIELDS<MESH_NODE_ATTR<T, 3>>::x0>(nodeAttr.Get_Unchecked(edgeVInd[1]));
                         const VECTOR<T, 3>& Xeb0_rest = std::get<FIELDS<MESH_NODE_ATTR<T, 3>>::x0>(nodeAttr.Get_Unchecked(edgeVInd[2]));
                         const VECTOR<T, 3>& Xeb1_rest = std::get<FIELDS<MESH_NODE_ATTR<T, 3>>::x0>(nodeAttr.Get_Unchecked(edgeVInd[3]));
-                        Eigen::Matrix<T, 3, 1> ea0_rest(Xea0_rest.data), ea1_rest(Xea1_rest.data), 
+                        Eigen::Matrix<T, 3, 1> ea0_rest(Xea0_rest.data), ea1_rest(Xea1_rest.data),
                             eb0_rest(Xeb0_rest.data), eb1_rest(Xeb1_rest.data);
                         T eps_x, e;
                         Edge_Edge_Mollifier_Threshold(ea0_rest, ea1_rest, eb0_rest, eb1_rest, eps_x);
@@ -1617,14 +1617,14 @@ void Compute_Barrier_Hessian(MESH_NODE<T, dim>& X,
                 // PT, PE, and PP
                 cIVInd[0] = -cIVInd[0] - 1;
                 if (cIVInd[3] >= 0) {
-                    // -+++ PT 
+                    // -+++ PT
                     assert(cIVInd[2] >= 0);
                     const VECTOR<T, 3>& Xp = std::get<0>(X.Get_Unchecked(cIVInd[0]));
                     const VECTOR<T, 3>& Xt0 = std::get<0>(X.Get_Unchecked(cIVInd[1]));
                     const VECTOR<T, 3>& Xt1 = std::get<0>(X.Get_Unchecked(cIVInd[2]));
                     const VECTOR<T, 3>& Xt2 = std::get<0>(X.Get_Unchecked(cIVInd[3]));
                     Eigen::Matrix<T, 3, 1> p(Xp.data), t0(Xt0.data), t1(Xt1.data), t2(Xt2.data);
-                    
+
                     T dist2;
                     Point_Triangle_Distance(p, t0, t1, t2, dist2);
                     dist2 -= thickness2;
@@ -1632,7 +1632,7 @@ void Compute_Barrier_Hessian(MESH_NODE<T, dim>& X,
                     Point_Triangle_Distance_Gradient(p, t0, t1, t2, distGrad);
                     Eigen::Matrix<T, 12, 12> distH;
                     Point_Triangle_Distance_Hessian(p, t0, t1, t2, distH);
-                    
+
                     T barrierGrad, barrierH;
                     Barrier_Gradient<elasticIPC>(dist2, dHat2, kappa, barrierGrad);
                     Barrier_Hessian<elasticIPC>(dist2, dHat2, kappa, barrierH);
@@ -1660,7 +1660,7 @@ void Compute_Barrier_Hessian(MESH_NODE<T, dim>& X,
                     const VECTOR<T, 3>& Xe0 = std::get<0>(X.Get_Unchecked(cIVInd[1]));
                     const VECTOR<T, 3>& Xe1 = std::get<0>(X.Get_Unchecked(cIVInd[2]));
                     Eigen::Matrix<T, 3, 1> p(Xp.data), e0(Xe0.data), e1(Xe1.data);
-                    
+
                     T dist2;
                     Point_Edge_Distance(p, e0, e1, dist2);
                     dist2 -= thickness2;
@@ -1668,7 +1668,7 @@ void Compute_Barrier_Hessian(MESH_NODE<T, dim>& X,
                     Point_Edge_Distance_Gradient(p, e0, e1, distGrad);
                     Eigen::Matrix<T, 9, 9> distH;
                     Point_Edge_Distance_Hessian(p, e0, e1, distH);
-                    
+
                     T barrierGrad, barrierH;
                     Barrier_Gradient<elasticIPC>(dist2, dHat2, kappa, barrierGrad);
                     Barrier_Hessian<elasticIPC>(dist2, dHat2, kappa, barrierH);
@@ -1695,7 +1695,7 @@ void Compute_Barrier_Hessian(MESH_NODE<T, dim>& X,
                     const VECTOR<T, 3>& Xp0 = std::get<0>(X.Get_Unchecked(cIVInd[0]));
                     const VECTOR<T, 3>& Xp1 = std::get<0>(X.Get_Unchecked(cIVInd[1]));
                     Eigen::Matrix<T, 3, 1> p0(Xp0.data), p1(Xp1.data);
-                    
+
                     T dist2;
                     Point_Point_Distance(p0, p1, dist2);
                     dist2 -= thickness2;
@@ -1703,7 +1703,7 @@ void Compute_Barrier_Hessian(MESH_NODE<T, dim>& X,
                     Point_Point_Distance_Gradient(p0, p1, distGrad);
                     Eigen::Matrix<T, 6, 6> distH;
                     Point_Point_Distance_Hessian(p0, p1, distH);
-                    
+
                     T barrierGrad, barrierH;
                     Barrier_Gradient<elasticIPC>(dist2, dHat2, kappa, barrierGrad);
                     Barrier_Hessian<elasticIPC>(dist2, dHat2, kappa, barrierH);
@@ -1886,7 +1886,7 @@ void Compute_Intersection_Free_StepSize(MESH_NODE<T, dim>& X,
     const std::map<int, std::set<int>>& NNExclusion,
     const VECTOR<int, 2>& codimBNStartInd,
     const std::vector<bool>& DBCb,
-    const std::vector<T>& searchDir, 
+    const std::vector<T>& searchDir,
     T thickness, T& stepSize)
 {
     TIMER_FLAG("Compute_Intersection_Free_StepSize");
@@ -1924,8 +1924,8 @@ void Compute_Intersection_Free_StepSize(MESH_NODE<T, dim>& X,
 #else
             for (const auto& eI : boundaryEdge) {
 #endif
-                if (nI == eI[0] || nI == eI[1] || 
-                    (DBCb[nI] && DBCb[eI[0]] && DBCb[eI[1]])) 
+                if (nI == eI[0] || nI == eI[1] ||
+                    (DBCb[nI] && DBCb[eI[0]] && DBCb[eI[1]]))
                 {
                     continue;
                 }
@@ -1973,12 +1973,12 @@ void Compute_Intersection_Free_StepSize(MESH_NODE<T, dim>& X,
             sh.Query_Point_For_Primitives(svI, sPointInds, sEdgeInds, sTriInds);
             for (const auto& sfI : sTriInds)
 #else
-            for (int sfI = 0; sfI < boundaryTri.size(); ++sfI) 
+            for (int sfI = 0; sfI < boundaryTri.size(); ++sfI)
 #endif
             {
                 const VECTOR<int, 3>& sfVInd = boundaryTri[sfI];
                 if (!(vI == sfVInd[0] || vI == sfVInd[1] || vI == sfVInd[2]) &&
-                    !(DBCb[vI] && DBCb[sfVInd[0]] && DBCb[sfVInd[1]] && DBCb[sfVInd[2]])) 
+                    !(DBCb[vI] && DBCb[sfVInd[0]] && DBCb[sfVInd[1]] && DBCb[sfVInd[2]]))
                 {
                     auto NNEFinder = NNExclusion.find(vI);
                     if (NNEFinder != NNExclusion.end() &&
@@ -1998,7 +1998,7 @@ void Compute_Intersection_Free_StepSize(MESH_NODE<T, dim>& X,
                     const VECTOR<T, 3>& Xt1 = std::get<0>(X.Get_Unchecked(sfVInd[1]));
                     const VECTOR<T, 3>& Xt2 = std::get<0>(X.Get_Unchecked(sfVInd[2]));
                     Eigen::Matrix<T, 3, 1> t0(Xt0.data), t1(Xt1.data), t2(Xt2.data);
-                    Eigen::Matrix<T, 3, 1> dt0(searchDir.data() + sfVInd[0] * dim), 
+                    Eigen::Matrix<T, 3, 1> dt0(searchDir.data() + sfVInd[0] * dim),
                         dt1(searchDir.data() + sfVInd[1] * dim), dt2(searchDir.data() + sfVInd[2] * dim);
 
                     if (!Point_Triangle_CCD_Broadphase(p, t0, t1, t2, dp, dt0, dt1, dt2, thickness)) {
@@ -2042,7 +2042,7 @@ void Compute_Intersection_Free_StepSize(MESH_NODE<T, dim>& X,
 //             {
 //                 const VECTOR<int, 2>& meshEI = boundaryEdge[eI];
 //                 if (!(vI == meshEI[0] || vI == meshEI[1]) &&
-//                     !(DBCb[vI] && DBCb[meshEI[0]] && DBCb[meshEI[1]])) 
+//                     !(DBCb[vI] && DBCb[meshEI[0]] && DBCb[meshEI[1]]))
 //                 {
 //                     if constexpr (shell) {
 //                         int vpair = (vI % 2 == 0) ? (vI + 1) : vI - 1;
@@ -2053,7 +2053,7 @@ void Compute_Intersection_Free_StepSize(MESH_NODE<T, dim>& X,
 //                     const VECTOR<T, 3>& Xe0 = std::get<0>(X.Get_Unchecked(meshEI[0]));
 //                     const VECTOR<T, 3>& Xe1 = std::get<0>(X.Get_Unchecked(meshEI[1]));
 //                     Eigen::Matrix<T, 3, 1> e0(Xe0.data), e1(Xe1.data);
-//                     Eigen::Matrix<T, 3, 1> de0(searchDir.data() + meshEI[0] * dim), 
+//                     Eigen::Matrix<T, 3, 1> de0(searchDir.data() + meshEI[0] * dim),
 //                         de1(searchDir.data() + meshEI[1] * dim);
 
 //                     if (!Point_Edge_CCD_Broadphase(p, e0, e1, dp, de0, de1, thickness)) {
@@ -2106,7 +2106,7 @@ void Compute_Intersection_Free_StepSize(MESH_NODE<T, dim>& X,
                     if (eI >= boundaryEdge.size() - rod.size()) {
                         const VECTOR<int, 2>& meshEI = boundaryEdge[eI];
                         if (!(vI == meshEI[0] || vI == meshEI[1]) &&
-                            !(DBCb[vI] && DBCb[meshEI[0]] && DBCb[meshEI[1]])) 
+                            !(DBCb[vI] && DBCb[meshEI[0]] && DBCb[meshEI[1]]))
                         {
                             if constexpr (shell) {
                                 int vpair = (vI % 2 == 0) ? (vI + 1) : vI - 1;
@@ -2117,7 +2117,7 @@ void Compute_Intersection_Free_StepSize(MESH_NODE<T, dim>& X,
                             const VECTOR<T, 3>& Xe0 = std::get<0>(X.Get_Unchecked(meshEI[0]));
                             const VECTOR<T, 3>& Xe1 = std::get<0>(X.Get_Unchecked(meshEI[1]));
                             Eigen::Matrix<T, 3, 1> e0(Xe0.data), e1(Xe1.data);
-                            Eigen::Matrix<T, 3, 1> de0(searchDir.data() + meshEI[0] * dim), 
+                            Eigen::Matrix<T, 3, 1> de0(searchDir.data() + meshEI[0] * dim),
                                 de1(searchDir.data() + meshEI[1] * dim);
 
                             if (!Point_Edge_CCD_Broadphase(p, e0, e1, dp, de0, de1, thickness)) {
@@ -2199,7 +2199,7 @@ void Compute_Intersection_Free_StepSize(MESH_NODE<T, dim>& X,
                     if ((NNEFinder0 != NNExclusion.end() &&
                         (NNEFinder0->second.find(meshEJ[0]) != NNEFinder0->second.end() ||
                         NNEFinder0->second.find(meshEJ[1]) != NNEFinder0->second.end())) ||
-                        (NNEFinder1 != NNExclusion.end() && 
+                        (NNEFinder1 != NNExclusion.end() &&
                         (NNEFinder1->second.find(meshEJ[0]) != NNEFinder1->second.end() ||
                         NNEFinder1->second.find(meshEJ[1]) != NNEFinder1->second.end())))
                     {
@@ -2299,7 +2299,7 @@ void Compute_Min_Dist2(MESH_NODE<T, dim>& X,
                     const VECTOR<T, 3>& Xeb0 = std::get<0>(X.Get_Unchecked(cIVInd[2]));
                     const VECTOR<T, 3>& Xeb1 = std::get<0>(X.Get_Unchecked(cIVInd[3]));
                     Eigen::Matrix<T, 3, 1> ea0(Xea0.data), ea1(Xea1.data), eb0(Xeb0.data), eb1(Xeb1.data);
-                    
+
                     Edge_Edge_Distance(ea0, ea1, eb0, eb1, dist2[cI]);
                 }
                 else {
@@ -2317,7 +2317,7 @@ void Compute_Min_Dist2(MESH_NODE<T, dim>& X,
                         ea1 = std::move(Eigen::Matrix<T, 3, 1>(Xea1.data));
                         eb0 = std::move(Eigen::Matrix<T, 3, 1>(Xeb0.data));
                         eb1 = std::move(Eigen::Matrix<T, 3, 1>(Xeb1.data));
-                        
+
                         Edge_Edge_Distance(ea0, ea1, eb0, eb1, dist2[cI]);
                     }
                     else if (cIVInd[2] >= 0) {
@@ -2353,14 +2353,14 @@ void Compute_Min_Dist2(MESH_NODE<T, dim>& X,
             else {
                 // PT, PE, and PP
                 if (cIVInd[3] >= 0) {
-                    // -+++ PT 
+                    // -+++ PT
                     assert(cIVInd[2] >= 0);
                     const VECTOR<T, 3>& Xp = std::get<0>(X.Get_Unchecked(-cIVInd[0] - 1));
                     const VECTOR<T, 3>& Xt0 = std::get<0>(X.Get_Unchecked(cIVInd[1]));
                     const VECTOR<T, 3>& Xt1 = std::get<0>(X.Get_Unchecked(cIVInd[2]));
                     const VECTOR<T, 3>& Xt2 = std::get<0>(X.Get_Unchecked(cIVInd[3]));
                     Eigen::Matrix<T, 3, 1> p(Xp.data), t0(Xt0.data), t1(Xt1.data), t2(Xt2.data);
-                    
+
                     Point_Triangle_Distance(p, t0, t1, t2, dist2[cI]);
                 }
                 else if (cIVInd[2] >= 0) {
@@ -2369,7 +2369,7 @@ void Compute_Min_Dist2(MESH_NODE<T, dim>& X,
                     const VECTOR<T, 3>& Xe0 = std::get<0>(X.Get_Unchecked(cIVInd[1]));
                     const VECTOR<T, 3>& Xe1 = std::get<0>(X.Get_Unchecked(cIVInd[2]));
                     Eigen::Matrix<T, 3, 1> p(Xp.data), e0(Xe0.data), e1(Xe1.data);
-                    
+
                     Point_Edge_Distance(p, e0, e1, dist2[cI]);
                 }
                 else {
@@ -2377,7 +2377,7 @@ void Compute_Min_Dist2(MESH_NODE<T, dim>& X,
                     const VECTOR<T, 3>& Xp0 = std::get<0>(X.Get_Unchecked(-cIVInd[0] - 1));
                     const VECTOR<T, 3>& Xp1 = std::get<0>(X.Get_Unchecked(cIVInd[1]));
                     Eigen::Matrix<T, 3, 1> p0(Xp0.data), p1(Xp1.data);
-                    
+
                     Point_Point_Distance(p0, p1, dist2[cI]);
                 }
             }
@@ -2485,7 +2485,7 @@ bool Check_Edge_Tri_Intersect(
 #endif
             {
                 const VECTOR<int, 2>& meshEI = boundaryEdge[eI];
-                if (meshEI[0] == sfVInd[0] || meshEI[0] == sfVInd[1] || meshEI[0] == sfVInd[2] || 
+                if (meshEI[0] == sfVInd[0] || meshEI[0] == sfVInd[1] || meshEI[0] == sfVInd[2] ||
                     meshEI[1] == sfVInd[0] || meshEI[1] == sfVInd[1] || meshEI[1] == sfVInd[2] ||
                     (DBCb[meshEI[0]] && DBCb[meshEI[1]] && DBCb[sfVInd[0]] && DBCb[sfVInd[1]] && DBCb[sfVInd[2]])) {
                     continue;
@@ -2518,12 +2518,12 @@ bool Check_Edge_Tri_Intersect(
 
 template <class T>
 void Point_Triangle_Distance_Vector_Unclassified(
-    const Eigen::Matrix<T, 3, 1>& p, 
-    const Eigen::Matrix<T, 3, 1>& t0, 
+    const Eigen::Matrix<T, 3, 1>& p,
+    const Eigen::Matrix<T, 3, 1>& t0,
     const Eigen::Matrix<T, 3, 1>& t1,
     const Eigen::Matrix<T, 3, 1>& t2,
-    const Eigen::Matrix<T, 3, 1>& dp, 
-    const Eigen::Matrix<T, 3, 1>& dt0, 
+    const Eigen::Matrix<T, 3, 1>& dp,
+    const Eigen::Matrix<T, 3, 1>& dt0,
     const Eigen::Matrix<T, 3, 1>& dt1,
     const Eigen::Matrix<T, 3, 1>& dt2,
     T t, T lambda, T beta,
@@ -2536,12 +2536,12 @@ void Point_Triangle_Distance_Vector_Unclassified(
 
 template <class T>
 bool Point_Triangle_CheckInterval_Unclassified(
-    const Eigen::Matrix<T, 3, 1>& p, 
-    const Eigen::Matrix<T, 3, 1>& t0, 
+    const Eigen::Matrix<T, 3, 1>& p,
+    const Eigen::Matrix<T, 3, 1>& t0,
     const Eigen::Matrix<T, 3, 1>& t1,
     const Eigen::Matrix<T, 3, 1>& t2,
-    const Eigen::Matrix<T, 3, 1>& dp, 
-    const Eigen::Matrix<T, 3, 1>& dt0, 
+    const Eigen::Matrix<T, 3, 1>& dp,
+    const Eigen::Matrix<T, 3, 1>& dt0,
     const Eigen::Matrix<T, 3, 1>& dt1,
     const Eigen::Matrix<T, 3, 1>& dt2,
     const std::array<T, 6>& interval,
@@ -2557,7 +2557,7 @@ bool Point_Triangle_CheckInterval_Unclassified(
                     continue;
                 }
                 Eigen::Matrix<T, 3, 1> distVec;
-                Point_Triangle_Distance_Vector_Unclassified(p, t0, t1, t2, dp, dt0, dt1, dt2, 
+                Point_Triangle_Distance_Vector_Unclassified(p, t0, t1, t2, dp, dt0, dt1, dt2,
                     interval[t], interval[2 + lambda], interval[4 + beta], distVec);
                 distVecMax = distVecMax.array().max(distVec.array());
                 distVecMin = distVecMin.array().min(distVec.array());
@@ -2569,12 +2569,12 @@ bool Point_Triangle_CheckInterval_Unclassified(
 
 template <class T>
 bool Point_Triangle_TICCD(
-    const Eigen::Matrix<T, 3, 1>& p, 
-    const Eigen::Matrix<T, 3, 1>& t0, 
+    const Eigen::Matrix<T, 3, 1>& p,
+    const Eigen::Matrix<T, 3, 1>& t0,
     const Eigen::Matrix<T, 3, 1>& t1,
     const Eigen::Matrix<T, 3, 1>& t2,
-    Eigen::Matrix<T, 3, 1> dp, 
-    Eigen::Matrix<T, 3, 1> dt0, 
+    Eigen::Matrix<T, 3, 1> dp,
+    Eigen::Matrix<T, 3, 1> dt0,
     Eigen::Matrix<T, 3, 1> dt1,
     Eigen::Matrix<T, 3, 1> dt2,
     T eta, T thickness, T& toc)
@@ -2609,7 +2609,7 @@ bool Point_Triangle_TICCD(
         std::array<T, 6> curIV = intervals.front();
         intervals.pop_front();
 
-        // Point_Triangle_Distance_Unclassified<T>(p + curIV[0] * dp, 
+        // Point_Triangle_Distance_Unclassified<T>(p + curIV[0] * dp,
         //     t0 + curIV[0] * dt0, t1 + curIV[0] * dt1, t2 + curIV[0] * dt2, dist2_cur);
         // dist_cur = std::sqrt(dist2_cur);
         // T dist2target = (dist2_cur - thickness * thickness) / (dist_cur + thickness) - gap;
@@ -2620,7 +2620,7 @@ bool Point_Triangle_TICCD(
         //     }
         // }
 
-        // Point_Triangle_Distance_Unclassified<T>(p + curIV[1] * dp, 
+        // Point_Triangle_Distance_Unclassified<T>(p + curIV[1] * dp,
         //     t0 + curIV[1] * dt0, t1 + curIV[1] * dt1, t2 + curIV[1] * dt2, dist2_cur);
         // dist_cur = std::sqrt(dist2_cur);
         // dist2target = (dist2_cur - thickness * thickness) / (dist_cur + thickness) - gap;
@@ -2659,7 +2659,7 @@ bool Point_Triangle_TICCD(
             }
         }
     }
-    
+
     if (roots.empty()) {
         printf("TICCD PT converged with %d iters\n", iterAmt);
         return false;
@@ -2677,12 +2677,12 @@ bool Point_Triangle_TICCD(
 
 template <class T>
 bool Point_Triangle_ACCD(
-    Eigen::Matrix<T, 3, 1> p, 
-    Eigen::Matrix<T, 3, 1> t0, 
+    Eigen::Matrix<T, 3, 1> p,
+    Eigen::Matrix<T, 3, 1> t0,
     Eigen::Matrix<T, 3, 1> t1,
     Eigen::Matrix<T, 3, 1> t2,
-    Eigen::Matrix<T, 3, 1> dp, 
-    Eigen::Matrix<T, 3, 1> dt0, 
+    Eigen::Matrix<T, 3, 1> dp,
+    Eigen::Matrix<T, 3, 1> dt0,
     Eigen::Matrix<T, 3, 1> dt1,
     Eigen::Matrix<T, 3, 1> dt2,
     T eta, T thickness, T& toc)
@@ -2723,7 +2723,7 @@ bool Point_Triangle_ACCD(
         if (toc && ((dist2_cur - thickness * thickness) / (dist_cur + thickness) < gap)) {
             break;
         }
-        
+
         toc += tocLowerBound;
         if (toc > toc_prev) {
             printf("ACCD PT converged with %d iters\n", iterAmt);
@@ -2736,4 +2736,3 @@ bool Point_Triangle_ACCD(
 }
 
 }
-

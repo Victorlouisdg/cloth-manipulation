@@ -1,5 +1,6 @@
 import multiprocessing
 import threading
+
 from pybind11_tests import gil_scoped as m
 
 
@@ -19,6 +20,7 @@ def _run_in_process(target, *args, **kwargs):
 
 def _python_to_cpp_to_python():
     """Calls different C++ functions that come back to Python."""
+
     class ExtendedVirtClass(m.VirtClass):
         def virtual_func(self):
             pass

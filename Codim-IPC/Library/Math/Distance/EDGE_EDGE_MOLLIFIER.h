@@ -5,7 +5,7 @@
 
 namespace py = pybind11;
 namespace JGSL {
-    
+
 template <class T>
 void Edge_Edge_Cross_Norm2(
     const Eigen::Matrix<T, 3, 1>& ea0,
@@ -584,7 +584,7 @@ void Edge_Edge_Mollifier_Threshold(
     const Eigen::Matrix<T, 3, 1>& ea0_rest,
     const Eigen::Matrix<T, 3, 1>& ea1_rest,
     const Eigen::Matrix<T, 3, 1>& eb0_rest,
-    const Eigen::Matrix<T, 3, 1>& eb1_rest, 
+    const Eigen::Matrix<T, 3, 1>& eb1_rest,
     T& eps_x)
 {
     eps_x = 1.0e-3 * (ea0_rest - ea1_rest).squaredNorm() * (eb0_rest - eb1_rest).squaredNorm();

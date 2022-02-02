@@ -73,7 +73,7 @@ void Compute_Inv_Basis(
 template <class T, int dim = 2>
 void Add_Shell_2D(
     int shellType,
-    int numElem, T length, 
+    int numElem, T length,
     T thickness0, T thickness1,
     VECTOR<T, dim>& trans,
     T rotDeg,
@@ -199,9 +199,9 @@ void Add_Shell_3D(
     X.Reserve(X.size + X_mid.size * 2);
     X_mesh.Reserve(X_mesh.size + X_mid.size * 2); // top and bottom surface nodes
     Elem.Reserve(Elem.size + newElem.size);
-    triangles.Reserve(triangles.size + newElem.size * 2); // top and bottom surface triangles 
+    triangles.Reserve(triangles.size + newElem.size * 2); // top and bottom surface triangles
     // shell boundary faces later
-    
+
     // node allocation and initialization
     X_mid.Each([&](int id, auto data) {
         auto &[XmidI] = data;
@@ -222,7 +222,7 @@ void Add_Shell_3D(
             newXMeshBegin + elemVInd[1] * 2, newXMeshBegin + elemVInd[2] * 2)); // top
         triangles.Append(VECTOR<int, 3>(newXMeshBegin + elemVInd[0] * 2 + 1,
             newXMeshBegin + elemVInd[2] * 2 + 1, newXMeshBegin + elemVInd[1] * 2 + 1)); // bottom, needs reordering
-        
+
         const VECTOR<T, dim>& X1 = std::get<0>(X_mid.Get_Unchecked(elemVInd[0]));
         const VECTOR<T, dim>& X2 = std::get<0>(X_mid.Get_Unchecked(elemVInd[1]));
         const VECTOR<T, dim>& X3 = std::get<0>(X_mid.Get_Unchecked(elemVInd[2]));
@@ -450,7 +450,7 @@ void Initialize_Shell(
             m[0][3] = rho0 / 18 * (X12cN3dN1 + X13cN2dN1);
             m[0][4] = rho0 / 180 * (4 * X12cN3dN1 + 5 * X13cN2dN1 + X12cN13dN2);
             m[0][5] = rho0 / 180 * (5 * X12cN3dN1 + 4 * X13cN2dN1 + X13cN12dN3);
-            
+
             m[1][1] = rho0 / 90 * (3 * (X12cX13dN3 + 3 * X12cX13dN2 + X12cX13dN1) + 5 * N2cN3dN1);
             m[1][2] = rho0 / 180 * (3 * (2 * X12cX13dN3 + 2 * X12cX13dN2 + X12cX13dN1) + 5 * N2cN3dN1);
             m[1][3] = m[0][4];
@@ -545,7 +545,7 @@ void Init_Dirichlet_Shell(
     VECTOR_STORAGE<T, dim + 1> DBC_mesh;
     DBC_MOTION<T, dim> DBCMotion_mesh;
     Init_Dirichlet(X_mesh, relBoxMin, relBoxMax, v, rotCenter, rotAxis, angVelDeg, DBC_mesh, DBCMotion_mesh);
-    
+
     if constexpr (dim == 2) {
         int DBCSize0 = DBC.size;
         DBC_mesh.Each([&](int id, auto data) {
@@ -567,7 +567,7 @@ void Init_Dirichlet_Shell(
                 DBC.Append(VECTOR<T, dim + 1>(xI + 1, n[0], n[1]));
             }
         });
-        DBCMotion.Append(VECTOR<int, 2>(DBCSize0, DBC.size), VECTOR<T, dim>(0), 
+        DBCMotion.Append(VECTOR<int, 2>(DBCSize0, DBC.size), VECTOR<T, dim>(0),
             VECTOR<T, dim>(0), rotAxis, angVelDeg);
     }
     else {
@@ -589,7 +589,7 @@ void Init_Dirichlet_Shell(
                 DBC.Append(VECTOR<T, dim + 1>(dbcI[0] + 1, n[0], n[1], n[2]));
             }
         });
-        DBCMotion.Append(VECTOR<int, 2>(DBCSize0, DBC.size), VECTOR<T, dim>(0), 
+        DBCMotion.Append(VECTOR<int, 2>(DBCSize0, DBC.size), VECTOR<T, dim>(0),
             VECTOR<T, dim>(0), rotAxis, angVelDeg);
     }
 }
@@ -645,14 +645,14 @@ void Compute_Deformation_Gradient(
             const VECTOR<T, dim>& x2 = std::get<0>(X.Get_Unchecked(elemVInd[1] * 2));
             const VECTOR<T, dim>& n1 = std::get<0>(X.Get_Unchecked(elemVInd[0] * 2 + 1));
             const VECTOR<T, dim>& n2 = std::get<0>(X.Get_Unchecked(elemVInd[1] * 2 + 1));
-            
+
             for (int lI = 0; lI < lambdaq.size(); ++lI) {
                 for (int gI = 0; gI < gamma.size(); ++gI) {
                     MATRIX<T, dim>& F = std::get<FIELDS<FIXED_COROTATED<T, dim>>::F>(elasticityAttr.Get_Unchecked(
                         id * gamma.size() * lambdaq.size() + lI * gamma.size() + gI));
                     MATRIX<T, dim>& IB = std::get<FIELDS<MESH_ELEM_ATTR<T, dim>>::IB>(elemAttr.Get_Unchecked(
                         id * gamma.size() * lambdaq.size() + lI * gamma.size() + gI));
-                    
+
                     F(0, 0) = -x1[0] + x2[0] - gamma[gI] * (n1[0] - n2[0]);
                     F(1, 0) = -x1[1] + x2[1] - gamma[gI] * (n1[1] - n2[1]);
                     F(0, 1) = (1 - lambdaq[lI]) * n1[0] + lambdaq[lI] * n2[0];
@@ -681,7 +681,7 @@ void Compute_Deformation_Gradient(
                         id * gamma.size() * lambdaq.size() / 2 + lI * gamma.size() + gI));
                     MATRIX<T, dim>& IB = std::get<FIELDS<MESH_ELEM_ATTR<T, dim>>::IB>(elemAttr.Get_Unchecked(
                         id * gamma.size() * lambdaq.size() / 2 + lI * gamma.size() + gI));
-                    
+
                     F(0, 0) = -x1[0] + x2[0] - gamma[gI] * (n1[0] - n2[0]);
                     F(1, 0) = -x1[1] + x2[1] - gamma[gI] * (n1[1] - n2[1]);
                     F(2, 0) = -x1[2] + x2[2] - gamma[gI] * (n1[2] - n2[2]);
@@ -715,7 +715,7 @@ void Compute_Elasticity_Gradient_From_Stress(
             VECTOR<T, dim>& g_x2 = std::get<FIELDS<MESH_NODE_ATTR<T, dim>>::g>(nodeAttr.Get_Unchecked(elemVInd[1] * 2));
             VECTOR<T, dim>& g_n1 = std::get<FIELDS<MESH_NODE_ATTR<T, dim>>::g>(nodeAttr.Get_Unchecked(elemVInd[0] * 2 + 1));
             VECTOR<T, dim>& g_n2 = std::get<FIELDS<MESH_NODE_ATTR<T, dim>>::g>(nodeAttr.Get_Unchecked(elemVInd[1] * 2 + 1));
-            
+
             for (int lI = 0; lI < lambdaq.size(); ++lI) {
                 for (int gI = 0; gI < gamma.size(); ++gI) {
                     MATRIX<T, dim>& P = std::get<FIELDS<MESH_ELEM_ATTR<T, dim>>::P>(elemAttr.Get_Unchecked(
@@ -744,7 +744,7 @@ void Compute_Elasticity_Gradient_From_Stress(
             VECTOR<T, dim>& g_n1 = std::get<FIELDS<MESH_NODE_ATTR<T, dim>>::g>(nodeAttr.Get_Unchecked(elemVInd[0] * 2 + 1));
             VECTOR<T, dim>& g_n2 = std::get<FIELDS<MESH_NODE_ATTR<T, dim>>::g>(nodeAttr.Get_Unchecked(elemVInd[1] * 2 + 1));
             VECTOR<T, dim>& g_n3 = std::get<FIELDS<MESH_NODE_ATTR<T, dim>>::g>(nodeAttr.Get_Unchecked(elemVInd[2] * 2 + 1));
-            
+
             for (int lI = 0; lI < lambdaq.size() / 2; ++lI) {
                 T lambda1 = lambdaq[lI * 2];
                 T lambda2 = lambdaq[lI * 2 + 1];
@@ -770,7 +770,7 @@ void Compute_Elasticity_Gradient_From_Stress(
                     g_x3[0] += g_x30;
                     g_x3[1] += g_x31;
                     g_x3[2] += g_x32;
-                    
+
                     const T gIB00_p_l1IB20 = gamma[gI] * IB(0, 0) + lambda1 * IB(2, 0);
                     const T gIB01_p_l1IB21 = gamma[gI] * IB(0, 1) + lambda1 * IB(2, 1);
                     const T gIB02_p_l1IB22 = gamma[gI] * IB(0, 2) + lambda1 * IB(2, 2);
@@ -820,9 +820,9 @@ void Compute_IncPotential(
     value = 0;
 
     // elasticity
-    FIXED_COROTATED_FUNCTOR<T, dim>::Compute_Psi(elasticityAttr, 
+    FIXED_COROTATED_FUNCTOR<T, dim>::Compute_Psi(elasticityAttr,
         staticSolve ? 1.0 : (h * h), elemAttr, value);
-    
+
     if (staticSolve) {
         std::vector<T> xb(X.size, T(0));
         X.Par_Each([&](int id, auto data) {
@@ -852,7 +852,7 @@ void Compute_IncPotential(
 
     if (withCollision) {
         // IPC
-        Compute_Barrier(X_mesh, nodeAttr_mesh, constraintSet, 
+        Compute_Barrier(X_mesh, nodeAttr_mesh, constraintSet,
             std::vector<VECTOR<T, 2>>(constraintSet.size(), VECTOR<T, 2>(1, dHat2)),
             dHat2, kappa, T(0), value);
     }
@@ -881,10 +881,10 @@ void Compute_IncPotential_Gradient(
     nodeAttr.template Fill<FIELDS<MESH_NODE_ATTR<T, dim>>::g>(VECTOR<T, dim>(0));
 
     // elasticity
-    FIXED_COROTATED_FUNCTOR<T, dim>::Compute_First_PiolaKirchoff_Stress(elasticityAttr, 
+    FIXED_COROTATED_FUNCTOR<T, dim>::Compute_First_PiolaKirchoff_Stress(elasticityAttr,
         staticSolve ? 1.0 : (h * h), elemAttr);
     Compute_Elasticity_Gradient_From_Stress(gamma, lambdaq, Elem, elemAttr, nodeAttr); // g initialized inside
-    
+
     // inertia
     if (staticSolve) {
         nodeAttr.Par_Each([&](int id, auto data){
@@ -926,7 +926,7 @@ void Compute_IncPotential_Gradient(
 template <class T, int dim>
 void Compute_Elasticity_Hessian(
     std::vector<T>& gamma,
-    std::vector<T>& lambdaq, 
+    std::vector<T>& lambdaq,
     MESH_ELEM<dim - 1>& Elem, T h,
     bool projectSPD,
     MESH_ELEM_ATTR<T, dim>& elemAttr, // # = #segments * gammaAmt * lambdaAmt
@@ -940,7 +940,7 @@ void Compute_Elasticity_Hessian(
         dP_div_dF.Insert(i, Eigen::Matrix<T, dim * dim, dim * dim>::Zero());
     }
     FIXED_COROTATED_FUNCTOR<T, dim>::Compute_First_PiolaKirchoff_Stress_Derivative(elasticityAttr, h * h, projectSPD, dP_div_dF);
-    
+
     if constexpr (dim == 2) {
         triplets.resize(Elem.size * gamma.size() * lambdaq.size() * 64);
         Elem.Par_Each([&](int id, auto data) {
@@ -983,13 +983,13 @@ void Compute_Elasticity_Hessian(
                         triplets[tIBegin + 1] = Eigen::Triplet<T>(indMap[rowI], indMap[1], -IB(0, 0) * intermediate[rowI][1] - IB(0, 1) * intermediate[rowI][3]);
                         triplets[tIBegin + 2] = Eigen::Triplet<T>(indMap[rowI], indMap[2], IB(0, 0) * intermediate[rowI][0] + IB(0, 1) * intermediate[rowI][2]);
                         triplets[tIBegin + 3] = Eigen::Triplet<T>(indMap[rowI], indMap[3], IB(0, 0) * intermediate[rowI][1] + IB(0, 1) * intermediate[rowI][3]);
-                        triplets[tIBegin + 4] = Eigen::Triplet<T>(indMap[rowI], indMap[4], (-gamma[gI] * IB(0, 0) + (1 - lambdaq[lI]) * IB(1, 0)) * intermediate[rowI][0] + 
+                        triplets[tIBegin + 4] = Eigen::Triplet<T>(indMap[rowI], indMap[4], (-gamma[gI] * IB(0, 0) + (1 - lambdaq[lI]) * IB(1, 0)) * intermediate[rowI][0] +
                             (-gamma[gI] * IB(0, 1) + (1 - lambdaq[lI]) * IB(1, 1)) * intermediate[rowI][2]);
-                        triplets[tIBegin + 5] = Eigen::Triplet<T>(indMap[rowI], indMap[5], (-gamma[gI] * IB(0, 0) + (1 - lambdaq[lI]) * IB(1, 0)) * intermediate[rowI][1] + 
+                        triplets[tIBegin + 5] = Eigen::Triplet<T>(indMap[rowI], indMap[5], (-gamma[gI] * IB(0, 0) + (1 - lambdaq[lI]) * IB(1, 0)) * intermediate[rowI][1] +
                             (-gamma[gI] * IB(0, 1) + (1 - lambdaq[lI]) * IB(1, 1)) * intermediate[rowI][3]);
-                        triplets[tIBegin + 6] = Eigen::Triplet<T>(indMap[rowI], indMap[6], (gamma[gI] * IB(0, 0) + lambdaq[lI] * IB(1, 0)) * intermediate[rowI][0] + 
+                        triplets[tIBegin + 6] = Eigen::Triplet<T>(indMap[rowI], indMap[6], (gamma[gI] * IB(0, 0) + lambdaq[lI] * IB(1, 0)) * intermediate[rowI][0] +
                             (gamma[gI] * IB(0, 1) + lambdaq[lI] * IB(1, 1)) * intermediate[rowI][2]);
-                        triplets[tIBegin + 7] = Eigen::Triplet<T>(indMap[rowI], indMap[7], (gamma[gI] * IB(0, 0) + lambdaq[lI] * IB(1, 0)) * intermediate[rowI][1] + 
+                        triplets[tIBegin + 7] = Eigen::Triplet<T>(indMap[rowI], indMap[7], (gamma[gI] * IB(0, 0) + lambdaq[lI] * IB(1, 0)) * intermediate[rowI][1] +
                             (gamma[gI] * IB(0, 1) + lambdaq[lI] * IB(1, 1)) * intermediate[rowI][3]);
                     }
                 }
@@ -1034,10 +1034,10 @@ void Compute_Elasticity_Hessian(
                     T intermediate[6 * dim][dim * dim];
                     for (int colI = 0; colI < dim * dim; ++colI) {
                         MATRIX<T, dim> P; // for convenience of reusing the code
-                        P(0, 0) = dPdF(0, colI); P(0, 1) = dPdF(3, colI); P(0, 2) = dPdF(6, colI); 
-                        P(1, 0) = dPdF(1, colI); P(1, 1) = dPdF(4, colI); P(1, 2) = dPdF(7, colI); 
+                        P(0, 0) = dPdF(0, colI); P(0, 1) = dPdF(3, colI); P(0, 2) = dPdF(6, colI);
+                        P(1, 0) = dPdF(1, colI); P(1, 1) = dPdF(4, colI); P(1, 2) = dPdF(7, colI);
                         P(2, 0) = dPdF(2, colI); P(2, 1) = dPdF(5, colI); P(2, 2) = dPdF(8, colI);
-                        
+
                         intermediate[3][colI] = IB(0, 0) * P(0, 0) + IB(0, 1) * P(0, 1) + IB(0, 2) * P(0, 2);
                         intermediate[4][colI] = IB(0, 0) * P(1, 0) + IB(0, 1) * P(1, 1) + IB(0, 2) * P(1, 2);
                         intermediate[5][colI] = IB(0, 0) * P(2, 0) + IB(0, 1) * P(2, 1) + IB(0, 2) * P(2, 2);
@@ -1054,7 +1054,7 @@ void Compute_Elasticity_Hessian(
                         intermediate[12][colI] = gIB00_p_l1IB20 * P(0, 0) + gIB01_p_l1IB21 * P(0, 1) + gIB02_p_l1IB22 * P(0, 2);
                         intermediate[13][colI] = gIB00_p_l1IB20 * P(1, 0) + gIB01_p_l1IB21 * P(1, 1) + gIB02_p_l1IB22 * P(1, 2);
                         intermediate[14][colI] = gIB00_p_l1IB20 * P(2, 0) + gIB01_p_l1IB21 * P(2, 1) + gIB02_p_l1IB22 * P(2, 2);
-                        
+
                         const T gIB10_p_l2IB20 = gamma[gI] * IB(1, 0) + lambda2 * IB(2, 0);
                         const T gIB11_p_l2IB21 = gamma[gI] * IB(1, 1) + lambda2 * IB(2, 1);
                         const T gIB12_p_l2IB22 = gamma[gI] * IB(1, 2) + lambda2 * IB(2, 2);
@@ -1062,67 +1062,67 @@ void Compute_Elasticity_Hessian(
                         intermediate[16][colI] = gIB10_p_l2IB20 * P(1, 0) + gIB11_p_l2IB21 * P(1, 1) + gIB12_p_l2IB22 * P(1, 2);
                         intermediate[17][colI] = gIB10_p_l2IB20 * P(2, 0) + gIB11_p_l2IB21 * P(2, 1) + gIB12_p_l2IB22 * P(2, 2);
 
-                        intermediate[9][colI] = IB(2, 0) * P(0, 0) + IB(2, 1) * P(0, 1) + IB(2, 2) * P(0, 2) - 
+                        intermediate[9][colI] = IB(2, 0) * P(0, 0) + IB(2, 1) * P(0, 1) + IB(2, 2) * P(0, 2) -
                             intermediate[12][colI] - intermediate[15][colI];
-                        intermediate[10][colI] = IB(2, 0) * P(1, 0) + IB(2, 1) * P(1, 1) + IB(2, 2) * P(1, 2) - 
+                        intermediate[10][colI] = IB(2, 0) * P(1, 0) + IB(2, 1) * P(1, 1) + IB(2, 2) * P(1, 2) -
                             intermediate[13][colI] - intermediate[16][colI];
-                        intermediate[11][colI] = IB(2, 0) * P(2, 0) + IB(2, 1) * P(2, 1) + IB(2, 2) * P(2, 2) - 
+                        intermediate[11][colI] = IB(2, 0) * P(2, 0) + IB(2, 1) * P(2, 1) + IB(2, 2) * P(2, 2) -
                             intermediate[14][colI] - intermediate[17][colI];
                     }
                     for (int rowI = 0; rowI < 6 * dim; ++rowI) {
                         MATRIX<T, dim> P; // for convenience of reusing the code
-                        P(0, 0) = intermediate[rowI][0]; P(0, 1) = intermediate[rowI][3]; P(0, 2) = intermediate[rowI][6]; 
-                        P(1, 0) = intermediate[rowI][1]; P(1, 1) = intermediate[rowI][4]; P(1, 2) = intermediate[rowI][7]; 
+                        P(0, 0) = intermediate[rowI][0]; P(0, 1) = intermediate[rowI][3]; P(0, 2) = intermediate[rowI][6];
+                        P(1, 0) = intermediate[rowI][1]; P(1, 1) = intermediate[rowI][4]; P(1, 2) = intermediate[rowI][7];
                         P(2, 0) = intermediate[rowI][2]; P(2, 1) = intermediate[rowI][5]; P(2, 2) = intermediate[rowI][8];
-                        
+
                         int tIBegin = qI * 18 * 18 + rowI * 18;
-                        triplets[tIBegin + 3] = Eigen::Triplet<T>(indMap[rowI], indMap[3], 
+                        triplets[tIBegin + 3] = Eigen::Triplet<T>(indMap[rowI], indMap[3],
                             IB(0, 0) * P(0, 0) + IB(0, 1) * P(0, 1) + IB(0, 2) * P(0, 2));
-                        triplets[tIBegin + 4] = Eigen::Triplet<T>(indMap[rowI], indMap[4], 
+                        triplets[tIBegin + 4] = Eigen::Triplet<T>(indMap[rowI], indMap[4],
                             IB(0, 0) * P(1, 0) + IB(0, 1) * P(1, 1) + IB(0, 2) * P(1, 2));
-                        triplets[tIBegin + 5] = Eigen::Triplet<T>(indMap[rowI], indMap[5], 
+                        triplets[tIBegin + 5] = Eigen::Triplet<T>(indMap[rowI], indMap[5],
                             IB(0, 0) * P(2, 0) + IB(0, 1) * P(2, 1) + IB(0, 2) * P(2, 2));
-                        triplets[tIBegin + 6] = Eigen::Triplet<T>(indMap[rowI], indMap[6], 
+                        triplets[tIBegin + 6] = Eigen::Triplet<T>(indMap[rowI], indMap[6],
                             IB(1, 0) * P(0, 0) + IB(1, 1) * P(0, 1) + IB(1, 2) * P(0, 2));
-                        triplets[tIBegin + 7] = Eigen::Triplet<T>(indMap[rowI], indMap[7], 
+                        triplets[tIBegin + 7] = Eigen::Triplet<T>(indMap[rowI], indMap[7],
                             IB(1, 0) * P(1, 0) + IB(1, 1) * P(1, 1) + IB(1, 2) * P(1, 2));
-                        triplets[tIBegin + 8] = Eigen::Triplet<T>(indMap[rowI], indMap[8], 
+                        triplets[tIBegin + 8] = Eigen::Triplet<T>(indMap[rowI], indMap[8],
                             IB(1, 0) * P(2, 0) + IB(1, 1) * P(2, 1) + IB(1, 2) * P(2, 2));
                         triplets[tIBegin] = Eigen::Triplet<T>(indMap[rowI], indMap[0],
                             -triplets[tIBegin + 3].value() - triplets[tIBegin + 6].value());
-                        triplets[tIBegin + 1] = Eigen::Triplet<T>(indMap[rowI], indMap[1], 
+                        triplets[tIBegin + 1] = Eigen::Triplet<T>(indMap[rowI], indMap[1],
                             -triplets[tIBegin + 4].value() - triplets[tIBegin + 7].value());
-                        triplets[tIBegin + 2] = Eigen::Triplet<T>(indMap[rowI], indMap[2], 
+                        triplets[tIBegin + 2] = Eigen::Triplet<T>(indMap[rowI], indMap[2],
                             -triplets[tIBegin + 5].value() - triplets[tIBegin + 8].value());
-                        
+
                         const T gIB00_p_l1IB20 = gamma[gI] * IB(0, 0) + lambda1 * IB(2, 0);
                         const T gIB01_p_l1IB21 = gamma[gI] * IB(0, 1) + lambda1 * IB(2, 1);
                         const T gIB02_p_l1IB22 = gamma[gI] * IB(0, 2) + lambda1 * IB(2, 2);
-                        triplets[tIBegin + 12] = Eigen::Triplet<T>(indMap[rowI], indMap[12], 
+                        triplets[tIBegin + 12] = Eigen::Triplet<T>(indMap[rowI], indMap[12],
                             gIB00_p_l1IB20 * P(0, 0) + gIB01_p_l1IB21 * P(0, 1) + gIB02_p_l1IB22 * P(0, 2));
-                        triplets[tIBegin + 13] = Eigen::Triplet<T>(indMap[rowI], indMap[13], 
+                        triplets[tIBegin + 13] = Eigen::Triplet<T>(indMap[rowI], indMap[13],
                             gIB00_p_l1IB20 * P(1, 0) + gIB01_p_l1IB21 * P(1, 1) + gIB02_p_l1IB22 * P(1, 2));
-                        triplets[tIBegin + 14] = Eigen::Triplet<T>(indMap[rowI], indMap[14], 
+                        triplets[tIBegin + 14] = Eigen::Triplet<T>(indMap[rowI], indMap[14],
                             gIB00_p_l1IB20 * P(2, 0) + gIB01_p_l1IB21 * P(2, 1) + gIB02_p_l1IB22 * P(2, 2));
-                        
+
                         const T gIB10_p_l2IB20 = gamma[gI] * IB(1, 0) + lambda2 * IB(2, 0);
                         const T gIB11_p_l2IB21 = gamma[gI] * IB(1, 1) + lambda2 * IB(2, 1);
                         const T gIB12_p_l2IB22 = gamma[gI] * IB(1, 2) + lambda2 * IB(2, 2);
-                        triplets[tIBegin + 15] = Eigen::Triplet<T>(indMap[rowI], indMap[15], 
+                        triplets[tIBegin + 15] = Eigen::Triplet<T>(indMap[rowI], indMap[15],
                             gIB10_p_l2IB20 * P(0, 0) + gIB11_p_l2IB21 * P(0, 1) + gIB12_p_l2IB22 * P(0, 2));
-                        triplets[tIBegin + 16] = Eigen::Triplet<T>(indMap[rowI], indMap[16], 
+                        triplets[tIBegin + 16] = Eigen::Triplet<T>(indMap[rowI], indMap[16],
                             gIB10_p_l2IB20 * P(1, 0) + gIB11_p_l2IB21 * P(1, 1) + gIB12_p_l2IB22 * P(1, 2));
-                        triplets[tIBegin + 17] = Eigen::Triplet<T>(indMap[rowI], indMap[17], 
+                        triplets[tIBegin + 17] = Eigen::Triplet<T>(indMap[rowI], indMap[17],
                             gIB10_p_l2IB20 * P(2, 0) + gIB11_p_l2IB21 * P(2, 1) + gIB12_p_l2IB22 * P(2, 2));
-                        
-                        triplets[tIBegin + 9] = Eigen::Triplet<T>(indMap[rowI], indMap[9], 
-                            IB(2, 0) * P(0, 0) + IB(2, 1) * P(0, 1) + IB(2, 2) * P(0, 2) - 
+
+                        triplets[tIBegin + 9] = Eigen::Triplet<T>(indMap[rowI], indMap[9],
+                            IB(2, 0) * P(0, 0) + IB(2, 1) * P(0, 1) + IB(2, 2) * P(0, 2) -
                             triplets[tIBegin + 12].value() - triplets[tIBegin + 15].value());
-                        triplets[tIBegin + 10] = Eigen::Triplet<T>(indMap[rowI], indMap[10], 
-                            IB(2, 0) * P(1, 0) + IB(2, 1) * P(1, 1) + IB(2, 2) * P(1, 2) - 
+                        triplets[tIBegin + 10] = Eigen::Triplet<T>(indMap[rowI], indMap[10],
+                            IB(2, 0) * P(1, 0) + IB(2, 1) * P(1, 1) + IB(2, 2) * P(1, 2) -
                             triplets[tIBegin + 13].value() - triplets[tIBegin + 16].value());
-                        triplets[tIBegin + 11] = Eigen::Triplet<T>(indMap[rowI], indMap[11], 
-                            IB(2, 0) * P(2, 0) + IB(2, 1) * P(2, 1) + IB(2, 2) * P(2, 2) - 
+                        triplets[tIBegin + 11] = Eigen::Triplet<T>(indMap[rowI], indMap[11],
+                            IB(2, 0) * P(2, 0) + IB(2, 1) * P(2, 1) + IB(2, 2) * P(2, 2) -
                             triplets[tIBegin + 14].value() - triplets[tIBegin + 17].value());
                     }
                 }
@@ -1147,7 +1147,7 @@ void Advance_One_Step_SE_Shell(
     Compute_Deformation_Gradient(gamma, lambdaq, X, Elem, elemAttr, elasticityAttr);
 
     FIXED_COROTATED_FUNCTOR<T, dim>::Compute_First_PiolaKirchoff_Stress(elasticityAttr, 1.0, elemAttr);
-    
+
     nodeAttr.template Fill<FIELDS<MESH_NODE_ATTR<T, dim>>::g>(VECTOR<T, dim>(0));
     Compute_Elasticity_Gradient_From_Stress(gamma, lambdaq, Elem, elemAttr, nodeAttr);
 
@@ -1200,7 +1200,7 @@ void Compute_Barrier_Gradient_Shell(MESH_NODE<T, dim>& X_mesh,
     MESH_NODE_ATTR<T, dim>& nodeAttr)
 {
     nodeAttr_mesh.template Fill<FIELDS<MESH_NODE_ATTR<T, dim>>::g>(VECTOR<T, dim>(0));
-    Compute_Barrier_Gradient(X_mesh, constraintSet, 
+    Compute_Barrier_Gradient(X_mesh, constraintSet,
         std::vector<VECTOR<T, 2>>(constraintSet.size(), VECTOR<T, 2>(1, dHat2)),
         dHat2, kappa, T(0), nodeAttr_mesh);
 
@@ -1216,7 +1216,7 @@ void Compute_Barrier_Gradient_Shell(MESH_NODE<T, dim>& X_mesh,
                     nodeAttr.Get_Unchecked(id / 3 * 2));
                 VECTOR<T, dim>& g_n = std::get<FIELDS<MESH_NODE_ATTR<T, dim>>::g>(
                     nodeAttr.Get_Unchecked(id / 3 * 2 + 1));
-                
+
                 g_x += g_top + g_bottom + g_mid;
                 g_n += g_top - g_bottom;
             }
@@ -1232,7 +1232,7 @@ void Compute_Barrier_Gradient_Shell(MESH_NODE<T, dim>& X_mesh,
                     nodeAttr.Get_Unchecked(id));
                 VECTOR<T, dim>& g_n = std::get<FIELDS<MESH_NODE_ATTR<T, dim>>::g>(
                     nodeAttr.Get_Unchecked(id + 1));
-                
+
                 g_x += g_top + g_bottom;
                 g_n += g_top - g_bottom;
             }
@@ -1275,11 +1275,11 @@ void Compute_Barrier_Hessian_Shell(MESH_NODE<T, dim>& X_mesh,
             int xColMtrInd = (triplets_mesh[i].col() / 2 / 3 * 2) * 2 + triplets_mesh[i].col() % 2;
             int nColMtrInd = (triplets_mesh[i].col() / 2 / 3 * 2 + 1) * 2 + triplets_mesh[i].col() % 2;
             triplets[newTripletBegin + i * 4] = Eigen::Triplet<T>(xRowMtrInd, xColMtrInd, triplets_mesh[i].value());
-            triplets[newTripletBegin + i * 4 + 1] = Eigen::Triplet<T>(xRowMtrInd, nColMtrInd, 
+            triplets[newTripletBegin + i * 4 + 1] = Eigen::Triplet<T>(xRowMtrInd, nColMtrInd,
                 isMid[1] ? T(0) : (topT_bottomF[1] ? triplets_mesh[i].value(): -triplets_mesh[i].value()));
-            triplets[newTripletBegin + i * 4 + 2] = Eigen::Triplet<T>(nRowMtrInd, xColMtrInd, 
+            triplets[newTripletBegin + i * 4 + 2] = Eigen::Triplet<T>(nRowMtrInd, xColMtrInd,
                 isMid[0] ? T(0) : (topT_bottomF[0] ? triplets_mesh[i].value(): -triplets_mesh[i].value()));
-            triplets[newTripletBegin + i * 4 + 3] = Eigen::Triplet<T>(nRowMtrInd, nColMtrInd, 
+            triplets[newTripletBegin + i * 4 + 3] = Eigen::Triplet<T>(nRowMtrInd, nColMtrInd,
                 (isMid[0] | isMid[1]) ? T(0) : ((topT_bottomF[0]^topT_bottomF[1]) ? -triplets_mesh[i].value(): triplets_mesh[i].value()));
         }
         else {
@@ -1292,11 +1292,11 @@ void Compute_Barrier_Hessian_Shell(MESH_NODE<T, dim>& X_mesh,
             int xColMtrInd = topT_bottomF[1] ? triplets_mesh[i].col() : (triplets_mesh[i].col() - dim);
             int nColMtrInd = topT_bottomF[1] ? (triplets_mesh[i].col() + dim) : triplets_mesh[i].col();
             triplets[newTripletBegin + i * 4] = Eigen::Triplet<T>(xRowMtrInd, xColMtrInd, triplets_mesh[i].value());
-            triplets[newTripletBegin + i * 4 + 1] = Eigen::Triplet<T>(xRowMtrInd, nColMtrInd, 
+            triplets[newTripletBegin + i * 4 + 1] = Eigen::Triplet<T>(xRowMtrInd, nColMtrInd,
                 topT_bottomF[1] ? triplets_mesh[i].value(): -triplets_mesh[i].value());
-            triplets[newTripletBegin + i * 4 + 2] = Eigen::Triplet<T>(nRowMtrInd, xColMtrInd, 
+            triplets[newTripletBegin + i * 4 + 2] = Eigen::Triplet<T>(nRowMtrInd, xColMtrInd,
                 topT_bottomF[0] ? triplets_mesh[i].value(): -triplets_mesh[i].value());
-            triplets[newTripletBegin + i * 4 + 3] = Eigen::Triplet<T>(nRowMtrInd, nColMtrInd, 
+            triplets[newTripletBegin + i * 4 + 3] = Eigen::Triplet<T>(nRowMtrInd, nColMtrInd,
                 (topT_bottomF[0]^topT_bottomF[1]) ? -triplets_mesh[i].value(): triplets_mesh[i].value());
         }
     });
@@ -1308,7 +1308,7 @@ int Advance_One_Step_IE_Shell(
     std::vector<T>& lambdaq,
     MESH_ELEM<dim - 1>& Elem, // the segments
     VECTOR_STORAGE<T, dim + 1>& DBC,
-    const std::vector<T>& b, 
+    const std::vector<T>& b,
     T h, T NewtonTol,
     bool withCollision,
     T dHat2, const VECTOR<T, 2>& kappaVec,
@@ -1323,7 +1323,7 @@ int Advance_One_Step_IE_Shell(
     MESH_NODE_ATTR<T, dim>& nodeAttr_mesh)
 {
     TIMER_FLAG("implicitEuler");
-    
+
     T kappa[] = {kappaVec[0], kappaVec[1]}; // dumb pybind does not support c array
 
     // record Xn and compute predictive pos Xtilde
@@ -1347,7 +1347,7 @@ int Advance_One_Step_IE_Shell(
             }
         });
     }
-    
+
     // set Dirichlet boundary condition on X
     std::cout << "process DBC" << std::endl;
     std::vector<bool> DBCb(X.size, false);
@@ -1396,18 +1396,18 @@ int Advance_One_Step_IE_Shell(
     std::vector<VECTOR<int, 2>> constraintSetPTEE;
     std::vector<VECTOR<T, 2>> stencilInfo;
     if (withCollision) {
-        Compute_Constraint_Set<T, dim, true>(X_mesh, nodeAttr_mesh, boundaryNode, boundaryEdge, boundaryTri, 
+        Compute_Constraint_Set<T, dim, true>(X_mesh, nodeAttr_mesh, boundaryNode, boundaryEdge, boundaryTri,
             std::vector<int>(), std::vector<VECTOR<int, 2>>(), std::map<int, std::set<int>>(), BNArea, BEArea, BTArea,
             VECTOR<int, 2>(boundaryNode.size(), boundaryNode.size()),
             DBCb, dHat2, T(0), false, constraintSet, constraintSetPTEE, stencilInfo);
     }
     T Eprev;
-    Compute_IncPotential(h, X, Xtilde, M, elemAttr, elasticityAttr, 
+    Compute_IncPotential(h, X, Xtilde, M, elemAttr, elasticityAttr,
         X_mesh, nodeAttr_mesh, withCollision, constraintSet, dHat2, kappa, staticSolve, b, Eprev);
     do {
         // compute gradient
         std::cout << "\ncompute gradient" << std::endl;
-        Compute_IncPotential_Gradient(gamma, lambdaq, Elem, h, X, Xtilde, nodeAttr, M, elemAttr, 
+        Compute_IncPotential_Gradient(gamma, lambdaq, Elem, h, X, Xtilde, nodeAttr, M, elemAttr,
             X_mesh, nodeAttr_mesh, withCollision, constraintSet, dHat2, kappa, staticSolve, b, elasticityAttr);
         // project rhs for Dirichlet boundary condition
         DBC.Par_Each([&](int id, auto data) {
@@ -1427,7 +1427,7 @@ int Advance_One_Step_IE_Shell(
         if (!useGD) {
             std::cout << "compute hessian" << std::endl;
             std::vector<Eigen::Triplet<T>> triplets;
-            Compute_Elasticity_Hessian(gamma, lambdaq, Elem, staticSolve ? T(1) : h, 
+            Compute_Elasticity_Hessian(gamma, lambdaq, Elem, staticSolve ? T(1) : h,
                 projectSPD, elemAttr, elasticityAttr, triplets);
             // projectSPD = false;
             if (withCollision) {
@@ -1510,9 +1510,9 @@ int Advance_One_Step_IE_Shell(
                     }
                 }
             }
-            Compute_Intersection_Free_StepSize<T, dim, true>(X_mesh, boundaryNode, boundaryEdge, boundaryTri, 
-                std::vector<int>(), std::vector<VECTOR<int, 2>>(), std::map<int, std::set<int>>(), 
-                VECTOR<int, 2>(boundaryNode.size(), boundaryNode.size()), 
+            Compute_Intersection_Free_StepSize<T, dim, true>(X_mesh, boundaryNode, boundaryEdge, boundaryTri,
+                std::vector<int>(), std::vector<VECTOR<int, 2>>(), std::map<int, std::set<int>>(),
+                VECTOR<int, 2>(boundaryNode.size(), boundaryNode.size()),
                 DBCb, p_mesh, T(0), alpha); // CCD
             printf("intersection free step size = %le\n", alpha);
         }
@@ -1529,12 +1529,12 @@ int Advance_One_Step_IE_Shell(
             Compute_Deformation_Gradient(gamma, lambdaq, X, Elem, elemAttr, elasticityAttr);
             if (withCollision) {
                 Update_Render_Mesh_Node(X, X_mesh);
-                Compute_Constraint_Set<T, dim, true>(X_mesh, nodeAttr_mesh, boundaryNode, boundaryEdge, boundaryTri, 
+                Compute_Constraint_Set<T, dim, true>(X_mesh, nodeAttr_mesh, boundaryNode, boundaryEdge, boundaryTri,
                     std::vector<int>(), std::vector<VECTOR<int, 2>>(), std::map<int, std::set<int>>(), BNArea, BEArea, BTArea,
                     VECTOR<int, 2>(boundaryNode.size(), boundaryNode.size()),
                     DBCb, dHat2, T(0), false, constraintSet, constraintSetPTEE, stencilInfo);
             }
-            Compute_IncPotential(h, X, Xtilde, M, elemAttr, elasticityAttr, 
+            Compute_IncPotential(h, X, Xtilde, M, elemAttr, elasticityAttr,
                 X_mesh, nodeAttr_mesh, withCollision, constraintSet, dHat2, kappa, staticSolve, b, E);
             alpha /= 2.0;
             ++nBT;
@@ -1572,9 +1572,9 @@ int Advance_One_Step_IE_Shell(
                 Eigen::VectorXd pe(sol.size()), mge(rhs.size());
                 std::memcpy(pe.data(), sol.data(), sizeof(T) * sol.size());
                 std::memcpy(mge.data(), rhs.data(), sizeof(T) * rhs.size());
-                printf("-gdotp = %le, -gpcos = %le\n", mge.dot(pe), 
+                printf("-gdotp = %le, -gpcos = %le\n", mge.dot(pe),
                     mge.dot(pe) / std::sqrt(mge.squaredNorm() * pe.squaredNorm()));
-                printf("linear solve relErr = %le\n", 
+                printf("linear solve relErr = %le\n",
                     std::sqrt((sysMtr.Get_Matrix() * pe - mge).squaredNorm() / mge.squaredNorm()));
             }
             else {
@@ -1666,7 +1666,7 @@ void Check_Gradient(
         MESH_NODE<T, dim> Xperturb;
         Append_Attribute(X, Xperturb);
         std::get<0>(Xperturb.Get_Unchecked(i / dim))[i % dim] += eps;
-        
+
         Compute_Deformation_Gradient(gamma, lambdaq, Xperturb, Elem, elemAttr, elasticityAttr);
         T E;
         Compute_IncPotential(h, Xperturb, Xtilde, M, elemAttr, elasticityAttr, E);

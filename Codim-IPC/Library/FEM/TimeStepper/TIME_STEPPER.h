@@ -20,7 +20,7 @@ void Export_Time_Stepper(py::module& m) {
     implicit_Euler_m.def("Advance_One_Step", &Advance_One_Step_IE<double, 3>, py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>());
     implicit_Euler_m.def("Advance_One_Step_Shell", &Advance_One_Step_IE<double, 3, true>, py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>());
     implicit_Euler_m.def("Check_Gradient_FEM", &Check_Gradient_FEM<double, 2>, py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>());
-    
+
     implicit_Euler_m.def("Initialize_Elastic_IPC", &Initialize_Elastic_IPC<double, 3>, py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>());
     implicit_Euler_m.def("Advance_One_Step_EIPC", &Advance_One_Step_IE<double, 3, false, true>, py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>());
     implicit_Euler_m.def("Write_COM", &Write_COM<double>, py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>());

@@ -10,7 +10,7 @@ VECTOR<int, 4> Make_Rod(T len, int nSeg,
     VECTOR<int, 4> counter;
     counter[0] = X.size;
     counter[1] = rod.size();
-    
+
     X.Reserve(X.size + nSeg + 1);
     rod.reserve(rod.size() + nSeg);
 
@@ -35,7 +35,7 @@ VECTOR<int, 4> Make_Rod_Net(T len, int nSeg,
     VECTOR<int, 4> counter;
     counter[0] = X.size;
     counter[1] = rod.size();
-    
+
     X.Reserve(X.size + (nSeg + 1) * (nSeg + 1));
     rod.reserve(rod.size() + nSeg * (nSeg + 1) * 2);
 
@@ -87,7 +87,7 @@ template <class T, int dim = 3>
 T Initialize_Discrete_Rod(
     MESH_NODE<T, dim>& X,
     const std::vector<VECTOR<int, 2>>& rod,
-    T rho, T E, T thickness, 
+    T rho, T E, T thickness,
     const VECTOR<T, dim>& gravity,
     std::vector<T>& b,
     MESH_NODE_ATTR<T, dim>& nodeAttr,

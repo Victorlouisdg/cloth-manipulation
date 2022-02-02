@@ -1,6 +1,6 @@
 import numpy as np
+from mathutils import Matrix
 from scipy.spatial.transform import Rotation
-from mathutils import Vector, Matrix
 
 
 def rotate_point(point, rotation_origin, rotation_axis, angle):

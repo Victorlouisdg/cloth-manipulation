@@ -1,7 +1,9 @@
-from cm_utils.keyframe import keyframe_visibility
-import bpy
 import glob
 import os
+
+import bpy
+
+from cm_utils.keyframe import keyframe_visibility
 
 
 def import_cipc_output(cipc_output_dir, frame):

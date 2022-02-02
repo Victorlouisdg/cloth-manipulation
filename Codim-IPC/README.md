@@ -2,7 +2,7 @@
 
 ## Reference
 
-This repository provides source code for: 
+This repository provides source code for:
 
 Minchen Li, Danny M. Kaufman, Chenfanfu Jiang, [Codimensional Incremental Potential Contact](https://ipc-sim.github.io/C-IPC/), ACM Transactions on Graphics (SIGGRAPH  2021)
 

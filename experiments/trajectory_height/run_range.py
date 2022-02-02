@@ -1,9 +1,9 @@
-import wandb
-import sys
-import os
 import json
+import os
 import subprocess
+
 import numpy as np
+import wandb
 
 height_min = 0.2
 height_max = 0.6
@@ -24,9 +24,7 @@ for height in height_range:
 
     log = {"height": height}
 
-    runCommand = (
-        f"blender scene.blend -b -P run_experiment.py -- -ht {height} -d '{subdir}'"
-    )
+    runCommand = f"blender scene.blend -b -P run_experiment.py -- -ht {height} -d '{subdir}'"
     subprocess.run([runCommand], shell=True, stdout=subprocess.DEVNULL)
 
     with open(os.path.join(subdir, "losses.json")) as f:

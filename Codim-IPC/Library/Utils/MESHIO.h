@@ -15,7 +15,7 @@ namespace JGSL {
 // Function Read_TriMesh_Obj
 //#####################################################################
 template <class T, int dim>
-VECTOR<int, 4> Read_TriMesh_Obj(const std::string& filePath, 
+VECTOR<int, 4> Read_TriMesh_Obj(const std::string& filePath,
     MESH_NODE<T, dim>& X, MESH_ELEM<2>& triangles)
 {
     std::ifstream is(filePath);
@@ -80,7 +80,7 @@ VECTOR<int, 4> Read_TriMesh_Obj(const std::string& filePath,
 }
 
 template <class T, int dim>
-VECTOR<int, 4> Read_TriMesh_Tex_Obj(const std::string& filePath, 
+VECTOR<int, 4> Read_TriMesh_Tex_Obj(const std::string& filePath,
     MESH_NODE<T, dim>& X, MESH_NODE<T, dim>& X_tex, MESH_ELEM<2>& triangles, MESH_ELEM<2>& triangles_tex,
     std::vector<VECTOR<int, 3>>& stitchNodes, std::vector<T>& stitchRatio)
 {
@@ -125,7 +125,7 @@ VECTOR<int, 4> Read_TriMesh_Tex_Obj(const std::string& filePath,
                 tri(i) = index - 1;
                 while (cnt < length && line[cnt] != ' ' && line[cnt] != '/')
                     cnt++;
-                
+
                 if(line[cnt] == '/') {
                     cnt++;
                     if (line[cnt] != '/') {
@@ -159,7 +159,7 @@ VECTOR<int, 4> Read_TriMesh_Tex_Obj(const std::string& filePath,
             }
         }
         else if (line[0] == 's' && line[1] == 't' && line[2] == 'i' &&
-            line[3] == 't' && line[4] == 'c' && line[5] == 'h') 
+            line[3] == 't' && line[4] == 'c' && line[5] == 'h')
         {
             std::string bypass;
             ss >> bypass;
@@ -215,7 +215,7 @@ void Write_TriMesh_Obj(MESH_NODE<T, dim>& nodes,
 template <class T, int dim>
 void Write_TriMesh_Tex_Obj(
     MESH_NODE<T, dim>& nodes, MESH_NODE<T, dim>& nodes_tex,
-    MESH_ELEM<2>& faces, MESH_ELEM<2>& faces_tex, 
+    MESH_ELEM<2>& faces, MESH_ELEM<2>& faces_tex,
     const std::string& filename)
 {
     TIMER_FLAG("Write_TriMesh_Obj");
@@ -339,7 +339,7 @@ VECTOR<int, 4> Read_TetMesh_Vtk(const std::string& filePath, MESH_NODE<T, 3>& X,
 }
 
 template <class T>
-VECTOR<int, 4> Read_TetMesh_Mesh(const std::string& filePath, 
+VECTOR<int, 4> Read_TetMesh_Mesh(const std::string& filePath,
     MESH_NODE<T, 3>& X, MESH_ELEM<3>& indices)
 {
     VECTOR<int, 4> meshCounter;
@@ -534,7 +534,7 @@ void Find_Surface_TriMesh(
             TriVI2TetVI.Append(i);
         }
     }
-    
+
     if constexpr (mapTriVInd) {
         for (int i = 0; i < Tri.size; ++i) {
             auto [t] = Tri.Get(i).value();
@@ -654,7 +654,7 @@ void Write_SegMesh_Obj(MESH_NODE<T, dim>& nodes,
     for (const auto segI : segs) {
         fprintf(file, "f %d %d %d\n", global2local[segI[0]] + 1, global2local[segI[1]] + 1, global2local[segI[1]] + 1);
     }
-    
+
     fclose(file);
 }
 
@@ -693,7 +693,7 @@ void Convert_Seg_File(const std::string& folderPath,
     }
 }
 
-void Find_Boundary_Edge_And_Node(int Xsize, 
+void Find_Boundary_Edge_And_Node(int Xsize,
     MESH_ELEM<2>& triangles,
     std::vector<int>& boundaryNode,
     std::vector<VECTOR<int, 2>>& boundaryEdge)
@@ -736,9 +736,9 @@ void Find_Surface_Primitives(
     std::vector<bool> isBoundaryNode(Xsize, false);
     Tri.Each([&](int id, auto data) {
         auto &[triVInd] = data;
-        
+
         boundaryTri.emplace_back(triVInd);
-        
+
         auto finder = boundaryEdgeSet.find(VECTOR<int, 2>(triVInd[1], triVInd[0]));
         if (finder == boundaryEdgeSet.end()) {
             boundaryEdgeSet.insert(VECTOR<int, 2>(triVInd[0], triVInd[1]));
@@ -757,7 +757,7 @@ void Find_Surface_Primitives(
 
     boundaryEdge = std::move(std::vector<VECTOR<int, 2>>(boundaryEdgeSet.begin(),
         boundaryEdgeSet.end()));
-    
+
     for (int vI = 0; vI < isBoundaryNode.size(); ++vI) {
         if (isBoundaryNode[vI]) {
             boundaryNode.emplace_back(vI);
@@ -786,9 +786,9 @@ void Find_Surface_Primitives_And_Compute_Area(
         const VECTOR<T, 3>& v1 = std::get<0>(X.Get_Unchecked(triVInd[1]));
         const VECTOR<T, 3>& v2 = std::get<0>(X.Get_Unchecked(triVInd[2]));
         BTArea.emplace_back(0.5 * cross(v1 - v0, v2 - v0).length());
-        
+
         boundaryTri.emplace_back(triVInd);
-        
+
         auto finder = boundaryEdgeSet.find(VECTOR<int, 2>(triVInd[1], triVInd[0]));
         if (finder == boundaryEdgeSet.end()) {
             boundaryEdgeSet[VECTOR<int, 2>(triVInd[0], triVInd[1])] = BTArea.back() / 3;
@@ -824,7 +824,7 @@ void Find_Surface_Primitives_And_Compute_Area(
         boundaryEdge.emplace_back(i.first);
         BEArea.emplace_back(i.second / 2); // due to PE approx of \int_E PP and EE approx of \int_E PE
     }
-    
+
     for (int vI = 0; vI < isBoundaryNode.size(); ++vI) {
         if (isBoundaryNode[vI]) {
             boundaryNode.emplace_back(vI);
@@ -1067,9 +1067,9 @@ void Modify_UV(
         });
         triangles.Each([&](int id, auto data) {
             auto &[t] = data;
-            fprintf(out, "f %d/%d %d/%d %d/%d\n", 
-                t(0) + 1, t(0) + 1, 
-                t(1) + 1, t(1) + 1, 
+            fprintf(out, "f %d/%d %d/%d %d/%d\n",
+                t(0) + 1, t(0) + 1,
+                t(1) + 1, t(1) + 1,
                 t(2) + 1, t(2) + 1);
         });
         fclose(out);
@@ -1343,7 +1343,7 @@ void Export_MeshIO(py::module& m) {
 
     m.def("Append_Attribute", &Append_Attribute<double, 2>, "append vector_storage to the other");
     m.def("Append_Attribute", &Append_Attribute<double, 3>, "append vector_storage to the other");
-    
+
     m.def("Modify_UV", &Modify_UV<double, 3>, "modify uv");
     m.def("Load_Velocity", &Load_Velocity<double, 3>, "Load_Velocity");
     m.def("Load_Velocity_X0", &Load_Velocity_X0<double, 3>, "Load_Velocity_X0");
@@ -1355,7 +1355,7 @@ void Export_MeshIO(py::module& m) {
     m.def("Subdivide", &Subdivide<double, 3>, "Subdivide");
     m.def("Subdivide_Loop", &Subdivide_Loop<double, 3>, "Subdivide_Loop");
     m.def("Extrude_Cylinder", &Extrude_Cylinder<double, 3>, "Extrude_Cylinder");
-    
+
     m.def("Deep_Copy_Attribute", &Deep_Copy_Attribute<MESH_NODE_ATTR<double, 2>>, "append vector_storage to the other");
     m.def("Deep_Copy_Attribute", &Deep_Copy_Attribute<MESH_NODE_ATTR<double, 3>>, "append vector_storage to the other");
     m.def("Deep_Copy_Attribute", &Deep_Copy_Attribute<MESH_ELEM_ATTR<double, 2>>, "append vector_storage to the other");

@@ -12,9 +12,9 @@ namespace JGSL {
 
 template <class T>
 bool Solve_Direct(
-    CSR_MATRIX<T> &sysMtr, 
-    const std::vector<T> &rhs, 
-    std::vector<T> &sol) 
+    CSR_MATRIX<T> &sysMtr,
+    const std::vector<T> &rhs,
+    std::vector<T> &sol)
 {
     if (sysMtr.Get_Matrix().rows() != rhs.size()) {
         printf("sysMtr dimension does not match with rhs!\n");
@@ -26,8 +26,8 @@ bool Solve_Direct(
     cholmod_start(&cm);
 
     // setup matrix
-    cholmod_sparse* A = cholmod_allocate_sparse(sysMtr.Get_Matrix().rows(), 
-        sysMtr.Get_Matrix().cols(), sysMtr.Get_Matrix().nonZeros(), 
+    cholmod_sparse* A = cholmod_allocate_sparse(sysMtr.Get_Matrix().rows(),
+        sysMtr.Get_Matrix().cols(), sysMtr.Get_Matrix().nonZeros(),
         true, true, -1, CHOLMOD_REAL, &cm);
     void *Ax = A->x;
     void *Ap = A->p;

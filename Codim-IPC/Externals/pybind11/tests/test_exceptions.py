@@ -1,7 +1,6 @@
-import pytest
-
-from pybind11_tests import exceptions as m
 import pybind11_cross_module_tests as cm
+import pytest
+from pybind11_tests import exceptions as m
 
 
 def test_std_exception(msg):
@@ -131,8 +130,7 @@ def test_nested_throws(capture):
 
     # C++ -> Python -> C++ -> Python
     with capture:
-        m.try_catch(
-            m.MyException5, pycatch, m.MyException, m.try_catch, m.MyException, throw_myex5)
+        m.try_catch(m.MyException5, pycatch, m.MyException, m.try_catch, m.MyException, throw_myex5)
     assert str(capture).startswith("MyException5: nested error 5")
 
     # C++ -> Python -> C++

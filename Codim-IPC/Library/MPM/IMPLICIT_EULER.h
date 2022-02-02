@@ -55,11 +55,11 @@ T Compute_Potential(
     SPARSE_GRID<int, dim>& dof,
     BASE_STORAGE<VECTOR<T, dim>>& dv,
     SPARSE_GRID<VECTOR<T, dim + 1>, dim>& grid,
-    typename CONSTITUTIVE_MODEL_FUNCTOR::STORAGE ... elasticityAttr, 
+    typename CONSTITUTIVE_MODEL_FUNCTOR::STORAGE ... elasticityAttr,
     const VECTOR<T, dim>& gravity,
     T dt
 ) {
-    T potential = 0.0; 
+    T potential = 0.0;
     grid.Iterate_Grid([&](const auto& node, auto& g) {
         if(dof(node) == -1) return;
         const auto &dvI = dv.template Get_Component_Unchecked<0>(dof(node));
@@ -112,14 +112,14 @@ void Compute_Gradient(
     SPARSE_GRID<VECTOR<T, dim + 1>, dim>& grid,
     typename CONSTITUTIVE_MODEL_FUNCTOR::STORAGE& ... elasticityAttr,
     typename CONSTITUTIVE_MODEL_FUNCTOR::STORAGE& ... elasticityAttrMoved,
-    BASE_STORAGE<VECTOR<T, dim>>& gradient, 
+    BASE_STORAGE<VECTOR<T, dim>>& gradient,
     const VECTOR<T, dim>& gravity,
     T dx, T dt
 ) {
     TIMER_FLAG("Compute_Gradient");
     gradient.Fill(VECTOR<T, dim>(0));
     grid.Iterate_Grid([&](const auto& node, auto& g) {
-        if (dof(node) == -1) return; 
+        if (dof(node) == -1) return;
         auto& rI = gradient.template Get_Component_Unchecked<0>(dof(node));
         auto& dvI = dv.template Get_Component_Unchecked<0>(dof(node));
         rI += g(dim) * (dvI - gravity * dt);
@@ -138,7 +138,7 @@ void Add_Elastic_Matrix(
     typename OTHER_FUNCTOR::STORAGE& ... elasticityAttrOther,
     typename CONSTITUTIVE_MODEL_FUNCTOR::STORAGE& elasticityAttrMoved,
     typename OTHER_FUNCTOR::STORAGE& ... elasticityAttrOtherMoved,
-    BASE_STORAGE<int>& entryCol, 
+    BASE_STORAGE<int>& entryCol,
     BASE_STORAGE<MATRIX<T, dim>>& entryVal,
     bool project_spd,
     T dx, T weight
@@ -148,14 +148,14 @@ void Add_Elastic_Matrix(
         CONSTITUTIVE_MODEL_FUNCTOR::Compute_First_PiolaKirchoff_Stress_Derivative(elasticityAttrMoved, weight, firstPiolaDiff);
     else if constexpr (CONSTITUTIVE_MODEL_FUNCTOR::projectable)
         CONSTITUTIVE_MODEL_FUNCTOR::Compute_First_PiolaKirchoff_Stress_Derivative(elasticityAttrMoved, weight, project_spd, firstPiolaDiff);
-    else 
+    else
         CONSTITUTIVE_MODEL_FUNCTOR::Compute_First_PiolaKirchoff_Stress_Derivative(elasticityAttrMoved, weight, firstPiolaDiff);
     int colSize = std::pow(5, dim);
     Colored_Par_Each(particles, grid, dx, [&](const int i) {
         if (!elasticityAttr.contains(i)) return;
         auto &X = std::get<0>(particles.Get_Unchecked(i));
         auto &FJ = std::get<0>(elasticityAttr.Get_Unchecked(i));
-        
+
         std::vector<VECTOR<T, dim>> cached_dw; cached_dw.reserve(colSize);
         std::vector<VECTOR<int, dim>> cached_node; cached_node.reserve(colSize);
         std::vector<int> cached_idx; cached_idx.reserve(colSize);
@@ -168,7 +168,7 @@ void Add_Elastic_Matrix(
             cached_node.push_back(node);
             cached_idx.push_back(dof(node));
         }
-        
+
         auto& firstPiolaDiffI = std::get<0>(firstPiolaDiff.Get_Unchecked(i));
         for (int _i = 0; _i < (int)cached_dw.size(); ++_i) {
             const VECTOR<T, dim>& dwi =  cached_dw[_i];
@@ -206,7 +206,7 @@ void Compute_Hessian(
     MPM_PARTICLES<T, dim>& particles,
     typename CONSTITUTIVE_MODEL_FUNCTOR::STORAGE& ... elasticityAttr,
     typename CONSTITUTIVE_MODEL_FUNCTOR::STORAGE& ... elasticityAttrMoved,
-    BASE_STORAGE<int>& entryCol, 
+    BASE_STORAGE<int>& entryCol,
     BASE_STORAGE<MATRIX<T, dim>>& entryVal,
     bool project_spd,
     T dx, T dt
@@ -227,7 +227,7 @@ void Compute_Hessian(
 
 template <class T, int dim>
 void Compress_CSR(
-    BASE_STORAGE<int>& entryCol, 
+    BASE_STORAGE<int>& entryCol,
     BASE_STORAGE<MATRIX<T, dim>>& entryVal,
     int rowSize,
     CSR_MATRIX<T> &spMat)
@@ -324,7 +324,7 @@ void Update_State(SPARSE_GRID<int, dim>&, BASE_STORAGE<VECTOR<T, dim>>&, MPM_PAR
 template <class T, int dim, class CONSTITUTIVE_MODEL_FUNCTOR, class ... OTHER_FUNCTOR>
 void Update_State(
     SPARSE_GRID<int, dim>& dof,
-    BASE_STORAGE<VECTOR<T, dim>>& dv, 
+    BASE_STORAGE<VECTOR<T, dim>>& dv,
     MPM_PARTICLES<T, dim> particles,
     SPARSE_GRID<VECTOR<T, dim + 1>, dim> grid,
     typename CONSTITUTIVE_MODEL_FUNCTOR::STORAGE& elasticityAttr,
@@ -336,7 +336,7 @@ void Update_State(
     TIMER_FLAG("Update_State");
     if constexpr (CONSTITUTIVE_MODEL_FUNCTOR::useJ) {
         using JOINED = decltype(elasticityAttr.Join(particles));
-        elasticityAttr.Join(particles).Par_Each([&](const int i, auto data) {    
+        elasticityAttr.Join(particles).Par_Each([&](const int i, auto data) {
             auto& J = std::get<FIELDS<JOINED>::J>(data);
             MATRIX<T, dim> gradV(0);
             auto& X = std::get<FIELDS<JOINED>::X>(data);
@@ -435,8 +435,8 @@ template <typename T, int dim, typename ... CONSTITUTIVE_MODEL_FUNCTOR>
 void Implicit_Update(
     MPM_PARTICLES<T, dim>& particles,
     SPARSE_GRID<VECTOR<T, dim + 1>, dim>& grid,
-    typename CONSTITUTIVE_MODEL_FUNCTOR::STORAGE& ... elasticityAttr, 
-    typename CONSTITUTIVE_MODEL_FUNCTOR::STORAGE& ... elasticityAttrMoved, 
+    typename CONSTITUTIVE_MODEL_FUNCTOR::STORAGE& ... elasticityAttr,
+    typename CONSTITUTIVE_MODEL_FUNCTOR::STORAGE& ... elasticityAttrMoved,
     const COLLIDER<T, dim>& collider,
     const VECTOR<T, dim>& gravity,
     T dx,
@@ -641,8 +641,8 @@ void Check_Gradient(
 template <class T, int dim>
 void Export_Implicit_Euler_Impl(py::module& m)
 {
-    m.def("Implicit_Update", &Implicit_Update<T, dim, 
-                                                FIXED_COROTATED_FUNCTOR<T, dim>, 
+    m.def("Implicit_Update", &Implicit_Update<T, dim,
+                                                FIXED_COROTATED_FUNCTOR<T, dim>,
                                                 EQUATION_OF_STATE_FUNCTOR<T, dim>,
                                                 LINEAR_COROTATED_FUNCTOR<T, dim>,
                                                 NEOHOOKEAN_BORDEN_FUNCTOR<T, dim>>);

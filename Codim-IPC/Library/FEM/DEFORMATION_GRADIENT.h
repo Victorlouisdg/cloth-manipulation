@@ -39,7 +39,7 @@ template <class T, int dim>
 void Compute_Vol_And_Inv_Basis(
     MESH_NODE<T, dim>& X,
     MESH_ELEM<dim>& Elem,
-    SCALAR_STORAGE<T>& vol, 
+    SCALAR_STORAGE<T>& vol,
     MESH_ELEM_ATTR<T, dim>& elemAttr)
 {
     vol.Reserve(Elem.size);

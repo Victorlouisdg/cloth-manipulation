@@ -1,14 +1,13 @@
 import os
-import bpy
 import subprocess
+
+import bpy
 
 
 def render(renders_dir, resolution_percentage=100):
     scene = bpy.context.scene
     scene.render.resolution_percentage = resolution_percentage
-    scene.render.filepath = (
-        renders_dir if renders_dir[-1] == os.sep else renders_dir + os.sep
-    )
+    scene.render.filepath = renders_dir if renders_dir[-1] == os.sep else renders_dir + os.sep
 
     bpy.ops.render.render(animation=True)
 

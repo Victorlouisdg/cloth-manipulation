@@ -4,7 +4,7 @@ import subprocess
 
 BLENDER_PYTHON = "~/Blender/blender-3.0.0-linux-x64/3.0/python/bin/python3.9"
 PYTHON_LIBS = "/usr/lib/libpython3.9.so"
-INCLUDE_DIRS ="/usr/include/python3.9/"
+INCLUDE_DIRS = "/usr/include/python3.9/"
 
-runCommand = f'mkdir build\ncd build\nrm -rf CMakeCache.txt\ncmake -DCMAKE_BUILD_TYPE=Release -DPYTHON_EXECUTABLE:FILEPATH={BLENDER_PYTHON} -DPYTHON_LIBRARIES={PYTHON_LIBS} -DPYTHON_INCLUDE_DIRS={INCLUDE_DIRS} ..\nmake -j 15'
+runCommand = f"mkdir build\ncd build\nrm -rf CMakeCache.txt\ncmake -DCMAKE_BUILD_TYPE=Release -DPYTHON_EXECUTABLE:FILEPATH={BLENDER_PYTHON} -DPYTHON_LIBRARIES={PYTHON_LIBS} -DPYTHON_INCLUDE_DIRS={INCLUDE_DIRS} ..\nmake -j 15"
 subprocess.call([runCommand], shell=True)

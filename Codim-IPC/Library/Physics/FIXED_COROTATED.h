@@ -28,7 +28,7 @@ struct FIELDS_WITH_OFFSET<OFFSET, FIXED_COROTATED_3<T>> {
 
 template<class T, int dim>
 using FIXED_COROTATED = meta::if_<
-    meta::equal_to<meta::int_<dim>, meta::int_<2>>, 
+    meta::equal_to<meta::int_<dim>, meta::int_<2>>,
     FIXED_COROTATED_2<T>, // F, VOL, LAMBDA, MU, _padding_
     FIXED_COROTATED_3<T>  // F, VOL, LAMBDA, MU
 >;
@@ -178,7 +178,7 @@ public:
             MATRIX<T, dim> U(1), V(1);
             VECTOR<T, dim> sigma;
             Singular_Value_Decomposition(F, U, sigma, V); //TODO: not redo everytime
-            
+
             Compute_DP_Div_DF(U, sigma, V, mu, lambda, w * vol, projectSPD, dP_div_dFI);
         });
     }
@@ -192,7 +192,7 @@ public:
     }
 
     static void Compute_DE_Div_DSigma(const VECTOR<T, dim>& singularValues, T u, T lambda,
-        VECTOR<T, dim>& dE_div_dsigma) 
+        VECTOR<T, dim>& dE_div_dsigma)
     {
         const T sigmaProdm1lambda = lambda * (singularValues.prod() - 1);
         VECTOR<T, dim> sigmaProd_noI;
@@ -385,11 +385,11 @@ public:
             eigenF = Eigen::Matrix<T, dim, dim>::Random();
         }
         MATRIX<T, dim> F;
-        for (int i = 0; i < dim; ++i) 
+        for (int i = 0; i < dim; ++i)
             for (int j = 0; j < dim; ++j)
                 F(i,j) = eigenF(i,j);
         Eigen::Matrix<T, dim*dim, dim*dim> dPdF;
-        Eigen::Matrix<T, dim*dim, dim*dim> dPdF_FD; 
+        Eigen::Matrix<T, dim*dim, dim*dim> dPdF_FD;
         dPdF_FD.setZero();
         MATRIX<T, dim> U(1), V(1);
         VECTOR<T, dim> sigma;
@@ -419,7 +419,7 @@ public:
             Compute_E(sigma, mu, lambda, phi_ijkl);
             dPdF_FD(di, dj) = (phi_ijkl - phi_ij - phi_kl + phi) / (epsilon * epsilon);
         }}}}
-        for (int i = 0; i < dim * dim; ++i) 
+        for (int i = 0; i < dim * dim; ++i)
             for (int j = 0; j < dim * dim; ++j)
                 std::cout << dPdF(i,j) << " " << dPdF_FD(i,j) << std::endl;
     }
@@ -436,7 +436,7 @@ public:
             eigenF = Eigen::Matrix<T, dim, dim>::Random();
         }
         MATRIX<T, dim> F;
-        for (int i = 0; i < dim; ++i) 
+        for (int i = 0; i < dim; ++i)
             for (int j = 0; j < dim; ++j)
                 F(i,j) = eigenF(i,j);
         MATRIX<T, dim> U(1), V(1);
@@ -448,7 +448,7 @@ public:
         MATRIX<T, dim> P = (T)2 * mu * (F - R) + lambda * (J - 1) * JFinvT;
         T phi;
         Compute_E(sigma, mu, lambda, phi);
-        MATRIX<T, dim> P_FD; 
+        MATRIX<T, dim> P_FD;
         for (int i = 0; i < dim; ++i) { for (int j = 0; j < dim; ++j) {
             T phi_eps;
             auto F_moved = F;
@@ -458,7 +458,7 @@ public:
             Compute_E(sigma, mu, lambda, phi_eps);
             P_FD(i,j) = (phi_eps - phi) / epsilon;
         }}
-        for (int i = 0; i < dim; ++i) 
+        for (int i = 0; i < dim; ++i)
             for (int j = 0; j < dim; ++j)
                 std::cout << P(i,j) << " " << P_FD(i,j) << std::endl;
     }

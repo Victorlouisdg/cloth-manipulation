@@ -23,7 +23,7 @@
  *
  *      RETURN:
  *      returnval:   -1 if leading coefficient is zero, otherwise
- *                  number of roots found. 
+ *                  number of roots found.
  */
 
 #ifndef RPOLY_H_
@@ -156,8 +156,8 @@ public:
             x = xm;
         }
         dx = x;
-        /*  Do Newton interation until x converges to two 
-		 *  decimal places. 
+        /*  Do Newton interation until x converges to two
+		 *  decimal places.
 		 */
         while (fabs(dx / x) > 0.005) {
             ff = pt[0];
@@ -208,7 +208,7 @@ public:
             temp[i] = k[i];
         /*  Loop to select the quadratic corresponding to each new shift. */
         for (cnt = 0; cnt < 20; cnt++) {
-            /*  Quadratic corresponds to a double shift to a            
+            /*  Quadratic corresponds to a double shift to a
 			 *  non-real point and its complex conjugate. The point
 			 *  has modulus bnd and amplitude rotated by 94 degrees
 			 *  from the previous shift.
@@ -593,7 +593,7 @@ protected:
         a1 = b * f - a;
         a7 = (f + u) * a + h;
     }
-    /*  Computes the next k polynomials using scalars 
+    /*  Computes the next k polynomials using scalars
 	 *  computed in calcsc.
 	 */
     void nextk(int* type)
@@ -692,9 +692,9 @@ protected:
         }
     }
     /*  Calculate the zeros of the quadratic a*z^2 + b1*z + c.
-	 *  The quadratic formula, modified to avoid overflow, is used 
+	 *  The quadratic formula, modified to avoid overflow, is used
 	 *  to find the larger zero if the zeros are real and both
-	 *  are complex. The smaller real zero is found directly from 
+	 *  are complex. The smaller real zero is found directly from
 	 *  the product of the zeros c/a.
 	 */
     void quad(double a, double b1, double c, double* sr, double* si,

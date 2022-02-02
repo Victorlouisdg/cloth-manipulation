@@ -1,28 +1,19 @@
-from calendar import c
-from cm_utils import render
+import argparse
+import os
+import sys
+
+import airo_blender_toolkit as abt
+import bpy
+from mathutils import Vector
+
+from cm_utils.cipc_sim import SimulationCIPC
 from cm_utils.dirs import ensure_output_paths
 from cm_utils.materials.penava import materials_by_name
-from cm_utils.cipc_sim import SimulationCIPC
-import itertools
-import numpy as np
-import airo_blender_toolkit as abt
-from pyparsing import RecursiveGrammarException
-import bpy
-from mathutils import Vector, Matrix, Euler
-import sys
-import os
-os.environ.setdefault("INSIDE_OF_THE_INTERNAL_BLENDER_PYTHON_ENVIRONMENT", "1")
-import blenderproc as bproc
-import argparse
 
-# def set_blender_material(object, color):
-#     material = bpy.data.materials.new(name="cloth")
-#     material.diffuse_color = color
-#     material.use_nodes = True
-#     bsdf = material.node_tree.nodes["Principled BSDF"]
-#     bsdf.inputs["Base Color"].default_value = color
-#     bsdf.inputs["Roughness"].default_value = 0.9
-#     object.data.materials.append(material)
+os.environ.setdefault("INSIDE_OF_THE_INTERNAL_BLENDER_PYTHON_ENVIRONMENT", "1")
+
+import blenderproc as bproc
+
 
 def make_square_cloth(size, subdivisions, location):
     cloth = bproc.object.create_primitive("PLANE", size=size, location=location)
@@ -36,7 +27,7 @@ def make_square_cloth(size, subdivisions, location):
 
 
 def run_drape_simulation(sphere_radius, cloth_size, cloth_subdivisions, cloth_material):
-    bproc.init() # configures some settings and cleans up scene
+    bproc.init()  # configures some settings and cleans up scene
 
     sphere = bproc.object.create_primitive("SPHERE", radius=sphere_radius)
     sphere.blender_obj.name = "sphere"
@@ -62,9 +53,8 @@ def run_drape_simulation(sphere_radius, cloth_size, cloth_subdivisions, cloth_ma
     scene = bpy.context.scene
     camera = scene.camera
     camera.location = (sphere_radius * 5, 0, 0)
-    abt.camera.look_at((0,0,0), camera)
+    abt.camera.look_at((0, 0, 0), camera)
     camera.location -= Vector((0, 0, sphere_radius / 2))
-
 
     scene.frame_start = 0
     scene.frame_end = simulation_steps
@@ -76,8 +66,7 @@ def run_drape_simulation(sphere_radius, cloth_size, cloth_subdivisions, cloth_ma
 
     # Render background transparent
     scene.render.film_transparent = True
-    scene.render.image_settings.color_mode = 'RGBA'
-
+    scene.render.image_settings.color_mode = "RGBA"
 
     # Hiding the input objects
     sphere.blender_obj.hide_viewport = True
@@ -97,9 +86,11 @@ def run_drape_simulation(sphere_radius, cloth_size, cloth_subdivisions, cloth_ma
     scene.render.filepath = os.path.join(paths["run"], "result.png")
     bpy.ops.render.render(write_still=True)
 
+
 if __name__ == "__main__":
     if "--" in sys.argv:
-        argv = sys.argv[sys.argv.index("--") + 1 :]
+        arg_start = sys.argv.index("--") + 1
+        argv = sys.argv[arg_start:]
         parser = argparse.ArgumentParser()
         parser.add_argument("-sr", "--sphere_radius", dest="sphere_radius", type=float)
         parser.add_argument("-cs", "--cloth_size", dest="cloth_size", type=float)
@@ -110,4 +101,4 @@ if __name__ == "__main__":
         cloth_material = materials_by_name[f"{args.cloth_material} penava"]
         run_drape_simulation(args.sphere_radius, args.cloth_size, args.cloth_subdivisions, cloth_material)
     else:
-        print(f"Please rerun with arguments after --")
+        print("Please rerun with arguments after --")

@@ -98,7 +98,7 @@ void Init_Dirichlet(MESH_NODE<T, dim>& X,
     DBCMotion.Insert(DBCMotion.size, range, v, rotCenter, rotAxis, angVelDeg);
     if constexpr (dim == 3) {
         printf("\nvelocity %le %le %le, rotCenter %le %le %le, rotAxis %le %le %le, angVelDeg %le\n",
-            v[0], v[1], v[2], rotCenter[0], rotCenter[1], rotCenter[2], 
+            v[0], v[1], v[2], rotCenter[0], rotCenter[1], rotCenter[2],
             rotAxis[0], rotAxis[1], rotAxis[2], angVelDeg);
     }
     else {
@@ -117,7 +117,7 @@ void Step_Dirichlet(
         //TODO: parallel the following loop
         for (int i = range[0]; i < range[1]; ++i) {
             VECTOR<T, dim + 1>& dbcI = std::get<0>(DBC.Get_Unchecked(i));
-            
+
             if (angVelDeg) {
                 if constexpr (dim == 2) {
                     T rotAngRad = angVelDeg / 180 * M_PI * h;
@@ -136,7 +136,7 @@ void Step_Dirichlet(
                     T rotAngRad = angVelDeg / 180 * M_PI * h;
                     const Eigen::Matrix3d rotMtr = Eigen::AngleAxis<double>(rotAngRad,
                         Eigen::Vector3d(rotAxis[0], rotAxis[1], rotAxis[2])).toRotationMatrix();
-                    
+
                     const Eigen::Vector3d x(dbcI[1] - rotCenter[0], dbcI[2] - rotCenter[1], dbcI[3] - rotCenter[2]);
                     const Eigen::Vector3d rotx = rotMtr * x;
                     dbcI[1] = rotx[0] + rotCenter[0];
@@ -205,7 +205,7 @@ void Boundary_Dirichlet(
     std::vector<int> boundaryNode;
     std::vector<VECTOR<int, 2>> boundaryEdge;
     Find_Boundary_Edge_And_Node(X.size, Tri, boundaryNode, boundaryEdge);
-    
+
     for (const auto& vI : boundaryNode) {
         const VECTOR<T, dim>& x = std::get<0>(X.Get_Unchecked(vI));
         DBC.Append(VECTOR<T, dim + 1>(vI, x[0], x[1], x[2]));

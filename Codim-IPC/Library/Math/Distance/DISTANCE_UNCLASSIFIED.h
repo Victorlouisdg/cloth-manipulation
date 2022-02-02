@@ -11,7 +11,7 @@
 
 namespace py = pybind11;
 namespace JGSL {
-    
+
 template <class T>
 void Point_Triangle_Distance_Unclassified(
     const Eigen::Matrix<T, 3, 1>& p,

@@ -16,7 +16,7 @@ void Compute_Dihedral_Angle(
 {
     const Eigen::Matrix<T, 3, 1> n1 = (v1 - v0).cross(v2 - v0);
     const Eigen::Matrix<T, 3, 1> n2 = (v2 - v3).cross(v1 - v3);
-    DA = std::acos(std::max(T(-1), std::min(T(1), 
+    DA = std::acos(std::max(T(-1), std::min(T(1),
       n1.dot(n2) / std::sqrt(n1.squaredNorm() * n2.squaredNorm()))));
     if (n2.cross(n1).dot(v1 - v2) < 0) {
       DA = -DA;

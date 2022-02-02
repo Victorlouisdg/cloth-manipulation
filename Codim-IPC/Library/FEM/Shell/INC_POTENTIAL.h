@@ -14,7 +14,7 @@ namespace JGSL {
 
 template <class T, int dim, bool KL, bool elasticIPC, bool flow>
 bool Compute_IncPotential(
-    MESH_ELEM<dim - 1>& Elem, T h, 
+    MESH_ELEM<dim - 1>& Elem, T h,
     const std::map<std::pair<int, int>, int>& edge2tri,
     const std::vector<VECTOR<int, 4>>& edgeStencil,
     const std::vector<VECTOR<T, 3>>& edgeInfo,
@@ -93,7 +93,7 @@ bool Compute_IncPotential(
         if (bendingStiffMult) {
             Compute_Bending_Energy<T, dim, KL>(Elem, staticSolve ? 1.0 : h, edge2tri, edgeStencil, edgeInfo, thickness, bendingStiffMult, DBCb, X, nodeAttr, elemAttr, elasticityAttr, value);
         }
-        
+
         // volumetric elasticity
         Compute_Deformation_Gradient(X, tet, tetAttr, tetElasticityAttr);
         std::vector<int> degenerate(tet.size);
@@ -153,7 +153,7 @@ bool Compute_IncPotential(
 
 template <class T, int dim, bool KL, bool elasticIPC, bool flow>
 void Compute_IncPotential_Gradient(
-    MESH_ELEM<dim - 1>& Elem, T h, 
+    MESH_ELEM<dim - 1>& Elem, T h,
     const std::map<std::pair<int, int>, int>& edge2tri,
     const std::vector<VECTOR<int, 4>>& edgeStencil,
     const std::vector<VECTOR<T, 3>>& edgeInfo,
@@ -276,7 +276,7 @@ void Compute_IncPotential_Gradient(
 
 template <class T, int dim, bool KL, bool elasticIPC, bool flow>
 void Compute_IncPotential_Hessian(
-    MESH_ELEM<dim - 1>& Elem, T h, 
+    MESH_ELEM<dim - 1>& Elem, T h,
     const std::map<std::pair<int, int>, int>& edge2tri,
     const std::vector<VECTOR<int, 4>>& edgeStencil,
     const std::vector<VECTOR<T, 3>>& edgeInfo,
@@ -327,11 +327,11 @@ void Compute_IncPotential_Hessian(
             auto &[elemVInd, F, vol, lambda, mu] = data;
             for (int i = 0; i < dim; ++i) {
                 for (int d = 0; d < dim; ++d) {
-                    triplets[tripletIndStart + id * dim * dim * 3 + i * dim * 3 + d * 3] = 
+                    triplets[tripletIndStart + id * dim * dim * 3 + i * dim * 3 + d * 3] =
                         Eigen::Triplet<T>(elemVInd[i] * dim + d, elemVInd[(i + 1) % dim] * dim + d, -h * vol / 6);
-                    triplets[tripletIndStart + id * dim * dim * 3 + i * dim * 3 + d * 3 + 1] = 
+                    triplets[tripletIndStart + id * dim * dim * 3 + i * dim * 3 + d * 3 + 1] =
                         Eigen::Triplet<T>(elemVInd[i] * dim + d, elemVInd[(i + 2) % dim] * dim + d, -h * vol / 6);
-                    triplets[tripletIndStart + id * dim * dim * 3 + i * dim * 3 + d * 3 + 2] = 
+                    triplets[tripletIndStart + id * dim * dim * 3 + i * dim * 3 + d * 3 + 2] =
                         Eigen::Triplet<T>(elemVInd[i] * dim + d, elemVInd[i] * dim + d, 2 * h * vol / 6);
                 }
             }
@@ -350,7 +350,7 @@ void Compute_IncPotential_Hessian(
         if (bendingStiffMult) {
             Compute_Bending_Hessian<T, dim, KL>(Elem, staticSolve ? 1.0 : h, projectSPD, edge2tri, edgeStencil, edgeInfo, thickness, bendingStiffMult, DBCb, X, nodeAttr, elemAttr, elasticityAttr, triplets);
         }
-        
+
         // volumetric elasticity:
         {
             TIMER_FLAG("Compute_Volumetric_Elasticity_Hessian");

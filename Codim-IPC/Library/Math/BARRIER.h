@@ -15,7 +15,7 @@ inline void Barrier(double d, double dHat, double kappa[], double& b)
     else {
         // double d_div_dHat = d / dHat;
         // double log_d_div_dHat = std::log(d_div_dHat);
-        // b = kappa[0] / 2 * (d_div_dHat + 2 * std::pow(d_div_dHat, -kappa[2]) - 3) + 
+        // b = kappa[0] / 2 * (d_div_dHat + 2 * std::pow(d_div_dHat, -kappa[2]) - 3) +
         //     (-kappa[0] / 2 + kappa[1] / 8 * (1 - 2 * kappa[2]) * log_d_div_dHat) * (1 - 2 * kappa[2]) * log_d_div_dHat;
         b = -kappa[0] * std::pow(d / dHat - 1, 2) * log(d / dHat);
     }
@@ -33,7 +33,7 @@ inline void Barrier_Gradient(double d1, double dHat1, double kappa[], double& g)
         g = kappa[0] * (t2 * std::log(d1 / dHat1) * -2.0 - (t2 * t2) / d1);
     }
     else {
-        // g = (kappa[1] * (1 - 2 * kappa[2]) * std::log(d1 / dHat1) - 2 * kappa[0]) * (1 - 2 * kappa[2]) / (4 * d1) + 
+        // g = (kappa[1] * (1 - 2 * kappa[2]) * std::log(d1 / dHat1) - 2 * kappa[0]) * (1 - 2 * kappa[2]) / (4 * d1) +
         //     kappa[0] * (1 - 2 * kappa[2] * std::pow(dHat1 / d1, kappa[2] + 1)) / (2 * dHat1);
         double one_over_dHat = 1 / dHat1;
         double t2 = d1 * one_over_dHat - 1;

@@ -13,8 +13,8 @@ namespace JGSL {
 
 template <class T, int dim>
 bool Point_Edge_CD_Broadphase(
-    const Eigen::Matrix<T, dim, 1>& x0, 
-    const Eigen::Matrix<T, dim, 1>& x1, 
+    const Eigen::Matrix<T, dim, 1>& x0,
+    const Eigen::Matrix<T, dim, 1>& x1,
     const Eigen::Matrix<T, dim, 1>& x2,
     T dist)
 {
@@ -30,11 +30,11 @@ bool Point_Edge_CD_Broadphase(
 
 template <class T>
 bool Point_Edge_CCD_Broadphase(
-    const Eigen::Matrix<T, 2, 1>& p, 
-    const Eigen::Matrix<T, 2, 1>& e0, 
+    const Eigen::Matrix<T, 2, 1>& p,
+    const Eigen::Matrix<T, 2, 1>& e0,
     const Eigen::Matrix<T, 2, 1>& e1,
-    const Eigen::Matrix<T, 2, 1>& dp, 
-    const Eigen::Matrix<T, 2, 1>& de0, 
+    const Eigen::Matrix<T, 2, 1>& dp,
+    const Eigen::Matrix<T, 2, 1>& de0,
     const Eigen::Matrix<T, 2, 1>& de1,
     T dist)
 {
@@ -53,16 +53,16 @@ bool Point_Edge_CCD_Broadphase(
 }
 
 template <class T>
-bool Point_Edge_CCD(const Eigen::Matrix<T, 2, 1>& x0, 
-    const Eigen::Matrix<T, 2, 1>& x1, 
+bool Point_Edge_CCD(const Eigen::Matrix<T, 2, 1>& x0,
+    const Eigen::Matrix<T, 2, 1>& x1,
     const Eigen::Matrix<T, 2, 1>& x2,
-    const Eigen::Matrix<T, 2, 1>& d0, 
-    const Eigen::Matrix<T, 2, 1>& d1, 
+    const Eigen::Matrix<T, 2, 1>& d0,
+    const Eigen::Matrix<T, 2, 1>& d1,
     const Eigen::Matrix<T, 2, 1>& d2,
     T eta, T& toc)
 {
     T a = d0[0] * (d2[1] - d1[1]) + d0[1] * (d1[0] - d2[0]) + d2[0] * d1[1] - d2[1] * d1[0];
-    T b = x0[0] * (d2[1] - d1[1]) + d0[0] * (x2[1] - x1[1]) + 
+    T b = x0[0] * (d2[1] - d1[1]) + d0[0] * (x2[1] - x1[1]) +
         d0[1] * (x1[0] - x2[0]) + x0[1] * (d1[0] - d2[0]) +
         d1[1] * x2[0] + d2[0] * x1[1] - d1[0] * x2[1] - d2[1] * x1[0];
     T c = x0[0] * (x2[1] - x1[1]) + x0[1] * (x1[0] - x2[0]) + x2[0] * x1[1] - x2[1] * x1[0];
@@ -133,8 +133,8 @@ bool Point_Edge_CCD(const Eigen::Matrix<T, 2, 1>& x0,
         if (roots[i] > 0 && roots[i] <= 1) {
             // check overlap
             T ratio;
-            if(Point_Edge_Distance_Type(Eigen::Matrix<T, 2, 1>(x0 + roots[i] * d0), 
-                Eigen::Matrix<T, 2, 1>(x1 + roots[i] * d1), 
+            if(Point_Edge_Distance_Type(Eigen::Matrix<T, 2, 1>(x0 + roots[i] * d0),
+                Eigen::Matrix<T, 2, 1>(x1 + roots[i] * d1),
                 Eigen::Matrix<T, 2, 1>(x2 + roots[i] * d2), ratio) == 2) {
                 toc = roots[i] * (1 - eta); //TODO: distance eta
                 return true;
@@ -147,8 +147,8 @@ bool Point_Edge_CCD(const Eigen::Matrix<T, 2, 1>& x0,
 
 template <class T>
 bool Point_Triangle_CD_Broadphase(
-    const Eigen::Matrix<T, 3, 1>& p, 
-    const Eigen::Matrix<T, 3, 1>& t0, 
+    const Eigen::Matrix<T, 3, 1>& p,
+    const Eigen::Matrix<T, 3, 1>& t0,
     const Eigen::Matrix<T, 3, 1>& t1,
     const Eigen::Matrix<T, 3, 1>& t2,
     T dist)
@@ -165,8 +165,8 @@ bool Point_Triangle_CD_Broadphase(
 
 template <class T>
 bool Edge_Edge_CD_Broadphase(
-    const Eigen::Matrix<T, 3, 1>& ea0, 
-    const Eigen::Matrix<T, 3, 1>& ea1, 
+    const Eigen::Matrix<T, 3, 1>& ea0,
+    const Eigen::Matrix<T, 3, 1>& ea1,
     const Eigen::Matrix<T, 3, 1>& eb0,
     const Eigen::Matrix<T, 3, 1>& eb1,
     T dist)
@@ -185,12 +185,12 @@ bool Edge_Edge_CD_Broadphase(
 
 template <class T>
 bool Point_Triangle_CCD_Broadphase(
-    const Eigen::Matrix<T, 3, 1>& p, 
-    const Eigen::Matrix<T, 3, 1>& t0, 
+    const Eigen::Matrix<T, 3, 1>& p,
+    const Eigen::Matrix<T, 3, 1>& t0,
     const Eigen::Matrix<T, 3, 1>& t1,
     const Eigen::Matrix<T, 3, 1>& t2,
-    const Eigen::Matrix<T, 3, 1>& dp, 
-    const Eigen::Matrix<T, 3, 1>& dt0, 
+    const Eigen::Matrix<T, 3, 1>& dp,
+    const Eigen::Matrix<T, 3, 1>& dt0,
     const Eigen::Matrix<T, 3, 1>& dt1,
     const Eigen::Matrix<T, 3, 1>& dt2,
     T dist)
@@ -211,12 +211,12 @@ bool Point_Triangle_CCD_Broadphase(
 
 template <class T>
 bool Edge_Edge_CCD_Broadphase(
-    const Eigen::Matrix<T, 3, 1>& ea0, 
-    const Eigen::Matrix<T, 3, 1>& ea1, 
+    const Eigen::Matrix<T, 3, 1>& ea0,
+    const Eigen::Matrix<T, 3, 1>& ea1,
     const Eigen::Matrix<T, 3, 1>& eb0,
     const Eigen::Matrix<T, 3, 1>& eb1,
-    const Eigen::Matrix<T, 3, 1>& dea0, 
-    const Eigen::Matrix<T, 3, 1>& dea1, 
+    const Eigen::Matrix<T, 3, 1>& dea0,
+    const Eigen::Matrix<T, 3, 1>& dea1,
     const Eigen::Matrix<T, 3, 1>& deb0,
     const Eigen::Matrix<T, 3, 1>& deb1,
     T dist)
@@ -235,11 +235,11 @@ bool Edge_Edge_CCD_Broadphase(
 
 template <class T>
 bool Point_Edge_CCD_Broadphase(
-    const Eigen::Matrix<T, 3, 1>& p, 
-    const Eigen::Matrix<T, 3, 1>& e0, 
+    const Eigen::Matrix<T, 3, 1>& p,
+    const Eigen::Matrix<T, 3, 1>& e0,
     const Eigen::Matrix<T, 3, 1>& e1,
-    const Eigen::Matrix<T, 3, 1>& dp, 
-    const Eigen::Matrix<T, 3, 1>& de0, 
+    const Eigen::Matrix<T, 3, 1>& dp,
+    const Eigen::Matrix<T, 3, 1>& de0,
     const Eigen::Matrix<T, 3, 1>& de1,
     T dist)
 {
@@ -257,9 +257,9 @@ bool Point_Edge_CCD_Broadphase(
 
 template <class T>
 bool Point_Point_CCD_Broadphase(
-    const Eigen::Matrix<T, 3, 1>& p0, 
+    const Eigen::Matrix<T, 3, 1>& p0,
     const Eigen::Matrix<T, 3, 1>& p1,
-    const Eigen::Matrix<T, 3, 1>& dp0, 
+    const Eigen::Matrix<T, 3, 1>& dp0,
     const Eigen::Matrix<T, 3, 1>& dp1,
     T dist)
 {
@@ -277,12 +277,12 @@ bool Point_Point_CCD_Broadphase(
 
 template <class T>
 bool Point_Triangle_CCD(
-    const Eigen::Matrix<T, 3, 1>& p, 
-    const Eigen::Matrix<T, 3, 1>& t0, 
+    const Eigen::Matrix<T, 3, 1>& p,
+    const Eigen::Matrix<T, 3, 1>& t0,
     const Eigen::Matrix<T, 3, 1>& t1,
     const Eigen::Matrix<T, 3, 1>& t2,
-    const Eigen::Matrix<T, 3, 1>& dp, 
-    const Eigen::Matrix<T, 3, 1>& dt0, 
+    const Eigen::Matrix<T, 3, 1>& dp,
+    const Eigen::Matrix<T, 3, 1>& dt0,
     const Eigen::Matrix<T, 3, 1>& dt1,
     const Eigen::Matrix<T, 3, 1>& dt2,
     T eta, T thickness, T& toc)
@@ -313,12 +313,12 @@ bool Point_Triangle_CCD(
 
 template <class T>
 bool Edge_Edge_CCD(
-    const Eigen::Matrix<T, 3, 1>& ea0, 
-    const Eigen::Matrix<T, 3, 1>& ea1, 
+    const Eigen::Matrix<T, 3, 1>& ea0,
+    const Eigen::Matrix<T, 3, 1>& ea1,
     const Eigen::Matrix<T, 3, 1>& eb0,
     const Eigen::Matrix<T, 3, 1>& eb1,
-    const Eigen::Matrix<T, 3, 1>& dea0, 
-    const Eigen::Matrix<T, 3, 1>& dea1, 
+    const Eigen::Matrix<T, 3, 1>& dea0,
+    const Eigen::Matrix<T, 3, 1>& dea1,
     const Eigen::Matrix<T, 3, 1>& deb0,
     const Eigen::Matrix<T, 3, 1>& deb1,
     T eta, T thickness, T& toc)
@@ -349,10 +349,10 @@ bool Edge_Edge_CCD(
 
 template <class T>
 bool Point_Edge_CCD(
-    const Eigen::Matrix<T, 3, 1>& p, 
+    const Eigen::Matrix<T, 3, 1>& p,
     const Eigen::Matrix<T, 3, 1>& e0,
     const Eigen::Matrix<T, 3, 1>& e1,
-    const Eigen::Matrix<T, 3, 1>& dp, 
+    const Eigen::Matrix<T, 3, 1>& dp,
     const Eigen::Matrix<T, 3, 1>& de0,
     const Eigen::Matrix<T, 3, 1>& de1,
     T eta, T thickness, T& toc)
@@ -364,7 +364,7 @@ bool Point_Edge_CCD(
     {
         if (toc < 1.0e-6) {
             std::cout << "PE CCD tiny!" << std::endl;
-            if (CTCD::vertexEdgeCTCD(p, e0, e1, 
+            if (CTCD::vertexEdgeCTCD(p, e0, e1,
                     p + dp, e0 + de0, e1 + de1,
                     thickness, toc))
             {
@@ -382,9 +382,9 @@ bool Point_Edge_CCD(
 
 template <class T>
 bool Point_Point_CCD(
-    const Eigen::Matrix<T, 3, 1>& p0, 
+    const Eigen::Matrix<T, 3, 1>& p0,
     const Eigen::Matrix<T, 3, 1>& p1,
-    const Eigen::Matrix<T, 3, 1>& dp0, 
+    const Eigen::Matrix<T, 3, 1>& dp0,
     const Eigen::Matrix<T, 3, 1>& dp1,
     T eta, T thickness, T& toc)
 {

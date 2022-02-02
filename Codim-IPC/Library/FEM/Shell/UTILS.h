@@ -13,7 +13,7 @@ Eigen::Matrix<T, 3, 3> crossMatrix(const Eigen::Matrix<T, 3, 1>& v) {
 
 template <class T, int dim = 3>
 void Compute_SFF(
-    MESH_NODE<T, dim>& X, 
+    MESH_NODE<T, dim>& X,
     MESH_ELEM<dim - 1>& Elem,
     const std::map<std::pair<int, int>, int>& edge2tri,
     int elemI,
@@ -48,9 +48,9 @@ void Compute_SFF(
             const VECTOR<T, dim>& oppx1 = std::get<0>(X.Get_Unchecked(oppElemVInd[0]));
             const VECTOR<T, dim>& oppx2 = std::get<0>(X.Get_Unchecked(oppElemVInd[1]));
             const VECTOR<T, dim>& oppx3 = std::get<0>(X.Get_Unchecked(oppElemVInd[2]));
-            Eigen::Matrix<T, dim, 1> oppxe[3] = { 
-                std::move(Eigen::Matrix<T, dim, 1>(oppx1.data)), 
-                std::move(Eigen::Matrix<T, dim, 1>(oppx2.data)), 
+            Eigen::Matrix<T, dim, 1> oppxe[3] = {
+                std::move(Eigen::Matrix<T, dim, 1>(oppx1.data)),
+                std::move(Eigen::Matrix<T, dim, 1>(oppx2.data)),
                 std::move(Eigen::Matrix<T, dim, 1>(oppx3.data))
             };
             oppNormals[i] = (oppxe[1] - oppxe[0]).cross(oppxe[2] - oppxe[0]);

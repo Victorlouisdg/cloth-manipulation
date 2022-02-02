@@ -60,7 +60,7 @@ py::module Export_Model_Submodule(py::module& m, const std::string &name, bool e
     // Export the module
     std::string module_name = std::string(name).append("_" + std::to_string(dim));
     py::module module = m.def_submodule(module_name.c_str());
-    
+
     // Define member functions
     module.def("Create", &MODEL::Create);
     module.def("Append", &MODEL::Append);

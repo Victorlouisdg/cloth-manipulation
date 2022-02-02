@@ -109,8 +109,8 @@ void Compute_Stitch_Hessian(
             if (projectSPD) {
                 makePD(hessian);
             }
-            
-            int globalInd[9] = { 
+
+            int globalInd[9] = {
                 stitchI[0] * dim,
                 stitchI[0] * dim + 1,
                 stitchI[0] * dim + 2,
@@ -152,7 +152,7 @@ void Check_Stitch_Gradient(
         MESH_NODE<T, dim> Xperturb;
         Append_Attribute(X, Xperturb);
         std::get<0>(Xperturb.Get_Unchecked(i / dim))[i % dim] += eps;
-        
+
         T E = 0;
         Compute_Stitch_Energy(Xperturb, stitchInfo, stitchRatio, k, h, E);
         grad_FD[i] = (E - E0) / eps;
@@ -200,7 +200,7 @@ void Check_Stitch_Hessian(
         MESH_NODE<T, dim> Xperturb;
         Append_Attribute(X, Xperturb);
         std::get<0>(Xperturb.Get_Unchecked(i / dim))[i % dim] += eps;
-        
+
         nodeAttr.template Fill<FIELDS<MESH_NODE_ATTR<T, dim>>::g>(VECTOR<T, dim>(0));
         Compute_Stitch_Gradient(Xperturb, stitchInfo, stitchRatio, k, h, nodeAttr);
         for (int vI = 0; vI < X.size; ++vI) {

@@ -1,5 +1,5 @@
-import sys
 import os
+import sys
 
 CIPC_PATH = "../../Codim-IPC"
 CIPC_PYTHON_PATH = os.path.join(CIPC_PATH, "Python")
@@ -8,11 +8,9 @@ CIPC_BUILD_PATH = os.path.join(CIPC_PATH, "build")
 sys.path.insert(0, CIPC_PYTHON_PATH)
 sys.path.insert(0, CIPC_BUILD_PATH)
 
-from JGSL import *
-
-import Drivers
-
 import bpy
+import Drivers
+from JGSL import StdVectorXd, Storage, Vector2d, Vector3d, Vector4i
 
 
 def cipc_action(gripper, cloth, grasped, frame):
@@ -75,7 +73,7 @@ class Simulation:
             0,
         )
 
-        algI = 0  # isotropic
+        # algI = 0  # isotropic
         clothI = 0  # cotton
         membEMult = 0.01
         bendEMult = 0.1
@@ -90,19 +88,14 @@ class Simulation:
         # density, E, nu, thickness, initial displacement case
         sim.initialize(
             sim.cloth_density_iso[clothI],
-            sim.cloth_Ebase_iso[clothI]
-            * membEMult,  # Young's modulus, resistance to in plane stretching
-            sim.cloth_nubase_iso[
-                clothI
-            ],  # Poission's ratio, how much the material contracts when stressed
+            sim.cloth_Ebase_iso[clothI] * membEMult,  # Young's modulus, resistance to in plane stretching
+            sim.cloth_nubase_iso[clothI],  # Poission's ratio, how much the material contracts when stressed
             sim.cloth_thickness_iso[clothI],
             0,
         )
         sim.bendingStiffMult = bendEMult / membEMult  # why divide bij membEMult?
         sim.kappa_s = Vector2d(1e3, 0)  # TODO figure out what kappa_s is
-        sim.s = Vector2d(
-            sim.cloth_SL_iso[clothI], 0
-        )  # Strain limiting factor e.g. 1.06
+        sim.s = Vector2d(sim.cloth_SL_iso[clothI], 0)  # Strain limiting factor e.g. 1.06
 
         sim.initialize_OIPC(1e-3, 0)
 

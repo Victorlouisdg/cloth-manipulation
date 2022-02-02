@@ -8,7 +8,7 @@ namespace JGSL {
 
 template<class T, int dim, bool KL>
 void Compute_Bending_Energy(
-    MESH_ELEM<dim - 1>& Elem, T h, 
+    MESH_ELEM<dim - 1>& Elem, T h,
     const std::map<std::pair<int, int>, int>& edge2tri,
     const std::vector<VECTOR<int ,4>>& edgeStencil,
     const std::vector<VECTOR<T, 3>>& edgeInfo,
@@ -35,7 +35,7 @@ void Compute_Bending_Energy(
                 MATRIX<T, dim - 1> IB = std::get<FIELDS<MESH_ELEM_ATTR<T, dim>>::IB>(elemAttr.Get_Unchecked(id));
                 IB.invert();
                 const MATRIX<T, dim - 1>& D = std::get<FIELDS<MESH_ELEM_ATTR<T, dim>>::P>(elemAttr.Get_Unchecked(id));
-                
+
                 Eigen::Matrix<T, dim, 1> cNormal;
                 Eigen::Matrix<T, dim, 1> oppNormals[3];
                 T mnorms[3];
@@ -53,17 +53,17 @@ void Compute_Bending_Energy(
             if (elemAttr.size) {
                 const T k = bendingStiffMult * std::get<FIELDS<MESH_ELEM_ATTR<T, dim>>::P>(elemAttr.Get_Unchecked(0))(0, 0);
                 for (int eI = 0; eI < edgeStencil.size(); ++eI) {
-                    if (DBCb[edgeStencil[eI][0]] && DBCb[edgeStencil[eI][1]] && 
-                        DBCb[edgeStencil[eI][2]] && DBCb[edgeStencil[eI][3]]) 
-                    { 
-                        continue; 
+                    if (DBCb[edgeStencil[eI][0]] && DBCb[edgeStencil[eI][1]] &&
+                        DBCb[edgeStencil[eI][2]] && DBCb[edgeStencil[eI][3]])
+                    {
+                        continue;
                     }
                     const VECTOR<T, dim>& x0 = std::get<0>(X.Get_Unchecked(edgeStencil[eI][0]));
                     const VECTOR<T, dim>& x1 = std::get<0>(X.Get_Unchecked(edgeStencil[eI][1]));
                     const VECTOR<T, dim>& x2 = std::get<0>(X.Get_Unchecked(edgeStencil[eI][2]));
                     const VECTOR<T, dim>& x3 = std::get<0>(X.Get_Unchecked(edgeStencil[eI][3]));
                     Eigen::Matrix<T, dim, 1> x0e(x0.data), x1e(x1.data), x2e(x2.data), x3e(x3.data);
-                    
+
                     const T thetabar = edgeInfo[eI][0];
                     const T ebarnorm = edgeInfo[eI][1];
                     const T hbar = edgeInfo[eI][2];
@@ -104,15 +104,15 @@ void Compute_Bending_Gradient(
                 const VECTOR<T, dim>& x1 = std::get<0>(X.Get_Unchecked(elemVInd[0]));
                 const VECTOR<T, dim>& x2 = std::get<0>(X.Get_Unchecked(elemVInd[1]));
                 const VECTOR<T, dim>& x3 = std::get<0>(X.Get_Unchecked(elemVInd[2]));
-                Eigen::Matrix<T, dim, 1> qs[3] = { 
-                    std::move(Eigen::Matrix<T, dim, 1>(x1.data)), 
-                    std::move(Eigen::Matrix<T, dim, 1>(x2.data)), 
+                Eigen::Matrix<T, dim, 1> qs[3] = {
+                    std::move(Eigen::Matrix<T, dim, 1>(x1.data)),
+                    std::move(Eigen::Matrix<T, dim, 1>(x2.data)),
                     std::move(Eigen::Matrix<T, dim, 1>(x3.data))
                 };
                 MATRIX<T, dim - 1> IB = std::get<FIELDS<MESH_ELEM_ATTR<T, dim>>::IB>(elemAttr.Get_Unchecked(id));
                 IB.invert();
                 const MATRIX<T, dim - 1>& D = std::get<FIELDS<MESH_ELEM_ATTR<T, dim>>::P>(elemAttr.Get_Unchecked(id));
-                
+
                 Eigen::Matrix<T, dim, 1> cNormal;
                 Eigen::Matrix<T, dim, 1> oppNormals[3];
                 T mnorms[3];
@@ -138,7 +138,7 @@ void Compute_Bending_Gradient(
                     IIderiv.template block<1, 3>(i, 3*i) += -2.0 * oppNormals[i].transpose() / mnorms[i];
                     IIderiv.template block<1, 3>(i, 3*ip1) += 1.0 * oppNormals[i].transpose() / mnorms[i];
                     IIderiv.template block<1, 3>(i, 3*ip2) += 1.0 * oppNormals[i].transpose() / mnorms[i];
-                    
+
                     IIderiv.template block<1, 3>(i, 9 + 3*i) += (qs[ip1] + qs[ip2] - 2.0*qs[i]).transpose() / mnorms[i] * dn[i].template block<3, 3>(0, 0);
                     IIderiv.template block<1, 3>(i, 3*ip2) += (qs[ip1] + qs[ip2] - 2.0*qs[i]).transpose() / mnorms[i] * dn[i].template block<3, 3>(0, 3);
                     IIderiv.template block<1, 3>(i, 3*ip1) += (qs[ip1] + qs[ip2] - 2.0*qs[i]).transpose() / mnorms[i] * dn[i].template block<3, 3>(0, 6);
@@ -167,7 +167,7 @@ void Compute_Bending_Gradient(
                     VECTOR<T, dim>& g = std::get<FIELDS<MESH_NODE_ATTR<T, dim>>::g>(nodeAttr.Get_Unchecked(vInd[v]));
                     for (int d = 0; d < dim; ++d) {
                         int i = v * dim + d;
-                        g[d] += dC_div_dx(0, i) * temp(0, 0) + dC_div_dx(1, i) * temp(1, 0) + 
+                        g[d] += dC_div_dx(0, i) * temp(0, 0) + dC_div_dx(1, i) * temp(1, 0) +
                             dC_div_dx(2, i) * temp(0, 1) + dC_div_dx(3, i) * temp(1, 1);
                     }
                 }
@@ -177,17 +177,17 @@ void Compute_Bending_Gradient(
             if (elemAttr.size) {
                 const T k = bendingStiffMult * std::get<FIELDS<MESH_ELEM_ATTR<T, dim>>::P>(elemAttr.Get_Unchecked(0))(0, 0);
                 for (int eI = 0; eI < edgeStencil.size(); ++eI) {
-                    if (DBCb[edgeStencil[eI][0]] && DBCb[edgeStencil[eI][1]] && 
-                        DBCb[edgeStencil[eI][2]] && DBCb[edgeStencil[eI][3]]) 
-                    { 
-                        continue; 
+                    if (DBCb[edgeStencil[eI][0]] && DBCb[edgeStencil[eI][1]] &&
+                        DBCb[edgeStencil[eI][2]] && DBCb[edgeStencil[eI][3]])
+                    {
+                        continue;
                     }
                     const VECTOR<T, dim>& x0 = std::get<0>(X.Get_Unchecked(edgeStencil[eI][0]));
                     const VECTOR<T, dim>& x1 = std::get<0>(X.Get_Unchecked(edgeStencil[eI][1]));
                     const VECTOR<T, dim>& x2 = std::get<0>(X.Get_Unchecked(edgeStencil[eI][2]));
                     const VECTOR<T, dim>& x3 = std::get<0>(X.Get_Unchecked(edgeStencil[eI][3]));
                     Eigen::Matrix<T, dim, 1> x0e(x0.data), x1e(x1.data), x2e(x2.data), x3e(x3.data);
-                    
+
                     const T thetabar = edgeInfo[eI][0];
                     const T ebarnorm = edgeInfo[eI][1];
                     const T hbar = edgeInfo[eI][2];
@@ -213,7 +213,7 @@ void Compute_Bending_Gradient(
 
 template<class T, int dim, bool KL>
 void Compute_Bending_Hessian(
-    MESH_ELEM<dim - 1>& Elem, 
+    MESH_ELEM<dim - 1>& Elem,
     T h, bool projectSPD,
     const std::map<std::pair<int, int>, int>& edge2tri,
     const std::vector<VECTOR<int, 4>>& edgeStencil,
@@ -254,15 +254,15 @@ void Compute_Bending_Hessian(
                 const VECTOR<T, dim>& x1 = std::get<0>(X.Get_Unchecked(elemVInd[0]));
                 const VECTOR<T, dim>& x2 = std::get<0>(X.Get_Unchecked(elemVInd[1]));
                 const VECTOR<T, dim>& x3 = std::get<0>(X.Get_Unchecked(elemVInd[2]));
-                Eigen::Matrix<T, dim, 1> qs[3] = { 
-                    std::move(Eigen::Matrix<T, dim, 1>(x1.data)), 
-                    std::move(Eigen::Matrix<T, dim, 1>(x2.data)), 
+                Eigen::Matrix<T, dim, 1> qs[3] = {
+                    std::move(Eigen::Matrix<T, dim, 1>(x1.data)),
+                    std::move(Eigen::Matrix<T, dim, 1>(x2.data)),
                     std::move(Eigen::Matrix<T, dim, 1>(x3.data))
                 };
                 MATRIX<T, dim - 1> IB = std::get<FIELDS<MESH_ELEM_ATTR<T, dim>>::IB>(elemAttr.Get_Unchecked(id));
                 IB.invert();
                 const MATRIX<T, dim - 1>& D = std::get<FIELDS<MESH_ELEM_ATTR<T, dim>>::P>(elemAttr.Get_Unchecked(id));
-                
+
                 Eigen::Matrix<T, dim, 1> cNormal;
                 Eigen::Matrix<T, dim, 1> oppNormals[3];
                 T mnorms[3];
@@ -290,7 +290,7 @@ void Compute_Bending_Hessian(
                     IIderiv.template block<1, 3>(i, 3*i) += -2.0 * oppNormals[i].transpose() / mnorms[i];
                     IIderiv.template block<1, 3>(i, 3*ip1) += 1.0 * oppNormals[i].transpose() / mnorms[i];
                     IIderiv.template block<1, 3>(i, 3*ip2) += 1.0 * oppNormals[i].transpose() / mnorms[i];
-                    
+
                     IIderiv.template block<1, 3>(i, 9 + 3*i) += (qs[ip1] + qs[ip2] - 2.0*qs[i]).transpose() / mnorms[i] * dn[i].template block<3, 3>(0, 0);
                     IIderiv.template block<1, 3>(i, 3*ip2) += (qs[ip1] + qs[ip2] - 2.0*qs[i]).transpose() / mnorms[i] * dn[i].template block<3, 3>(0, 3);
                     IIderiv.template block<1, 3>(i, 3*ip1) += (qs[ip1] + qs[ip2] - 2.0*qs[i]).transpose() / mnorms[i] * dn[i].template block<3, 3>(0, 6);
@@ -330,7 +330,7 @@ void Compute_Bending_Hessian(
 
                         for (int k = 0; k < 3; k++)
                         {
-                            IIhess[i].block(miidx[j], miidx[k], 3, 3) += -dn[i].block(0, 3 * j, 3, 3).transpose() / mnorms[i] / mnorms[i] / mnorms[i] *  (oppNormals[i] + cNormal) * (qs[ip1] + qs[ip2] - 2.0*qs[i]).transpose() * dn[i].block(0, 3 * k, 3, 3);                    
+                            IIhess[i].block(miidx[j], miidx[k], 3, 3) += -dn[i].block(0, 3 * j, 3, 3).transpose() / mnorms[i] / mnorms[i] / mnorms[i] *  (oppNormals[i] + cNormal) * (qs[ip1] + qs[ip2] - 2.0*qs[i]).transpose() * dn[i].block(0, 3 * k, 3, 3);
                             IIhess[i].block(3 * j, miidx[k], 3, 3) += -dcn.block(0, 3 * j, 3, 3).transpose() / mnorms[i] / mnorms[i] / mnorms[i] *  (oppNormals[i] + cNormal) * (qs[ip1] + qs[ip2] - 2.0*qs[i]).transpose() * dn[i].block(0, 3 * k, 3, 3);
                         }
 
@@ -386,7 +386,7 @@ void Compute_Bending_Hessian(
 
                 Eigen::Matrix<T, 1, 18> inner;
                 for (int i = 0; i < 18; ++i) {
-                    inner[i] = dC_div_dx(0, i) * IB(0, 0) + dC_div_dx(1, i) * IB(1, 0) + 
+                    inner[i] = dC_div_dx(0, i) * IB(0, 0) + dC_div_dx(1, i) * IB(1, 0) +
                         dC_div_dx(2, i) * IB(0, 1) + dC_div_dx(3, i) * IB(1, 1);
                 }
                 Eigen::Matrix<T, 18, 18> hessian = lambda * inner.transpose() * inner;
@@ -440,9 +440,9 @@ void Compute_Bending_Hessian(
                 BASE_STORAGE<int> threads(edgeStencil.size());
                 int nonDBCECount = 0;
                 for (int i = 0; i < edgeStencil.size(); ++i) {
-                    if (!(DBCb[edgeStencil[i][0]] && DBCb[edgeStencil[i][1]] && 
+                    if (!(DBCb[edgeStencil[i][0]] && DBCb[edgeStencil[i][1]] &&
                         DBCb[edgeStencil[i][2]] && DBCb[edgeStencil[i][3]]))
-                    { 
+                    {
                         threads.Append(nonDBCECount++);
                     }
                     else {
@@ -475,7 +475,7 @@ void Compute_Bending_Hessian(
 
                         H *= h * h * k * 2 * (theta - thetabar) * ebarnorm / hbar;
                         H += ((h * h * k * 2 * ebarnorm / hbar) * grad) * grad.transpose();
-                        if (projectSPD) { 
+                        if (projectSPD) {
                             makePD(H);
                         }
 
@@ -501,7 +501,7 @@ void Compute_Bending_Hessian(
 template <class T, int dim, bool KL>
 void Check_Bending_Gradient(
     MESH_ELEM<dim - 1>& Elem,
-    const VECTOR_STORAGE<T, dim + 1>& DBC, T h, 
+    const VECTOR_STORAGE<T, dim + 1>& DBC, T h,
     const std::map<std::pair<int, int>, int>& edge2tri,
     const std::vector<VECTOR<int, 4>>& edgeStencil,
     const std::vector<VECTOR<T, 3>>& edgeInfo,
@@ -514,16 +514,16 @@ void Check_Bending_Gradient(
     T eps = 1.0e-6;
 
     T E0 = 0;
-    Compute_Bending_Energy<T, dim, KL>(Elem, 1.0, edge2tri, edgeStencil, edgeInfo, thickness, T(1), std::vector<bool>(X.size, false), X, nodeAttr, elemAttr, elasticityAttr, E0); 
+    Compute_Bending_Energy<T, dim, KL>(Elem, 1.0, edge2tri, edgeStencil, edgeInfo, thickness, T(1), std::vector<bool>(X.size, false), X, nodeAttr, elemAttr, elasticityAttr, E0);
     nodeAttr.template Fill<FIELDS<MESH_NODE_ATTR<T, dim>>::g>(VECTOR<T, dim>(0));
-    Compute_Bending_Gradient<T, dim, KL>(Elem, 1.0, edge2tri, edgeStencil, edgeInfo, thickness, T(1), std::vector<bool>(X.size, false), X, nodeAttr, elemAttr, elasticityAttr); 
+    Compute_Bending_Gradient<T, dim, KL>(Elem, 1.0, edge2tri, edgeStencil, edgeInfo, thickness, T(1), std::vector<bool>(X.size, false), X, nodeAttr, elemAttr, elasticityAttr);
 
     std::vector<T> grad_FD(X.size * dim);
     for (int i = 0; i < X.size * dim; ++i) {
         MESH_NODE<T, dim> Xperturb;
         Append_Attribute(X, Xperturb);
         std::get<0>(Xperturb.Get_Unchecked(i / dim))[i % dim] += eps;
-        
+
         T E = 0;
         Compute_Bending_Energy<T, dim, KL>(Elem, 1.0, edge2tri, edgeStencil, edgeInfo, thickness, T(1), std::vector<bool>(X.size, false), Xperturb, nodeAttr, elemAttr, elasticityAttr, E);
         grad_FD[i] = (E - E0) / eps;
@@ -550,7 +550,7 @@ void Check_Bending_Gradient(
 template <class T, int dim, bool KL>
 void Check_Bending_Hessian(
     MESH_ELEM<dim - 1>& Elem,
-    const VECTOR_STORAGE<T, dim + 1>& DBC, T h, 
+    const VECTOR_STORAGE<T, dim + 1>& DBC, T h,
     const std::map<std::pair<int, int>, int>& edge2tri,
     const std::vector<VECTOR<int, 4>>& edgeStencil,
     const std::vector<VECTOR<T, 3>>& edgeInfo,
@@ -567,7 +567,7 @@ void Check_Bending_Hessian(
     nodeAttr0.template Fill<FIELDS<MESH_NODE_ATTR<T, dim>>::g>(VECTOR<T, dim>(0));
     Compute_Bending_Gradient<T, dim, KL>(Elem, 1.0, edge2tri, edgeStencil, edgeInfo, thickness, T(1), std::vector<bool>(X.size, false), X, nodeAttr0, elemAttr, elasticityAttr);
     std::vector<Eigen::Triplet<T>> HStriplets;
-    Compute_Bending_Hessian<T, dim, KL>(Elem, 1.0, false, edge2tri, edgeStencil, edgeInfo, thickness, T(1), std::vector<bool>(X.size, false), X, nodeAttr, elemAttr, elasticityAttr, HStriplets); 
+    Compute_Bending_Hessian<T, dim, KL>(Elem, 1.0, false, edge2tri, edgeStencil, edgeInfo, thickness, T(1), std::vector<bool>(X.size, false), X, nodeAttr, elemAttr, elasticityAttr, HStriplets);
     CSR_MATRIX<T> HS;
     HS.Construct_From_Triplet(X.size * dim, X.size * dim, HStriplets);
 
@@ -577,7 +577,7 @@ void Check_Bending_Hessian(
         MESH_NODE<T, dim> Xperturb;
         Append_Attribute(X, Xperturb);
         std::get<0>(Xperturb.Get_Unchecked(i / dim))[i % dim] += eps;
-        
+
         nodeAttr.template Fill<FIELDS<MESH_NODE_ATTR<T, dim>>::g>(VECTOR<T, dim>(0));
         Compute_Bending_Gradient<T, dim, KL>(Elem, 1.0, edge2tri, edgeStencil, edgeInfo, thickness, T(1), std::vector<bool>(X.size, false), Xperturb, nodeAttr, elemAttr, elasticityAttr);
         for (int vI = 0; vI < X.size; ++vI) {
