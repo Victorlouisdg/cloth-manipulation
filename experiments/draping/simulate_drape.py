@@ -26,7 +26,7 @@ def make_square_cloth(size, subdivisions, location):
     return cloth
 
 
-def run_drape_simulation(sphere_radius, cloth_size, cloth_subdivisions, cloth_material):
+def run_drape_simulation(sphere_radius, cloth_size, cloth_subdivisions, cloth_material, simulation_steps):
     bproc.init()  # configures some settings and cleans up scene
 
     sphere = bproc.object.create_primitive("SPHERE", radius=sphere_radius)
@@ -37,7 +37,6 @@ def run_drape_simulation(sphere_radius, cloth_size, cloth_subdivisions, cloth_ma
 
     paths = ensure_output_paths()
 
-    simulation_steps = 10
     simulation = SimulationCIPC(paths, 25)
     simulation.add_collider(sphere.blender_obj, friction_coefficient=0.4)
     simulation.add_cloth(cloth.blender_obj, cloth_material)
@@ -91,14 +90,19 @@ if __name__ == "__main__":
     if "--" in sys.argv:
         arg_start = sys.argv.index("--") + 1
         argv = sys.argv[arg_start:]
-        parser = argparse.ArgumentParser()
-        parser.add_argument("-sr", "--sphere_radius", dest="sphere_radius", type=float)
-        parser.add_argument("-cs", "--cloth_size", dest="cloth_size", type=float)
-        parser.add_argument("-csub", "--cloth_subdivisions", dest="cloth_subdivisions", type=int)
-        parser.add_argument("-cm", "--cloth_material", dest="cloth_material")
-        args = parser.parse_known_args(argv)[0]
-
-        cloth_material = materials_by_name[f"{args.cloth_material} penava"]
-        run_drape_simulation(args.sphere_radius, args.cloth_size, args.cloth_subdivisions, cloth_material)
     else:
-        print("Please rerun with arguments after --")
+        argv = sys.argv
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-sr", "--sphere_radius", dest="sphere_radius", type=float, default=0.1)
+    parser.add_argument("-cs", "--cloth_size", dest="cloth_size", type=float, default=0.5)
+    parser.add_argument("-csub", "--cloth_subdivisions", dest="cloth_subdivisions", type=int, default=5)
+    parser.add_argument("-cm", "--cloth_material", dest="cloth_material", default="cotton")
+    parser.add_argument("-s", "--simulation_steps", dest="simulation_steps", type=int, default=25)
+
+    args = parser.parse_known_args(argv)[0]
+
+    cloth_material = materials_by_name[f"{args.cloth_material} penava"]
+    run_drape_simulation(
+        args.sphere_radius, args.cloth_size, args.cloth_subdivisions, cloth_material, args.simulation_steps
+    )

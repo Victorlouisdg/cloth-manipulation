@@ -64,6 +64,7 @@ class SimulationCIPC:
         self.current_frame = 0
         self.frames_per_second = frames_per_second
         self.timestep_size = 1.0 / frames_per_second
+        bpy.scene.render.fps = frames_per_second
 
         # Coordinates of the vertices
         self.vertex_coordinates = Storage.V3dStorage()
