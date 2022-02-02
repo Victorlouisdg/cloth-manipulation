@@ -7,7 +7,7 @@ from .material import Material
 # The fabric thicknesses are from Table 1, row 6
 
 cotton = Material(
-    name="Cotton Penava",
+    name="cotton penava",
     youngs_modulus=0.821e6,
     poissons_ratio=0.243,
     density_planar=0.1503,
@@ -15,7 +15,7 @@ cotton = Material(
 )
 
 wool = Material(
-    name="Wool Penava",
+    name="wool penava",
     youngs_modulus=0.170e6,
     poissons_ratio=0.277,
     density_planar=0.2348,
@@ -23,7 +23,7 @@ wool = Material(
 )
 
 wool_lycra = Material(
-    name="Wool+Lycra Penava",
+    name="wool+lycra penava",
     youngs_modulus=0.076e6,
     poissons_ratio=0.071,
     density_planar=0.1782,
@@ -31,7 +31,7 @@ wool_lycra = Material(
 )
 
 polyester = Material(
-    name="Polyester Penava",
+    name="polyester penava",
     youngs_modulus=0.478e6,
     poissons_ratio=0.381,
     density_planar=0.1646,
@@ -39,3 +39,4 @@ polyester = Material(
 )
 
 materials = [cotton, wool, wool_lycra, polyester]
+materials_by_name = {m.name: m for m in materials}
