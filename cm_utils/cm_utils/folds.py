@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+import airo_blender_toolkit as abt
 import bpy
 import numpy as np
 from mathutils import Matrix, Vector
@@ -104,6 +105,9 @@ class Fold(ABC):
                 v.co = co
 
         return cloth_folded
+
+    def visualize_fold_basis(self, scale=0.1):
+        abt.visualize_transform(self.fold_basis, scale)
 
 
 class SidedFold(Fold):
