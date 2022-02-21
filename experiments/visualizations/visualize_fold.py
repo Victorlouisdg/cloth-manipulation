@@ -5,8 +5,9 @@
 
 import airo_blender_toolkit as abt
 import bpy
+import numpy as np
 
-from cm_utils.folds import SleeveFold
+from cm_utils.folds_old import SleeveFold
 
 keypoint_ids_cloth = {
     "left_shoulder": 1121,
@@ -48,6 +49,7 @@ fold = SleeveFold(keypoints, 0.5, 0.5, "left")
 
 # keyframe_locations(empty, poses)
 
-for i in range(0, 101, 10):
-    pose = fold.gripper_pose(i / 100.0)
+
+for completion in np.linspace(0, 1, 10):
+    pose = fold.pose(completion)
     abt.visualize_transform(pose, 0.1)

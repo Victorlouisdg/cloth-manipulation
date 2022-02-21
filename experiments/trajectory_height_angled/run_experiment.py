@@ -15,7 +15,7 @@ import numpy as np
 
 from cm_utils import encode_video, ensure_output_paths, export_as_obj, import_cipc_output, render, save_dict_as_json
 from cm_utils.cipc import Simulation, cipc_action
-from cm_utils.folds import MiddleFold, SideFold, SleeveFold
+from cm_utils.folds_old import MiddleFold, SideFold, SleeveFold
 from cm_utils.grasp import update_active_grippers
 
 # Currently the vertex ids of the keypoints in the meshes are hardcoded.

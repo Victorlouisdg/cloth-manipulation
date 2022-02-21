@@ -1,16 +1,8 @@
 from abc import ABC, abstractmethod
 
 import numpy as np
+from airo_blender_toolkit import homogeneous_transform
 from scipy.spatial.transform import Rotation
-
-
-def homogeneous_transform(x_column, y_column, z_column, translation):
-    matrix = np.identity(4)
-    matrix[0:3, 0] = x_column
-    matrix[0:3, 1] = y_column
-    matrix[0:3, 2] = z_column
-    matrix[0:3, 3] = translation
-    return matrix
 
 
 class CartesianPath(ABC):
@@ -59,25 +51,25 @@ class CircularArcPath(CartesianPath):
         return pose
 
 
-class TimeParametrizaion:
-    pass
+# class TimeParametrizaion:
+#     pass
 
 
-class EasedArcLength(TimeParametrizaion):
-    pass
+# class EasedArcLength(TimeParametrizaion):
+#     pass
 
 
-class CartesianTrajectory:
-    """A trajectory is a time parametirzed path."""
+# class CartesianTrajectory:
+#     """A trajectory is a time parametirzed path."""
 
-    def __init__(self):
-        pass
+#     def __init__(self):
+#         pass
 
-        self.cartsian_path = 0
-        self.time_parametrization = 0
+#         self.cartsian_path = 0
+#         self.time_parametrization = 0
 
-    def pose(completion=0.5):
-        pass
+#     def pose(completion=0.5):
+#         pass
 
 
 # class EasedCircleTrajectory():

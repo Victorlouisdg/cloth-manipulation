@@ -1,13 +1,4 @@
-import numpy as np
 from mathutils import Matrix
-from scipy.spatial.transform import Rotation
-
-
-def rotate_point(point, rotation_origin, rotation_axis, angle):
-    unit_axis = rotation_axis / np.linalg.norm(rotation_axis)
-    rotation = Rotation.from_rotvec(angle * unit_axis)
-    point_new = rotation.as_matrix() @ (point - rotation_origin) + rotation_origin
-    return point_new
 
 
 def vectors_to_matrix_4x4(x_column, y_column, z_column, translation):
