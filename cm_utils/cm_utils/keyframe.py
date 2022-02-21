@@ -1,12 +1,24 @@
+import bpy
 from scipy.spatial.transform import Rotation, Slerp
 
 from cm_utils.geometry import update_4x4_with_3x3
 
 
 def keyframe_locations(object, poses):
+    frame_min = float("inf")
+    original_pose = None
     for frame, pose in poses.items():
         object.matrix_world = pose
         object.keyframe_insert(data_path="location", frame=frame)
+
+        if frame < frame_min:
+            frame_min = frame
+            original_pose = pose
+            print("frame_min frame", frame_min)
+    object.matrix_world = original_pose
+    bpy.context.view_layer.update()
+
+    print(original_pose)
 
 
 def keyframe_orientations(object, poses):

@@ -54,8 +54,13 @@ class Fold(ABC):
         M = Matrix.Rotation(np.deg2rad(180), 4, "X") @ M
         M = fold_basis @ M
         end_pose = M
-        end_pose.col[3][2] = 0.05
+        # end_pose.col[3][2] = 0.05 # raised endpoint
         return end_pose
+
+    def gripper_pose(self, fold_completion=0.5):
+        # TODO get fractional pose of gripper between start and end of fold
+        f = fold_completion
+        return (1 - f) * self.gripper_start_pose + f * self.gripper_end_pose
 
     def make_gripper(self):
         """Makes a new Blender object that can serve as gripper.
