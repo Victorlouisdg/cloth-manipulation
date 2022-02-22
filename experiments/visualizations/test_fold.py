@@ -32,7 +32,7 @@ fold = SleeveFold(keypoints, "left")
 
 print(fold.gripper_start_pose())
 
-fold_path = CircularArcFoldPath(fold)
+fold_path = CircularArcFoldPath(fold, orientation_mode="slerp")
 
 for completion in np.linspace(0, 1, 10):
     pose = fold_path.pose(completion)
