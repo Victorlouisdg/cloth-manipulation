@@ -14,7 +14,7 @@ def keyframe_trajectory(object: bpy.types.Object, trajectory: Trajectory, start_
         object.matrix_world = Matrix(pose)
         object.keyframe_insert(data_path="location", frame=i)
         object.keyframe_insert(data_path="rotation_euler", frame=i)
-    object.matrix_world = Matrix(trajectory.pose(0.0))
+    object.matrix_world = Matrix(trajectory.start())
     bpy.context.view_layer.update()
 
 

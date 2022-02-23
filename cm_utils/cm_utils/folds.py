@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 import airo_blender_toolkit as abt
 import numpy as np
 
-from cm_utils.path import CircularArcPath
+from cm_utils.path import CircularArcPath, EllipticalArcPath, TiltedEllipticalArcPath
 from cm_utils.time_parametrization import MinimumJerk
 from cm_utils.trajectory import Trajectory
 
@@ -78,5 +78,25 @@ class CircularArcFoldTrajectory(Trajectory):
     def __init__(self, fold, end_angle=170, orientation_mode="rotated"):
         path = CircularArcPath(
             fold.gripper_start_pose(), *fold.fold_line(), end_angle=end_angle, orientation_mode=orientation_mode
+        )
+        super().__init__(path, MinimumJerk())
+
+
+class EllipticalArcFoldTrajectory(Trajectory):
+    def __init__(self, fold, end_angle=170, orientation_mode="rotated"):
+        path = EllipticalArcPath(
+            fold.gripper_start_pose(), *fold.fold_line(), end_angle=end_angle, orientation_mode=orientation_mode
+        )
+        super().__init__(path, MinimumJerk())
+
+
+class TiltedEllipticalArcFoldTrajectory(Trajectory):
+    def __init__(self, fold, end_angle=170, orientation_mode="rotated", tilt_angle=30):
+        path = TiltedEllipticalArcPath(
+            fold.gripper_start_pose(),
+            *fold.fold_line(),
+            end_angle=end_angle,
+            orientation_mode=orientation_mode,
+            tilt_angle=tilt_angle,
         )
         super().__init__(path, MinimumJerk())
