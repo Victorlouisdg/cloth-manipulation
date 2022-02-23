@@ -3,7 +3,9 @@ from abc import ABC, abstractmethod
 import airo_blender_toolkit as abt
 import numpy as np
 
-from cm_utils.trajectory import CircularArcPath
+from cm_utils.path import CircularArcPath
+from cm_utils.time_parametrization import MinimumJerk
+from cm_utils.trajectory import Trajectory
 
 
 class Fold(ABC):
@@ -72,9 +74,9 @@ class SleeveFold(Fold):
         return start_pose
 
 
-class CircularArcFoldPath(CircularArcPath):
-    def __init__(self, fold, orientation_mode="rotated"):
-        self.fold = fold
-        super().__init__(
-            fold.gripper_start_pose(), *fold.fold_line(), end_angle=180, orientation_mode=orientation_mode
+class CircularArcFoldTrajectory(Trajectory):
+    def __init__(self, fold, end_angle=170, orientation_mode="rotated"):
+        path = CircularArcPath(
+            fold.gripper_start_pose(), *fold.fold_line(), end_angle=end_angle, orientation_mode=orientation_mode
         )
+        super().__init__(path, MinimumJerk())

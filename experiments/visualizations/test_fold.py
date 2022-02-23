@@ -2,7 +2,8 @@ import airo_blender_toolkit as abt
 import bpy
 import numpy as np
 
-from cm_utils.folds import CircularArcFoldPath, SleeveFold
+from cm_utils.folds import CircularArcFoldTrajectory, SleeveFold
+from cm_utils.keyframe import keyframe_trajectory
 
 keypoint_ids_cloth = {
     "left_shoulder": 1121,
@@ -24,15 +25,14 @@ cloth = objects[cloth_name]
 
 cloth_keypointed = abt.KeypointedObject(cloth, keypoint_ids_cloth)
 cloth_keypointed.visualize_keypoints(radius=0.02)
-
-
 keypoints = {name: np.array(cloth.data.vertices[id].co) for name, id in keypoint_ids_cloth.items()}
 
 fold = SleeveFold(keypoints, "left")
-fold_path = CircularArcFoldPath(fold, orientation_mode="slerp")
+fold_trajectory = CircularArcFoldTrajectory(fold, end_angle=135)
 
-for completion in np.linspace(0, 1, 10):
-    pose = fold_path.pose(completion)
-    abt.visualize_transform(pose, 0.1)
+for time_completion in np.linspace(0, 1, 20):
+    pose = fold_trajectory.pose(time_completion)
+    abt.visualize_transform(pose, 0.05)
 
-fold_path.check_arc_length_parametrization()
+empty = abt.visualize_transform(fold_trajectory.pose(0.0), 0.1)
+keyframe_trajectory(empty, fold_trajectory, 0, 100)

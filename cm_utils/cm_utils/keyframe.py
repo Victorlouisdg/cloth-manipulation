@@ -1,7 +1,21 @@
 import bpy
+from mathutils import Matrix
 from scipy.spatial.transform import Rotation, Slerp
 
 from cm_utils.geometry import update_4x4_with_3x3
+from cm_utils.trajectory import Trajectory
+
+
+def keyframe_trajectory(object: bpy.types.Object, trajectory: Trajectory, start_frame: int, end_frame: int):
+    n_frames = (end_frame - start_frame) + 1
+    for i in range(n_frames):
+        time_completion = float(i) / (n_frames - 1)
+        pose = trajectory.pose(time_completion)
+        object.matrix_world = Matrix(pose)
+        object.keyframe_insert(data_path="location", frame=i)
+        object.keyframe_insert(data_path="rotation_euler", frame=i)
+    object.matrix_world = Matrix(trajectory.pose(0.0))
+    bpy.context.view_layer.update()
 
 
 def keyframe_locations(object, poses):
@@ -14,11 +28,8 @@ def keyframe_locations(object, poses):
         if frame < frame_min:
             frame_min = frame
             original_pose = pose
-            print("frame_min frame", frame_min)
     object.matrix_world = original_pose
     bpy.context.view_layer.update()
-
-    print(original_pose)
 
 
 def keyframe_orientations(object, poses):
