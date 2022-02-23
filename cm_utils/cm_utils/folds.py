@@ -75,7 +75,6 @@ class SleeveFold(Fold):
 class CircularArcFoldPath(CircularArcPath):
     def __init__(self, fold, orientation_mode="rotated"):
         self.fold = fold
-        print(fold.gripper_start_pose())
         super().__init__(
             fold.gripper_start_pose(), *fold.fold_line(), end_angle=180, orientation_mode=orientation_mode
         )

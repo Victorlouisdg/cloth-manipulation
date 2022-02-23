@@ -29,11 +29,10 @@ cloth_keypointed.visualize_keypoints(radius=0.02)
 keypoints = {name: np.array(cloth.data.vertices[id].co) for name, id in keypoint_ids_cloth.items()}
 
 fold = SleeveFold(keypoints, "left")
-
-print(fold.gripper_start_pose())
-
 fold_path = CircularArcFoldPath(fold, orientation_mode="slerp")
 
 for completion in np.linspace(0, 1, 10):
     pose = fold_path.pose(completion)
     abt.visualize_transform(pose, 0.1)
+
+fold_path.check_arc_length_parametrization()
