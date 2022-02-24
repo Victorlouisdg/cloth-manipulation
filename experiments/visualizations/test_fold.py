@@ -1,9 +1,9 @@
 import airo_blender_toolkit as abt
 import bpy
 import numpy as np
+from airo_blender_toolkit.keyframe import keyframe_trajectory
 
 from cm_utils.folds import EllipticalFoldTrajectory, SleeveFold
-from cm_utils.keyframe import keyframe_trajectory
 
 keypoint_ids_cloth = {
     "left_shoulder": 1121,
@@ -26,6 +26,8 @@ cloth = objects[cloth_name]
 cloth_keypointed = abt.KeypointedObject(cloth, keypoint_ids_cloth)
 cloth_keypointed.visualize_keypoints(radius=0.02)
 keypoints = {name: np.array(cloth.data.vertices[id].co) for name, id in keypoint_ids_cloth.items()}
+
+print(abt.Frame(np.identity(4)).shape)
 
 fold = SleeveFold(keypoints, "left")
 

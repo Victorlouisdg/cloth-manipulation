@@ -2,10 +2,9 @@ from abc import ABC, abstractmethod
 
 import airo_blender_toolkit as abt
 import numpy as np
-
-from cm_utils.path import CircularArcPath, EllipticalArcPath, TiltedEllipticalArcPath
-from cm_utils.time_parametrization import MinimumJerk
-from cm_utils.trajectory import Trajectory
+from airo_blender_toolkit.path import TiltedEllipticalArcPath
+from airo_blender_toolkit.time_parametrization import MinimumJerk
+from airo_blender_toolkit.trajectory import Trajectory
 
 
 class Fold(ABC):
@@ -70,33 +69,19 @@ class SleeveFold(Fold):
         Z /= np.linalg.norm(Z)
         Y = np.cross(Z, X)
 
-        start_pose = abt.homogeneous_transform(X, Y, Z, sleeve_middle)
+        start_pose = abt.Frame.from_vectors(X, Y, Z, sleeve_middle)
+
         return start_pose
 
 
-class CircularArcFoldTrajectory(Trajectory):
-    def __init__(self, fold, end_angle=170, orientation_mode="rotated"):
-        path = CircularArcPath(
-            fold.gripper_start_pose(), *fold.fold_line(), end_angle=end_angle, orientation_mode=orientation_mode
-        )
-        super().__init__(path, MinimumJerk())
-
-
-class EllipticalArcFoldTrajectory(Trajectory):
-    def __init__(self, fold, end_angle=170, orientation_mode="rotated"):
-        path = EllipticalArcPath(
-            fold.gripper_start_pose(), *fold.fold_line(), end_angle=end_angle, orientation_mode=orientation_mode
-        )
-        super().__init__(path, MinimumJerk())
-
-
-class TiltedEllipticalArcFoldTrajectory(Trajectory):
-    def __init__(self, fold, end_angle=170, orientation_mode="rotated", tilt_angle=30):
+class EllipticalFoldTrajectory(Trajectory):
+    def __init__(self, fold, end_angle=170, scale=1.0, tilt_angle=0, orientation_mode="rotated"):
         path = TiltedEllipticalArcPath(
             fold.gripper_start_pose(),
             *fold.fold_line(),
             end_angle=end_angle,
-            orientation_mode=orientation_mode,
+            scale=scale,
             tilt_angle=tilt_angle,
+            orientation_mode=orientation_mode,
         )
         super().__init__(path, MinimumJerk())

@@ -2,8 +2,7 @@ import glob
 import os
 
 import bpy
-
-from cm_utils.keyframe import keyframe_visibility
+from airo_blender_toolkit.keyframe import keyframe_visibility
 
 
 def import_cipc_output(cipc_output_dir, frame):
