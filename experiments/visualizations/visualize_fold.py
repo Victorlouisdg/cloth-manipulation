@@ -5,7 +5,6 @@
 
 import airo_blender_toolkit as abt
 import bpy
-import numpy as np
 
 from cm_utils.folds_old import SleeveFold
 
@@ -30,7 +29,6 @@ cloth = objects[cloth_name]
 cloth_keypointed = abt.KeypointedObject(cloth, keypoint_ids_cloth)
 cloth_keypointed.visualize_keypoints(radius=0.02)
 
-
 keypoints = {name: cloth.data.vertices[id].co for name, id in keypoint_ids_cloth.items()}
 
 fold = SleeveFold(keypoints, 0.5, 0.5, "left")
@@ -50,6 +48,6 @@ fold = SleeveFold(keypoints, 0.5, 0.5, "left")
 # keyframe_locations(empty, poses)
 
 
-for completion in np.linspace(0, 1, 10):
-    pose = fold.pose(completion)
-    abt.visualize_transform(pose, 0.1)
+# for completion in np.linspace(0, 1, 10):
+#     pose = fold.pose(completion)
+#     abt.visualize_transform(pose, 0.1)

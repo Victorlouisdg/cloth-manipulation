@@ -36,14 +36,10 @@ configs = [
     (0.25, 60),
 ]
 
+
 for height_ratio, tilt_angle in configs:
     fold_trajectory = BezierFoldTrajectory(fold, height_ratio, tilt_angle)
 
-    # for time_completion in np.linspace(0, 1, 20):
-    #     pose = fold_trajectory.pose(time_completion)
-    #     abt.visualize_transform(pose, 0.05)
-
-    # empty = abt.visualize_transform(fold_trajectory.start, 0.1)
-    # keyframe_trajectory(empty, fold_trajectory, 0, 100)
-
-    abt.visualize_path(fold_trajectory)
+    for time_completion in np.linspace(0, 1, 100):
+        pose = fold_trajectory.pose(time_completion)
+        abt.visualize_transform(pose, 0.05)

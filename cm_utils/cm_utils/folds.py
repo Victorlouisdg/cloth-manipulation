@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 import airo_blender_toolkit as abt
 import numpy as np
-from airo_blender_toolkit.path import TiltedEllipticalArcPath
+from airo_blender_toolkit.path import BezierPath, TiltedEllipticalArcPath
 from airo_blender_toolkit.time_parametrization import MinimumJerk
 from airo_blender_toolkit.trajectory import Trajectory
 
@@ -85,3 +85,32 @@ class EllipticalFoldTrajectory(Trajectory):
             orientation_mode=orientation_mode,
         )
         super().__init__(path, MinimumJerk())
+
+
+class BezierFoldTrajectory(Trajectory):
+    def __init__(self, fold, height_ratio=1.0, tilt_angle=0, early_stop=0.95):
+        start_pose = fold.gripper_start_pose()
+
+        # Mimic end pose of half circular arc
+        ciruclar_trajectory = EllipticalFoldTrajectory(fold, end_angle=179)  # 179 because SLERP is ambiguous for 180
+        end_pose = ciruclar_trajectory.path.end
+
+        start_position = start_pose.position
+        end_position = end_pose.position
+
+        start_to_end_distance = np.linalg.norm(start_position - end_position)
+        mid_position = (start_position + end_position) / 2.0
+        # Note that we do not halve this distance, because the curve will lie
+        # halfway between the control point and the ground
+        raised_mid_position = mid_position.copy()
+        raised_mid_position[2] = height_ratio * start_to_end_distance
+
+        tilted_mid_position = abt.rotate_point(
+            raised_mid_position, mid_position, start_position - end_position, np.deg2rad(tilt_angle)
+        )
+
+        control_points = [start_position, tilted_mid_position, end_position]
+
+        # TODO: consider allowing control points to be full poses and interpolation orienation
+        path = BezierPath(control_points, start_pose.orientation, end_pose.orientation)
+        super().__init__(path, MinimumJerk(), early_stop=early_stop)
