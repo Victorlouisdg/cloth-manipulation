@@ -32,8 +32,8 @@ fold = SleeveFold(keypoints, "left")
 configs = [
     (1.0, 0),
     (0.25, 0),
-    (1.0, 60),
-    (0.25, 60),
+    (1.0, -60),
+    (0.25, -60),
 ]
 
 for height_ratio, tilt_angle in configs:
