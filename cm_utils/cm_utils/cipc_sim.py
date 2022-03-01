@@ -308,7 +308,14 @@ class SimulationCIPC:
         for _ in range(amount_of_steps):
             self.step({})
 
-    def step(self, action):
+    def step(self, action: dict[int, list] = {}):
+        """Advance the simulation a single time step. The action argument can be used to script the motion of several
+        vertices. Action should be a dictionary that maps a vertex index to the velocity the vertex should have during
+        the following time step.
+
+        Args:
+            action (dict[int, list]): dictionary that maps vertex indices to velocities.
+        """
         if not self.cipc_initialized:
             self.initialize_cipc()
 
@@ -389,5 +396,3 @@ class SimulationCIPC:
         self.save_current_state_to_disk()
         TIMER_FLUSH(0, 100, self.timestep_size, self.timestep_size)
         self.import_cipc_output_from_disk_to_blender(self.current_frame)
-
-        # import .obj files back into blender
