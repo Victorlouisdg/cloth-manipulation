@@ -7,7 +7,7 @@ import bpy
 from mathutils import Vector
 
 from cm_utils.cipc_sim import SimulationCIPC
-from cm_utils.dirs import ensure_output_paths
+from cm_utils.dirs import ensure_output_filepaths
 from cm_utils.materials.penava import materials_by_name
 
 os.environ.setdefault("INSIDE_OF_THE_INTERNAL_BLENDER_PYTHON_ENVIRONMENT", "1")
@@ -35,7 +35,7 @@ def run_drape_simulation(sphere_radius, cloth_size, cloth_subdivisions, cloth_ma
     cloth = make_square_cloth(cloth_size, cloth_subdivisions, (0, 0, 1.1 * sphere_radius))
     cloth.blender_obj.name = "cloth"
 
-    paths = ensure_output_paths()
+    paths = ensure_output_filepaths()
 
     simulation = SimulationCIPC(paths, 25)
     simulation.add_collider(sphere.blender_obj, friction_coefficient=0.4)

@@ -115,7 +115,7 @@ class EllipticalFoldTrajectory(Trajectory):
 
 
 class BezierFoldTrajectory(Trajectory):
-    def __init__(self, fold, height_ratio=1.0, tilt_angle=0, early_stop=0.95):
+    def __init__(self, fold, height_ratio=1.0, tilt_angle=0):
         start_pose = fold.gripper_start_pose()
 
         # Mimic end pose of circular arc
@@ -132,7 +132,7 @@ class BezierFoldTrajectory(Trajectory):
         # Note that we do not halve this distance, because the curve will lie
         # halfway between the control point and the ground
         raised_mid_position = mid_position.copy()
-        raised_mid_position[2] = height_ratio * start_to_fold_line_distance * 2
+        raised_mid_position[2] += height_ratio * start_to_fold_line_distance * 2
 
         start_to_end = end_position - start_position
 

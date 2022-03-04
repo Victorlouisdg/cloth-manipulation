@@ -11,6 +11,7 @@ sys.path.insert(0, CIPC_PYTHON_PATH)
 sys.path.insert(0, CIPC_BUILD_PATH)
 
 import bpy
+from airo_blender_toolkit.keyframe import keyframe_visibility
 from JGSL import (
     CSR_MATRIX_D,
     FEM,
@@ -33,7 +34,6 @@ from JGSL import (
 )
 
 from cm_utils import export_as_obj
-from cm_utils.keyframe import keyframe_visibility
 
 translation0 = Vector3d(0, 0, 0)
 scale1 = Vector3d(1, 1, 1)
@@ -51,10 +51,10 @@ identity_transform = (
 
 
 class SimulationCIPC:
-    def __init__(self, paths, frames_per_second):
-        self.paths = paths
+    def __init__(self, filepaths, frames_per_second):
+        self.filepaths = filepaths
 
-        self.output_folder = paths["cipc"]
+        self.output_folder = filepaths["cipc"]
 
         self.blender_objects_input = []
         self.blender_objects_output = {}
@@ -183,10 +183,10 @@ class SimulationCIPC:
         self.blender_objects_input.append(object)
 
         # TODO triangulate if necessary
-        file_path = export_as_obj(object, self.paths["run"])
+        filepath = export_as_obj(object, self.filepaths["run"])
         # TODO read object transform, ignored for now
         index_range = FEM.DiscreteShell.Add_Shell(
-            file_path,
+            filepath,
             *identity_transform,
             self.vertex_coordinates,
             self.triangles,

@@ -16,7 +16,7 @@ import numpy as np
 from cm_utils import (
     calcucate_velocities,
     encode_video,
-    ensure_output_paths,
+    ensure_output_filepaths,
     export_as_obj,
     get_grasped_verts_trajectories,
     import_cipc_outputs,
@@ -29,7 +29,7 @@ from cm_utils.cipc import simulate
 
 def run_experiment(height, run_dir=None):
     config = {"height": height}
-    paths = ensure_output_paths(run_dir, config=config)
+    paths = ensure_output_filepaths(run_dir, config=config)
     save_dict_as_json(paths["config"], config)
 
     # Selecting the relevant objects

@@ -9,7 +9,7 @@ def save_dict_as_json(path, dict):
         json.dump(dict, f)
 
 
-def ensure_output_paths(run_dir=None, config=None):
+def ensure_output_filepaths(run_dir=None, config=None):
     if run_dir is None:
         caller_filepath = inspect.stack()[1].filename
         caller_dirpath = os.path.dirname(caller_filepath)

@@ -13,7 +13,14 @@ import sys
 import bpy
 import numpy as np
 
-from cm_utils import encode_video, ensure_output_paths, export_as_obj, import_cipc_output, render, save_dict_as_json
+from cm_utils import (
+    encode_video,
+    ensure_output_filepaths,
+    export_as_obj,
+    import_cipc_output,
+    render,
+    save_dict_as_json,
+)
 from cm_utils.cipc import Simulation, cipc_action
 from cm_utils.folds_old import MiddleFold, SideFold, SleeveFold
 from cm_utils.grasp import update_active_grippers
@@ -53,7 +60,7 @@ keypoint_ids = {
 
 def run_experiment(height_ratio, offset_ratio, run_dir=None):
     config = {"height_ratio": height_ratio, "offset_ratio": offset_ratio}
-    paths = ensure_output_paths(run_dir, config=config)
+    paths = ensure_output_filepaths(run_dir, config=config)
     save_dict_as_json(paths["config"], config)
 
     # Selecting the relevant objects
