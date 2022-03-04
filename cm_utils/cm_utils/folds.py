@@ -37,8 +37,8 @@ class SleeveFold(Fold):
         left_or_right = self.left_or_right
         angle = self.angle
 
-        armpit = keypoints[f"{left_or_right}_armpit"]
-        corner_bottom = keypoints[f"{left_or_right}_corner_bottom"]
+        armpit = keypoints[f"armpit_{left_or_right}"]
+        corner_bottom = keypoints[f"bottom_{left_or_right}"]
 
         if left_or_right == "left":
             angle = 180 - angle
@@ -58,10 +58,10 @@ class SleeveFold(Fold):
         keypoints = self.keypoints
         left_or_right = self.left_or_right
 
-        sleeve_top = keypoints[f"{left_or_right}_sleeve_top"]
-        sleeve_bottom = keypoints[f"{left_or_right}_sleeve_bottom"]
-        shoulder = keypoints[f"{left_or_right}_shoulder"]
-        armpit = keypoints[f"{left_or_right}_armpit"]
+        sleeve_top = keypoints[f"sleeve_top_{left_or_right}"]
+        sleeve_bottom = keypoints[f"sleeve_bottom_{left_or_right}"]
+        shoulder = keypoints[f"shoulder_{left_or_right}"]
+        armpit = keypoints[f"armpit_{left_or_right}"]
         sleeve_middle = (sleeve_top + sleeve_bottom) / 2
         shoulder_middle = (shoulder + armpit) / 2
 
