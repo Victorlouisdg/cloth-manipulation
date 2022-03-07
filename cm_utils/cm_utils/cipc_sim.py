@@ -31,6 +31,7 @@ from JGSL import (
     Vector2d,
     Vector3d,
     Vector4d,
+    Vector4i,
 )
 
 from cm_utils import export_as_obj
@@ -48,6 +49,10 @@ identity_transform = (
     rotation_axis1,
     rotation_angle0,
 )
+
+
+def to_Vector3d(v):
+    return Vector3d(v[0], v[2], -v[1])
 
 
 class SimulationCIPC:
@@ -325,6 +330,44 @@ class SimulationCIPC:
 
         self.DBC = Storage.V4dStorage()
         self.DBCMotion = Storage.V2iV3dV3dV3dSdStorage()
+        print("STEP")
+        print(action)
+        for vertex_id, velocity in action.items():
+            print(vertex_id)
+            # index_range = (vertex_id, vertex_id + 1)
+            index_range = Vector4i(vertex_id, 0, vertex_id + 1, -1)
+            positions_min = Vector3d(-100, -100, -100)
+            positions_max = Vector3d(100, 100, 100)
+            rotation = (Vector3d(0, 0, 0), Vector3d(0, 1, 0), 0)
+            # velocity = Vector3d(0, 0, 0)
+
+            # velocity = [0, 0, 0.5]
+
+            print(velocity)
+
+            DBC = (
+                positions_min,
+                positions_max,
+                to_Vector3d(velocity),
+                *rotation,
+                index_range,
+            )
+
+            DBCRangeMin, DBCRangeMax, v, rotCenter, rotAxis, angVelDeg, vIndRange = DBC
+
+            FEM.Init_Dirichlet(
+                self.vertex_coordinates,
+                DBCRangeMin,
+                DBCRangeMax,
+                v,
+                rotCenter,
+                rotAxis,
+                angVelDeg,
+                self.DBC,
+                self.DBCMotion,
+                vIndRange,
+            )
+
         for DBC in self.static_object_DBCs:
             DBCRangeMin, DBCRangeMax, v, rotCenter, rotAxis, angVelDeg, vIndRange = DBC
 
@@ -346,6 +389,8 @@ class SimulationCIPC:
 
         # thickness = 0.01
         # self.thickness_elastic_squared = thickness * thickness
+
+        FEM.Step_Dirichlet(self.DBCMotion, self.timestep_size, self.DBC)
 
         FEM.DiscreteShell.Advance_One_Step_IE_Hinge(
             self.triangles,
@@ -395,4 +440,7 @@ class SimulationCIPC:
         self.current_frame += 1
         self.save_current_state_to_disk()
         TIMER_FLUSH(0, 100, self.timestep_size, self.timestep_size)
+
+        print("Importing", self.current_frame)
+
         self.import_cipc_output_from_disk_to_blender(self.current_frame)

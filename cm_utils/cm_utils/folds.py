@@ -27,20 +27,20 @@ class Fold(ABC):
 
 
 class SleeveFold(Fold):
-    def __init__(self, keypoints, left_or_right, angle=30):
-        self.left_or_right = left_or_right
+    def __init__(self, keypoints, side, angle=30):
+        self.side = side
         self.angle = angle
         super().__init__(keypoints)
 
     def fold_line(self):
         keypoints = self.keypoints
-        left_or_right = self.left_or_right
+        side = self.side
         angle = self.angle
 
-        armpit = keypoints[f"armpit_{left_or_right}"]
-        corner_bottom = keypoints[f"bottom_{left_or_right}"]
+        armpit = keypoints[f"armpit_{side}"]
+        corner_bottom = keypoints[f"bottom_{side}"]
 
-        if left_or_right == "left":
+        if side == "left":
             angle = 180 - angle
 
         angle = np.deg2rad(angle)
@@ -56,12 +56,12 @@ class SleeveFold(Fold):
 
     def gripper_start_pose(self):
         keypoints = self.keypoints
-        left_or_right = self.left_or_right
+        side = self.side
 
-        sleeve_top = keypoints[f"sleeve_top_{left_or_right}"]
-        sleeve_bottom = keypoints[f"sleeve_bottom_{left_or_right}"]
-        shoulder = keypoints[f"shoulder_{left_or_right}"]
-        armpit = keypoints[f"armpit_{left_or_right}"]
+        sleeve_top = keypoints[f"sleeve_top_{side}"]
+        sleeve_bottom = keypoints[f"sleeve_bottom_{side}"]
+        shoulder = keypoints[f"shoulder_{side}"]
+        armpit = keypoints[f"armpit_{side}"]
         sleeve_middle = (sleeve_top + sleeve_bottom) / 2
         shoulder_middle = (shoulder + armpit) / 2
 
