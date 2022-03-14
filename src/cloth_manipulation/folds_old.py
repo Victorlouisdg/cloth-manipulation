@@ -3,10 +3,10 @@ from abc import ABC, abstractmethod
 import airo_blender_toolkit as abt
 import bpy
 import numpy as np
+from cm_utils.keyframe import keyframe_locations, keyframe_orientations, keyframe_visibility
 from mathutils import Matrix, Vector
 
-from cm_utils.geometry import rotate_point, vectors_to_matrix_4x4
-from cm_utils.keyframe import keyframe_locations, keyframe_orientations, keyframe_visibility
+from cloth_manipulation.geometry import rotate_point, vectors_to_matrix_4x4
 
 
 class Fold(ABC):

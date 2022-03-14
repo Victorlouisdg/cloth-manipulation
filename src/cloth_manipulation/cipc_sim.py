@@ -1,7 +1,7 @@
 import os
 import sys
 
-from cm_utils.materials.material import Material
+from cloth_manipulation.materials.material import Material
 
 CIPC_PATH = "../../Codim-IPC"
 CIPC_PYTHON_PATH = os.path.join(CIPC_PATH, "Python")
@@ -34,7 +34,7 @@ from JGSL import (
     Vector4i,
 )
 
-from cm_utils import export_as_obj
+from cloth_manipulation import export_as_obj
 
 translation0 = Vector3d(0, 0, 0)
 scale1 = Vector3d(1, 1, 1)

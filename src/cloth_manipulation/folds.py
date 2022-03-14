@@ -25,6 +25,31 @@ class Fold(ABC):
     def gripper_start_pose(self):
         pass
 
+    def make_target_mesh(self, cloth, cloth_thickness=0.001):
+        cloth_folded = cloth.copy()
+        cloth_folded.data = cloth.data.copy()
+        bpy.context.collection.objects.link(cloth_folded)
+        cloth_folded.name = f"{cloth.name} Target"
+
+        origin, X = self.fold_line()
+        Z = np.array([0.0, 0.0, 1.0])
+        Y = np.cross(Z, X)
+        basis = abt.Frame.from_vectors(X, Y, Z, origin)
+        basis_inv = Matrix(np.linalg.inv(basis))
+        basis = Matrix(basis)
+
+        for v in cloth_folded.data.vertices:
+            co = v.co
+            co = basis_inv @ co
+
+            if co.y >= 0.0:
+                co.y *= -1
+                co.z += cloth_thickness
+                co = basis @ co
+                v.co = co
+
+        return cloth_folded
+
 
 class SleeveFold(Fold):
     def __init__(self, keypoints, side, angle=30):
@@ -74,31 +99,6 @@ class SleeveFold(Fold):
         start_pose = abt.Frame.from_vectors(X, Y, Z, sleeve_middle)
 
         return start_pose
-
-    def make_target_mesh(self, cloth, cloth_thickness=0.001):
-        cloth_folded = cloth.copy()
-        cloth_folded.data = cloth.data.copy()
-        bpy.context.collection.objects.link(cloth_folded)
-        cloth_folded.name = f"{cloth.name} Target"
-
-        origin, X = self.fold_line()
-        Z = np.array([0.0, 0.0, 1.0])
-        Y = np.cross(Z, X)
-        basis = abt.Frame.from_vectors(X, Y, Z, origin)
-        basis_inv = Matrix(np.linalg.inv(basis))
-        basis = Matrix(basis)
-
-        for v in cloth_folded.data.vertices:
-            co = v.co
-            co = basis_inv @ co
-
-            if co.y >= 0.0:
-                co.y *= -1
-                co.z += cloth_thickness
-                co = basis @ co
-                v.co = co
-
-        return cloth_folded
 
 
 class EllipticalFoldTrajectory(Trajectory):
