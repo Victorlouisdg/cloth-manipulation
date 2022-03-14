@@ -4,11 +4,10 @@ import sys
 
 import airo_blender_toolkit as abt
 import bpy
-from mathutils import Vector
-
 from cm_utils.cipc_sim import SimulationCIPC
 from cm_utils.dirs import ensure_output_filepaths
 from cm_utils.materials.penava import materials_by_name
+from mathutils import Vector
 
 os.environ.setdefault("INSIDE_OF_THE_INTERNAL_BLENDER_PYTHON_ENVIRONMENT", "1")
 

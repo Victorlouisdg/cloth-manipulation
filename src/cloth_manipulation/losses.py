@@ -7,7 +7,6 @@ def distances(positions0, positions1):
 
 def mean_distance(positions0, positions1):
     distances_ = distances(positions0, positions1)
-    print(distances_)
     return distances_.mean(axis=0)
 
 

@@ -5,7 +5,6 @@
 
 import airo_blender_toolkit as abt
 import bpy
-
 from cm_utils.folds_old import SleeveFold
 
 keypoint_ids_cloth = {

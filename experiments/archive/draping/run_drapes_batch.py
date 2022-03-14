@@ -3,9 +3,8 @@ import sys
 
 sys.path.append(os.path.dirname(__file__))
 
-from simulate_drape import run_drape_simulation
-
 from cm_utils.materials.penava import materials
+from simulate_drape import run_drape_simulation
 
 for material in materials:
     run_drape_simulation(

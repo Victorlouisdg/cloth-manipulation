@@ -12,7 +12,6 @@ import sys
 
 import bpy
 import numpy as np
-
 from cm_utils import (
     calcucate_velocities,
     encode_video,

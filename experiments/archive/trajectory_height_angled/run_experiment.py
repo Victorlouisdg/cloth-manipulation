@@ -12,7 +12,6 @@ import sys
 
 import bpy
 import numpy as np
-
 from cm_utils import (
     encode_video,
     ensure_output_filepaths,

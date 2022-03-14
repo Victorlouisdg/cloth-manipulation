@@ -13,7 +13,7 @@ def ensure_output_filepaths(run_dir=None, config=None):
     if run_dir is None:
         caller_filepath = inspect.stack()[1].filename
         caller_dirpath = os.path.dirname(caller_filepath)
-        print(caller_filepath)
+        caller_filename = os.path.basename(caller_filepath).split(".py")[0]
 
         experiment_output_dir = os.path.join(caller_dirpath, "output")
 
@@ -21,7 +21,7 @@ def ensure_output_filepaths(run_dir=None, config=None):
             os.mkdir(experiment_output_dir)
 
         if config is None:
-            run_dir = os.path.join(experiment_output_dir, str(datetime.datetime.now()))
+            run_dir = os.path.join(experiment_output_dir, f"{caller_filename}_{str(datetime.datetime.now())}")
         else:
             run_dirname = "_".join(["=".join([str(k), str(v)]) for k, v in config.items()])
             run_dir = os.path.join(experiment_output_dir, run_dirname)
@@ -30,8 +30,6 @@ def ensure_output_filepaths(run_dir=None, config=None):
                 run_dir += f"_time={datetime.datetime.now()}"
 
         os.mkdir(run_dir)
-
-    print(run_dir)
 
     paths = {
         "run": run_dir,

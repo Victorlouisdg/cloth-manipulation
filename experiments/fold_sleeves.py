@@ -133,5 +133,5 @@ for object in objects_to_hide:
 
 bpy.ops.wm.save_as_mainfile(filepath=filepaths["blend"])
 
-# # scene.render.filepath = os.path.join(filepaths["run"], "result.png")
-# # bpy.ops.render.render(write_still=True)
+# scene.render.filepath = os.path.join(filepaths["run"], "result.png")
+# bpy.ops.render.render(write_still=True)
