@@ -101,6 +101,61 @@ class SleeveFold(Fold):
         return start_pose
 
 
+class SideFold(Fold):
+    def __init__(self, keypoints, side, gripper_positioning="top"):
+        self.side = side
+        self.gripper_positioning = gripper_positioning
+        super().__init__(keypoints)
+
+    def fold_line(self):
+        keypoints = self.keypoints
+        side = self.side
+
+        shoulder_left = keypoints["shoulder_left"]
+        bottom_left = keypoints["bottom_left"]
+        shoulder_right = keypoints["shoulder_right"]
+        bottom_right = keypoints["bottom_right"]
+
+        if side == "left":
+            line_direction = (shoulder_left - bottom_left).normalized()
+            point_on_line = 0.75 * shoulder_left + 0.25 * shoulder_right
+        else:
+            line_direction = (bottom_right - shoulder_right).normalized()
+            point_on_line = 0.25 * shoulder_left + 0.75 * shoulder_right
+
+        line_direction /= np.linalg.norm(line_direction)
+
+        return point_on_line, line_direction
+
+    def gripper_start_pose(self):
+        keypoints = self.keypoints
+        side = self.side
+        gripper_positioning = self.gripper_positioning
+
+        armpit_left = keypoints["armpit_left"]
+        bottom_left = keypoints["bottom_left"]
+        armpit_right = keypoints["armpit_right"]
+        bottom_right = keypoints["bottom_right"]
+
+        armpit = armpit_left if side == "left" else armpit_right
+        bottom = bottom_left if side == "left" else bottom_right
+
+        left_to_right = (armpit_right - armpit_left).normalized()
+        right_to_left = (armpit_left - armpit_right).normalized()
+
+        gripper_translation = armpit if gripper_positioning == "top" else bottom
+
+        up = np.array([0, 0, 1])
+        X = up
+        Z = left_to_right if side == "left" else right_to_left
+        Z /= np.linalg.norm(Z)
+        Y = np.cross(Z, X)
+
+        start_pose = abt.Frame.from_vectors(X, Y, Z, gripper_translation)
+
+        return start_pose
+
+
 class EllipticalFoldTrajectory(Trajectory):
     def __init__(self, fold, end_angle=170, scale=1.0, tilt_angle=0, orientation_mode="rotated"):
         path = TiltedEllipticalArcPath(
