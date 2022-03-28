@@ -119,6 +119,7 @@ for frame, folds in visualized_folds.items():
     bpy.ops.object.duplicate_move(
         OBJECT_OT_duplicate={"linked": False, "mode": "TRANSLATION"}, TRANSFORM_OT_translate={"value": (x, 1, 0)}
     )
+
     shirt_copy = bpy.context.active_object
     shirt_copy.animation_data_clear()
     x += 1.0

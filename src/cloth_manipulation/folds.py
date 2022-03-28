@@ -111,17 +111,19 @@ class SideFold(Fold):
         keypoints = self.keypoints
         side = self.side
 
-        shoulder_left = keypoints["shoulder_left"]
+        armpit_left = keypoints["armpit_left"]
+        keypoints["shoulder_left"]
         bottom_left = keypoints["bottom_left"]
-        shoulder_right = keypoints["shoulder_right"]
+        armpit_right = keypoints["armpit_right"]
+        keypoints["shoulder_right"]
         bottom_right = keypoints["bottom_right"]
 
         if side == "left":
-            line_direction = (shoulder_left - bottom_left).normalized()
-            point_on_line = 0.75 * shoulder_left + 0.25 * shoulder_right
+            line_direction = (armpit_left - bottom_left).normalized()
+            point_on_line = 0.75 * bottom_left + 0.25 * bottom_right
         else:
-            line_direction = (bottom_right - shoulder_right).normalized()
-            point_on_line = 0.25 * shoulder_left + 0.75 * shoulder_right
+            line_direction = (bottom_right - armpit_right).normalized()
+            point_on_line = 0.25 * bottom_left + 0.75 * bottom_right
 
         line_direction /= np.linalg.norm(line_direction)
 
@@ -149,6 +151,58 @@ class SideFold(Fold):
         X = up
         Z = left_to_right if side == "left" else right_to_left
         Z /= np.linalg.norm(Z)
+        Y = np.cross(Z, X)
+
+        start_pose = abt.Frame.from_vectors(X, Y, Z, gripper_translation)
+
+        return start_pose
+
+
+class MiddleFold(Fold):
+    def __init__(self, keypoints, side, angle=30):
+        self.side = side
+        super().__init__(keypoints)
+
+    def fold_line(self):
+        keypoints = self.keypoints
+
+        shoulder_left = keypoints["shoulder_left"]
+        bottom_left = keypoints["bottom_left"]
+        shoulder_right = keypoints["shoulder_right"]
+        bottom_right = keypoints["bottom_right"]
+
+        middle_left = 0.5 * shoulder_left + 0.5 * bottom_left
+        middle_right = 0.5 * shoulder_right + 0.5 * bottom_right
+
+        right_to_left = (middle_left - middle_right).normalized()
+
+        line_direction = right_to_left
+        line_direction /= np.linalg.norm(line_direction)
+
+        point_on_line = middle_left
+
+        return point_on_line, line_direction
+
+    def gripper_start_pose(self):
+        keypoints = self.keypoints
+        side = self.side
+
+        # # TODO
+        armpit_left = keypoints["armpit_left"]
+        bottom_left = keypoints["bottom_left"]
+        armpit_right = keypoints["armpit_right"]
+        bottom_right = keypoints["bottom_right"]
+
+        if side == "left":
+            gripper_translation = 0.75 * bottom_left + 0.25 * bottom_right
+            bottom_to_top = (armpit_left - bottom_left).normalized()
+        else:
+            gripper_translation = 0.25 * bottom_left + 0.75 * bottom_right
+            bottom_to_top = (armpit_right - bottom_right).normalized()
+
+        up = np.array([0, 0, 1])
+        X = up
+        Z = bottom_to_top
         Y = np.cross(Z, X)
 
         start_pose = abt.Frame.from_vectors(X, Y, Z, gripper_translation)
