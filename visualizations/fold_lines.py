@@ -7,23 +7,21 @@ from cloth_manipulation.folds import BezierFoldTrajectory, MiddleFold, SideFold,
 
 bproc.init()
 
-airo_light_blue = [0.693872, 0.775822, 0.822786, 1.000000]
-airo_dark_green = [0.147027, 0.479320, 0.391573, 1.000000]
-airo_orange = [0.947307, 0.597202, 0.208637, 1.000000]
-airo_red = [0.564712, 0.078187, 0.090842, 1.000000]
 
 ground = bproc.object.create_primitive("PLANE", size=5.0)
 ground.blender_obj.name = "ground"
 ground_material = ground.new_material("Ground")
-ground_material.set_principled_shader_value("Base Color", airo_light_blue)
-ground_material.blender_obj.diffuse_color = airo_light_blue
+ground_material.set_principled_shader_value("Base Color", abt.colors.light_blue)
+ground_material.blender_obj.diffuse_color = abt.colors.light_blue
 
 shirt = abt.PolygonalShirt()
 shirt_material = shirt.new_material("Shirt")
-shirt_material.set_principled_shader_value("Base Color", airo_dark_green)
-shirt_material.blender_obj.diffuse_color = airo_dark_green
+shirt_material.set_principled_shader_value("Base Color", abt.colors.dark_green)
+shirt_material.blender_obj.diffuse_color = abt.colors.dark_green
 shirt.blender_obj.location.z = 0.003
 shirt.persist_transformation_into_mesh()
+
+shirt.visualize_keypoints(radius=0.01)
 
 scene = bpy.context.scene
 camera = scene.camera
@@ -50,6 +48,7 @@ right_side_bottom = SideFold(keypoints, "right", "bottom")
 middle_left = MiddleFold(keypoints, "left")
 middle_right = MiddleFold(keypoints, "right")
 
+
 fold_line_visualization_lengths = [
     (left_sleeve.fold_line(), 0.3, 0.1),
     (right_sleeve.fold_line(), 0.1, 0.3),
@@ -59,7 +58,11 @@ fold_line_visualization_lengths = [
 ]
 
 for fold_line, forward, backward in fold_line_visualization_lengths:
-    abt.visualize_line(*fold_line, length_forward=forward, length_backward=backward, color=airo_orange)
+    abt.visualize_line(*fold_line, length_forward=forward, length_backward=backward, color=abt.colors.orange)
+
+import time
+
+start = time.time()
 
 trajectories = [
     BezierFoldTrajectory(left_sleeve, 0.6, -60),
@@ -72,5 +75,8 @@ trajectories = [
     BezierFoldTrajectory(middle_right, 0.6, 20),
 ]
 
+print("Time", time.time() - start)
+
+
 for trajectory in trajectories:
-    abt.visualize_path(trajectory.path, radius=0.003, color=airo_red)
+    abt.visualize_path(trajectory.path, radius=0.003, color=abt.colors.red)
