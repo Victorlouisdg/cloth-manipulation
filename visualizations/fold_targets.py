@@ -3,7 +3,7 @@ import blenderproc as bproc
 import bpy
 import numpy as np
 
-from cloth_manipulation.folds import BezierFoldTrajectory, MiddleFold, SideFold, SleeveFold
+from cloth_manipulation.folds import SleeveFold
 
 bproc.init()
 
@@ -15,6 +15,8 @@ ground_material.set_principled_shader_value("Base Color", abt.colors.light_blue)
 ground_material.blender_obj.diffuse_color = abt.colors.light_blue
 
 shirt = abt.PolygonalShirt()
+abt.triangulate_blender_object(shirt.blender_obj, minimum_triangle_density=20000)
+
 shirt_material = shirt.new_material("Shirt")
 shirt_material.set_principled_shader_value("Base Color", abt.colors.dark_green)
 shirt_material.blender_obj.diffuse_color = abt.colors.dark_green
@@ -39,44 +41,13 @@ hdri_path = abt.download_hdri(hdri_name, "/home/idlab185/assets", res="1k")
 abt.load_hdri(hdri_path)
 
 keypoints = {name: coord[0] for name, coord in shirt.keypoints_3D.items()}
-left_sleeve = SleeveFold(keypoints, "left")
-right_sleeve = SleeveFold(keypoints, "right")
-left_side_top = SideFold(keypoints, "left", "top")
-left_side_bottom = SideFold(keypoints, "left", "bottom")
-right_side_top = SideFold(keypoints, "right", "top")
-right_side_bottom = SideFold(keypoints, "right", "bottom")
-middle_left = MiddleFold(keypoints, "left")
-middle_right = MiddleFold(keypoints, "right")
-
+left_sleeve = SleeveFold(keypoints, "left", angle=15)
 
 fold_line_visualization_lengths = [
     (left_sleeve.fold_line(), 0.3, 0.1),
-    (right_sleeve.fold_line(), 0.1, 0.3),
-    (left_side_top.fold_line(), 0.7, 0.05),
-    (right_side_top.fold_line(), 0.05, 0.7),
-    (middle_left.fold_line(), 0.1, 0.5),
 ]
 
 for fold_line, forward, backward in fold_line_visualization_lengths:
     abt.visualize_line(*fold_line, length_forward=forward, length_backward=backward, color=abt.colors.red)
 
-import time
-
-start = time.time()
-
-trajectories = [
-    BezierFoldTrajectory(left_sleeve, 0.6, -60),
-    BezierFoldTrajectory(right_sleeve, 0.6, 60),
-    BezierFoldTrajectory(left_side_top, 0.6, -20),
-    BezierFoldTrajectory(left_side_bottom, 0.6, 20),
-    BezierFoldTrajectory(right_side_top, 0.6, 20),
-    BezierFoldTrajectory(right_side_bottom, 0.6, -20),
-    BezierFoldTrajectory(middle_left, 0.6, -20),
-    BezierFoldTrajectory(middle_right, 0.6, 20),
-]
-
-print("Time", time.time() - start)
-
-
-for trajectory in trajectories:
-    abt.visualize_path(trajectory.path, color=abt.colors.orange)
+target = left_sleeve.make_target_mesh(shirt.blender_obj, cloth_thickness=0.005)

@@ -1,5 +1,9 @@
 import os
+import signal
 import sys
+import time
+
+import numpy as np
 
 from cloth_manipulation.materials.material import Material
 
@@ -151,6 +155,8 @@ class SimulationCIPC:
 
         self.static_object_DBCs = []
 
+        self.step_times = []
+
     def add_cloth(self, cloth, material: Material):
         if self.cipc_initialized:
             print("WARNING: you cannot add objects after the simulation has started.")
@@ -186,6 +192,7 @@ class SimulationCIPC:
     def _add_shell(self, object):
 
         self.blender_objects_input.append(object)
+        self.blender_objects_output[object.name] = {}
 
         # TODO triangulate if necessary
         filepath = export_as_obj(object, self.filepaths["run"])
@@ -273,22 +280,15 @@ class SimulationCIPC:
         object.data.materials.clear()  # Remove the default material
 
         vertex_counts = self.vertex_counts
-        vertex_counts.pop(-1)  # We don't need to split the last object
-        objects = []
+        # vertex_counts.pop(-1)  # We don't need to split the last object
 
         for i in range(len(vertex_counts)):
+            orginal_object_name = self.blender_objects_input[i].name
             vertex_range = range(vertex_counts[i])
             object_split_off = SimulationCIPC._split_object(object, vertex_range)
-            object_split_off.name = f"{self.blender_objects_input[i].name}_{frame}"
-            objects.append(object_split_off)
-
-        objects.append(object)
-        object.name = f"{self.blender_objects_input[-1].name}_{frame}"
-
-        for object in objects:
-            keyframe_visibility(object, frame, frame)
-
-        self.blender_objects_output[frame] = objects
+            object_split_off.name = f"{orginal_object_name}_{frame}"
+            self.blender_objects_output[orginal_object_name][frame] = object_split_off
+            keyframe_visibility(object_split_off, frame, frame)
 
     @staticmethod
     def _split_object(object, vertex_indices_to_split_off):
@@ -321,8 +321,11 @@ class SimulationCIPC:
         Args:
             action (dict[int, list]): dictionary that maps vertex indices to velocities.
         """
+
         if not self.cipc_initialized:
             self.initialize_cipc()
+
+        step_start = time.time()
 
         cloth = self.cloths[0]
         material_cloth = self.materials_cloth[cloth]
@@ -331,19 +334,11 @@ class SimulationCIPC:
         self.DBC = Storage.V4dStorage()
         self.DBCMotion = Storage.V2iV3dV3dV3dSdStorage()
         print("STEP")
-        print(action)
         for vertex_id, velocity in action.items():
-            print(vertex_id)
-            # index_range = (vertex_id, vertex_id + 1)
             index_range = Vector4i(vertex_id, 0, vertex_id + 1, -1)
             positions_min = Vector3d(-100, -100, -100)
             positions_max = Vector3d(100, 100, 100)
             rotation = (Vector3d(0, 0, 0), Vector3d(0, 1, 0), 0)
-            # velocity = Vector3d(0, 0, 0)
-
-            # velocity = [0, 0, 0.5]
-
-            print(velocity)
 
             DBC = (
                 positions_min,
@@ -392,7 +387,7 @@ class SimulationCIPC:
 
         FEM.Step_Dirichlet(self.DBCMotion, self.timestep_size, self.DBC)
 
-        FEM.DiscreteShell.Advance_One_Step_IE_Hinge(
+        cipc_step_args = (
             self.triangles,
             self.line_segments,
             self.DBC,
@@ -436,6 +431,18 @@ class SimulationCIPC:
             self.discrete_particle,
             self.output_folder,
         )
+
+        if self.step_times:
+            timeout = int(np.ceil(20.0 * np.mean(self.step_times)))
+            timeout = max(timeout, 60)
+            signal.alarm(timeout)
+
+        FEM.DiscreteShell.Advance_One_Step_IE_Hinge(*cipc_step_args)
+        signal.alarm(0)
+
+        step_end = time.time()
+        step_time = step_end - step_start
+        self.step_times.append(step_time)
 
         self.current_frame += 1
         self.save_current_state_to_disk()

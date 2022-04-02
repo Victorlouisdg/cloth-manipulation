@@ -224,12 +224,13 @@ class EllipticalFoldTrajectory(Trajectory):
 
 
 class BezierFoldTrajectory(Trajectory):
-    def __init__(self, fold, height_ratio=1.0, tilt_angle=0):
+    def __init__(self, fold, height_ratio=1.0, tilt_angle=0, end_height=0.05):
         start_pose = fold.gripper_start_pose()
 
         # Mimic end pose of circular arc
         ciruclar_trajectory = EllipticalFoldTrajectory(fold, end_angle=170)
         end_pose = ciruclar_trajectory.path.end
+        end_pose.position[2] = end_height
 
         start_position = start_pose.position
         end_position = end_pose.position
