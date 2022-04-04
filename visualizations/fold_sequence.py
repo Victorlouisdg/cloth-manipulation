@@ -113,7 +113,6 @@ for frame in range(scene.frame_start, scene.frame_end):
     action = {}
     for gripper in grippers:
         action |= gripper.action(shirt_obj)
-
     simulation.step(action)
     shirt_obj = simulation.blender_objects_output[shirt0_obj.name][frame + 1]
     scene.frame_set(frame + 1)

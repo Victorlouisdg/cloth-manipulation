@@ -36,12 +36,12 @@ scene.view_settings.look = "High Contrast"
 
 # bpy.context.space_data.shading.light = 'FLAT'
 
-hdri_name = "aviation_museum"  # studio_country_hall"# "monbachtal_riverbank"
+hdri_name = "aviation_museum"
 hdri_path = abt.download_hdri(hdri_name, "/home/idlab185/assets", res="1k")
 abt.load_hdri(hdri_path)
 
 keypoints = {name: coord[0] for name, coord in shirt.keypoints_3D.items()}
-left_sleeve = SleeveFold(keypoints, "left", angle=15)
+left_sleeve = SleeveFold(keypoints, "left", angle=30)
 
 fold_line_visualization_lengths = [
     (left_sleeve.fold_line(), 0.3, 0.1),

@@ -8,130 +8,128 @@ from cloth_manipulation.dirs import ensure_output_filepaths, save_dict_as_json
 from cloth_manipulation.folds import BezierFoldTrajectory, SleeveFold
 from cloth_manipulation.losses import mean_distance
 from cloth_manipulation.materials.penava import materials_by_name
-
-# 1. Setting up the scene
-bproc.init()
-
-ground = bproc.object.create_primitive("PLANE", size=5.0)
-ground.blender_obj.name = "ground"
-
-cloth_material = materials_by_name["cotton penava"]
-
-shirt = abt.PolygonalShirt()
-shirt_obj = shirt.blender_obj
-abt.triangulate_blender_object(shirt_obj, minimum_triangle_density=1000)
-shirt_obj.location.z = 2.0 * cloth_material.thickness
-shirt.persist_transformation_into_mesh()
-# shirt.visualize_keypoints(radius=0.01)
-
-airo_orange = [0.94, 0.60, 0.23, 1.0]
-shirt_material = shirt.new_material(name=shirt_obj.name)
-shirt_material.set_principled_shader_value("Sheen", 1.0)
-shirt_material.set_principled_shader_value("Roughness", 1.0)
-shirt_material.set_principled_shader_value("Base Color", airo_orange)
-shirt_material.blender_obj.diffuse_color = airo_orange
-
-# abt.show_wireframes()
-scene = bpy.context.scene
-scene.camera.data.display_size = 0.2
-scene.camera.location.z += 2.0
-scene.render.resolution_x = 1920
-scene.render.resolution_y = 1080
-
-simulation_steps = 125  # 250
-scene.frame_start = 0
-scene.frame_end = simulation_steps
-
-filepaths = ensure_output_filepaths()
-hdri_name = "immenstadter_horn"
-hdri_path = abt.download_hdri(hdri_name, filepaths["run"], res="1k")
-abt.load_hdri(hdri_path)
-
-# 2. Creating the target shape and fold trajectories
-keypoints = {name: coord[0] for name, coord in shirt.keypoints_3D.items()}
-fold_sequence = [((0, 100), SleeveFold(keypoints, "left"))]  # , ((100, 200), SleeveFold(keypoints, "right"))]
-
-# empty = abt.visualize_transform(fold.gripper_start_pose(), 0.1)
-# abt.visualize_line(*fold.fold_line(), length=1.5)
-
-grippers = []
-shirt_target = shirt_obj
-
-for (start_frame, end_frame), fold in fold_sequence:
-    shirt_target = fold.make_target_mesh(shirt_target, cloth_material.thickness)
-
-    height_ratio = 0.8
-    tilt_angle = 20 if fold.side == "right" else -20
-    fold_trajectory = BezierFoldTrajectory(fold, height_ratio, tilt_angle)
-    # abt.visualize_path(fold_trajectory.path)
-    gripper_cube = bproc.object.create_primitive("CUBE", size=0.05).blender_obj
-    abt.keyframe_trajectory(gripper_cube, fold_trajectory, start_frame, end_frame)
-    bpy.ops.object.paths_range_update()
-    bpy.ops.object.paths_calculate(start_frame=scene.frame_start, end_frame=scene.frame_end)
-    gripper = abt.Gripper(gripper_cube)
-    grippers.append(gripper)
+from cloth_manipulation.scene import setup_camera_topdown, setup_enviroment_texture, setup_ground, setup_shirt_material
 
 
-# # 3. Running the simulation
-simulation = SimulationCIPC(filepaths, 25)
-simulation.add_cloth(shirt.blender_obj, cloth_material)
-simulation.add_collider(ground.blender_obj, friction_coefficient=0.8)
-simulation.initialize_cipc()
+def fold_sleeves(height_ratio=0.8, tilt_angle=20):
+    # 1. Setting up the scene
+    bproc.init()
+
+    ground = setup_ground()
+    setup_camera_topdown()
+    setup_enviroment_texture()
+
+    cloth_material = materials_by_name["cotton penava"]
+
+    shirt = abt.PolygonalShirt()
+    shirt_obj = shirt.blender_obj
+    abt.triangulate_blender_object(shirt_obj, minimum_triangle_density=20000)
+    shirt_obj.location.z = 2.0 * cloth_material.thickness  # ground offset + cloth offset
+    shirt.persist_transformation_into_mesh()
+    # shirt.visualize_keypoints(radius=0.01)
+
+    shirt_material = setup_shirt_material(shirt)
+
+    keypoints = {name: coord[0] for name, coord in shirt.keypoints_3D.items()}
+    left_sleeve = SleeveFold(keypoints, "left")
+    right_sleeve = SleeveFold(keypoints, "right")
+
+    # Visualizing the fold lines
+    fold_line_visualization_lengths = [
+        (left_sleeve.fold_line(), 0.3, 0.1),
+        (right_sleeve.fold_line(), 0.1, 0.3),
+    ]
+    for fold_line, forward, backward in fold_line_visualization_lengths:
+        abt.visualize_line(*fold_line, length_forward=forward, length_backward=backward, color=abt.colors.red)
+
+    # The 2.0 below is because C-IPC offsets this thickness on both side, might need to halve this later.
+    left_target = left_sleeve.make_target_mesh(shirt.blender_obj, cloth_thickness=2.0 * cloth_material.thickness)
+    target = right_sleeve.make_target_mesh(left_target, cloth_thickness=2.0 * cloth_material.thickness)
+
+    fold_steps = [[left_sleeve], [right_sleeve]]
+
+    frames_per_fold_step = 100
+    frames_between_fold_steps = 5
+    simulation_steps = len(fold_steps) * (frames_per_fold_step + frames_between_fold_steps)
+
+    scene = bpy.context.scene
+    scene.frame_end = simulation_steps
+
+    print(f"Simulating {simulation_steps} steps.")
+
+    # Setting up the animated grippers
+    grippers = []
+    frame = scene.frame_start
+
+    for fold_step in fold_steps:
+        for fold in fold_step:
+            height_ratio = 0.8
+            tilt_angle = 20 if fold.side == "right" else -20
+            fold_trajectory = BezierFoldTrajectory(fold, height_ratio, tilt_angle, end_height=0.05)
+            gripper = abt.BlockGripper()
+            abt.keyframe_trajectory(gripper.gripper_obj, fold_trajectory, frame, frame + frames_per_fold_step)
+            bpy.ops.object.paths_range_update()
+            bpy.ops.object.paths_calculate(start_frame=scene.frame_start, end_frame=scene.frame_end)
+            grippers.append(gripper)
+            # abt.visualize_transform(fold_trajectory.pose(0.0))
+        frame += frames_per_fold_step + frames_between_fold_steps
+
+    filepaths = ensure_output_filepaths()
+
+    # Running the simulation
+    simulation = SimulationCIPC(filepaths, 25)
+    simulation.add_cloth(shirt.blender_obj, cloth_material)
+    simulation.add_collider(ground.blender_obj, friction_coefficient=0.8)
+    simulation.initialize_cipc()
+
+    simulated_shirt = shirt.blender_obj
+
+    for frame in range(scene.frame_start, scene.frame_end):
+        scene.frame_set(frame)
+        action = {}
+        for gripper in grippers:
+            action |= gripper.action(simulated_shirt)
+        simulation.step(action)
+        simulated_shirt = simulation.blender_objects_output[shirt_obj.name][frame + 1]
+        scene.frame_set(frame + 1)
+
+    # 4. Calculating the loss
+    print(target.name)
+    print(simulated_shirt.name)
+    print(shirt.blender_obj.name)
+
+    targets = np.array([target.matrix_world @ v.co for v in target.data.vertices])
+    simulated_positions = np.array([simulated_shirt.matrix_world @ v.co for v in simulated_shirt.data.vertices])
+    initial_positions = np.array([shirt.blender_obj.matrix_world @ v.co for v in shirt.blender_obj.data.vertices])
+
+    losses = {
+        "mean_distance": mean_distance(targets, simulated_positions),
+    }
+
+    mean_distance_initial = mean_distance(targets, initial_positions)
+
+    print("Mean distance (initial):", mean_distance_initial)
+    print("Mean distance (result):", losses["mean_distance"])
+
+    save_dict_as_json(filepaths["losses"], losses)
+
+    # 5. Visualization
+    for shirt_obj in simulation.blender_objects_output[shirt.blender_obj.name].values():
+        shirt_obj.data.materials.append(shirt_material.blender_obj)
+
+    scene.frame_set(simulation_steps)
+    objects_to_hide = [ground.blender_obj, shirt.blender_obj, left_target, target]
+
+    for object in objects_to_hide:
+        object.hide_viewport = True
+        object.hide_render = True
+
+    bpy.ops.wm.save_as_mainfile(filepath=filepaths["blend"])
+
+    # scene.render.filepath = os.path.join(filepaths["run"], "result.png")
+    # bpy.ops.render.render(write_still=True)
+    return losses
 
 
-for frame in range(scene.frame_start, scene.frame_end + 1):
-    scene.frame_set(frame)
-    action = {}
-    for gripper in grippers:
-        action |= gripper.action(shirt_obj)
-
-    simulation.step(action)
-    shirt_obj = simulation.blender_objects_output[frame + 1][0]
-
-# 4. Calculating the loss
-
-print(shirt_target.name)
-print(shirt_obj.name)
-print(shirt.blender_obj.name)
-
-targets = np.array([v.co for v in shirt_target.data.vertices])
-final_positions = np.array([v.co for v in shirt_obj.data.vertices])
-initial_positions = np.array([v.co for v in shirt.blender_obj.data.vertices])
-
-
-losses = {
-    "mean_distance": mean_distance(targets, final_positions),
-    # "mean_sq_distance": mean_distance(targets, final_positions),
-    # "rms_distance": mean_distance(targets, final_positions),
-}
-
-mean_distance_ref = mean_distance(targets, initial_positions)
-
-print("Mean distance (reference):", mean_distance_ref)
-print("Mean distance (result):", losses["mean_distance"])
-# print(shirt.scale)
-# print(mean_distance / shirt.scale)
-
-save_dict_as_json(filepaths["losses"], losses)
-
-# 5. Visualization
-for objs in simulation.blender_objects_output.values():
-    for obj in objs:
-        bproc_obj = bproc.python.types.MeshObjectUtility.MeshObject(obj)
-        bproc_obj.set_shading_mode("smooth")
-        if shirt.blender_obj.name in obj.name:
-            obj.data.materials.append(shirt_material.blender_obj)
-
-scene.frame_set(simulation_steps)
-
-objects_to_hide = [ground.blender_obj, shirt.blender_obj, shirt_target]
-
-for object in objects_to_hide:
-    object.hide_viewport = True
-    object.hide_render = True
-
-
-bpy.ops.wm.save_as_mainfile(filepath=filepaths["blend"])
-
-# scene.render.filepath = os.path.join(filepaths["run"], "result.png")
-# bpy.ops.render.render(write_still=True)
+if __name__ == "__main__":
+    fold_sleeves()
