@@ -1,3 +1,7 @@
+import argparse
+import os
+import sys
+
 import airo_blender_toolkit as abt
 import blenderproc as bproc
 import bpy
@@ -11,7 +15,7 @@ from cloth_manipulation.materials.penava import materials_by_name
 from cloth_manipulation.scene import setup_camera_topdown, setup_enviroment_texture, setup_ground, setup_shirt_material
 
 
-def fold_sleeves(height_ratio=0.8, tilt_angle=20):
+def fold_sleeves(height_ratio=0.8, tilt_angle=20, run_dir=None):
     # 1. Setting up the scene
     bproc.init()
 
@@ -63,18 +67,19 @@ def fold_sleeves(height_ratio=0.8, tilt_angle=20):
 
     for fold_step in fold_steps:
         for fold in fold_step:
-            height_ratio = 0.8
-            tilt_angle = 20 if fold.side == "right" else -20
-            fold_trajectory = BezierFoldTrajectory(fold, height_ratio, tilt_angle, end_height=0.05)
+            angle = tilt_angle if fold.side == "right" else -1 * tilt_angle
+            fold_trajectory = BezierFoldTrajectory(fold, height_ratio, angle, end_height=0.05)
             gripper = abt.BlockGripper()
             abt.keyframe_trajectory(gripper.gripper_obj, fold_trajectory, frame, frame + frames_per_fold_step)
             bpy.ops.object.paths_range_update()
             bpy.ops.object.paths_calculate(start_frame=scene.frame_start, end_frame=scene.frame_end)
             grippers.append(gripper)
+            abt.visualize_path(fold_trajectory.path, color=abt.colors.orange, radius=0.005)
             # abt.visualize_transform(fold_trajectory.pose(0.0))
         frame += frames_per_fold_step + frames_between_fold_steps
 
-    filepaths = ensure_output_filepaths()
+    config = {"height_ratio": height_ratio, "tilt_angle": tilt_angle}
+    filepaths = ensure_output_filepaths(run_dir, config=config)
 
     # Running the simulation
     simulation = SimulationCIPC(filepaths, 25)
@@ -126,10 +131,23 @@ def fold_sleeves(height_ratio=0.8, tilt_angle=20):
 
     bpy.ops.wm.save_as_mainfile(filepath=filepaths["blend"])
 
-    # scene.render.filepath = os.path.join(filepaths["run"], "result.png")
-    # bpy.ops.render.render(write_still=True)
+    scene.cycles.adaptive_threshold = 0.1
+    scene.render.filepath = os.path.join(filepaths["run"], "result.png")
+    bpy.ops.render.render(write_still=True)
     return losses
 
 
 if __name__ == "__main__":
-    fold_sleeves()
+    if "--" in sys.argv:
+        arg_start = sys.argv.index("--") + 1
+        argv = sys.argv[arg_start:]
+        parser = argparse.ArgumentParser()
+        parser.add_argument("-ht", "--height_ratio", dest="height_ratio", type=float)
+        parser.add_argument("-ta", "--tilt_angle", dest="tilt_angle", type=float)
+        parser.add_argument("-d", "--dir", dest="run_dir", metavar="RUN_DIR")
+        args = parser.parse_known_args(argv)[0]
+
+        print(args.run_dir)
+        fold_sleeves(args.height_ratio, args.tilt_angle, args.run_dir)
+    else:
+        print("Please rerun with arguments.")
