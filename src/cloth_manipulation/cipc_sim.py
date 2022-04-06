@@ -7,7 +7,7 @@ import numpy as np
 
 from cloth_manipulation.materials.material import Material
 
-CIPC_PATH = "../../Codim-IPC"
+CIPC_PATH = "../Codim-IPC"
 CIPC_PYTHON_PATH = os.path.join(CIPC_PATH, "Python")
 CIPC_BUILD_PATH = os.path.join(CIPC_PATH, "build")
 
