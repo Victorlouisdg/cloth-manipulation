@@ -5,20 +5,20 @@ import wandb
 
 values = []
 
-for height_ratio in np.linspace(0.3, 1.0, 5):
-    for angle in np.linspace(30.0, 90.0, int(7 * height_ratio)):
+for height_ratio in np.linspace(0.3, 1.0, 10):
+    for angle in np.linspace(30.0, 90.0, int(15 * height_ratio)):
         tilt_angle = 90.0 - angle
         values.append(f"{height_ratio}-{tilt_angle}")
 
 sweep_config = {
     "entity": "victorlouis",
-    "name": "my-sweep",
+    "name": "sweep0",
     "method": "grid",
     "metric": {"goal": "minimize", "name": "mean_distance"},
     "parameters": {
         "height_ratio-tilt_angle": {"values": values},
     },
-    "project": "simfolds_20k",
+    "project": "simfolds_20k_big",
 }
 
 sweep_id = wandb.sweep(sweep_config, project=sweep_config["project"])

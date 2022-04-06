@@ -45,4 +45,4 @@ if __name__ == "__main__":
         parser = argparse.ArgumentParser()
         parser.add_argument("-s", "--sweep_id", dest="sweep_id")
         args = parser.parse_known_args(argv)[0]
-        wandb.agent(args.sweep_id, project="simfolds_20k", function=run_wandb)
+        wandb.agent(args.sweep_id, project="simfolds_20k_big", function=run_wandb)
