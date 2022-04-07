@@ -1,0 +1,5 @@
+*.blend1
+**/output/**
+**/wandb/**
+Codim-IPC
+.git
