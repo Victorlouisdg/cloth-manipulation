@@ -52,26 +52,7 @@ ENV BLENDER_PIP $BLENDER_PYTHON_BIN_DIR/pip3
 RUN $BLENDER_PIP install --upgrade pip
 ENV PATH="$BLENDER_DIR:$PATH"
 
-# Make folder to download assets in later
-RUN mkdir /root/assets
-
-WORKDIR "/usr/local/src"
-RUN git clone https://github.com/Victorlouisdg/cloth-manipulation.git
-RUN git clone https://github.com/airo-ugent/airo-blender-toolkit.git
-RUN git clone https://github.com/DLR-RM/BlenderProc.git
-
-# Missed dependency of trimesh
-RUN $BLENDER_PIP install rtree
-
-RUN $BLENDER_PIP install -e airo-blender-toolkit
-RUN $BLENDER_PIP install -e BlenderProc
-RUN $BLENDER_PIP install -e cloth-manipulation
-
-WORKDIR "/usr/local/src/cloth-manipulation/Codim-IPC"
-RUN mkdir build && cd build && rm -rf CMakeCache.txt
-WORKDIR "/usr/local/src/cloth-manipulation/Codim-IPC/build"
-
-# Codim-IPC build
+# Deps mostly for Codim-IPC build but one of wandbs deps also required Python.h
 RUN add-apt-repository ppa:deadsnakes/ppa && apt update
 RUN apt-get install -y \
     libpython3.10-dev \
@@ -80,12 +61,33 @@ RUN apt-get install -y \
     libeigen3-dev \
     libboost-all-dev
 
-# python3-dev \
-
 
 ENV PYTHON_LIBS "/usr/lib/libpython$BLENDER_PYTHON_VERSION.so"
 ENV PYTHON_INCLUDE "/usr/include/python$BLENDER_PYTHON_VERSION/"
+# Without this the setproctitle build fails
+ENV CPATH="$PYTHON_INCLUDE:$CPATH"
 
+# Make folder to download assets in later
+RUN mkdir /root/assets
+
+WORKDIR "/usr/local/src"
+RUN git clone https://github.com/DLR-RM/BlenderProc.git
+RUN git clone https://github.com/airo-ugent/airo-blender-toolkit.git
+RUN git clone https://github.com/Victorlouisdg/cloth-manipulation.git
+
+RUN $BLENDER_PIP install -e BlenderProc
+RUN $BLENDER_PIP install -e airo-blender-toolkit
+RUN $BLENDER_PIP install -e cloth-manipulation
+
+# The first time you import blenderproc it installs several dependencies
+RUN blender -b -P /usr/local/src/airo-blender-toolkit/tests/test_blenderproc_import.py
+
+WORKDIR "/usr/local/src/cloth-manipulation/Codim-IPC"
+RUN mkdir build && cd build && rm -rf CMakeCache.txt
+WORKDIR "/usr/local/src/cloth-manipulation/Codim-IPC/build"
+
+
+# Codim-IPC build
 RUN cmake -DCMAKE_BUILD_TYPE=Release \
     -DPYTHON_EXECUTABLE:FILEPATH=$BLENDER_PYTHON \
     -DPYTHON_LIBRARIES=$PYTHON_LIBS \
@@ -93,6 +95,8 @@ RUN cmake -DCMAKE_BUILD_TYPE=Release \
     ..
 
 RUN make -j 12
+
+WORKDIR "/usr/local/src/cloth-manipulation"
 
 # VOLUME /media
 # ENTRYPOINT ["/usr/local/blender/blender", "-b"]
