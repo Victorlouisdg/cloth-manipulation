@@ -1,4 +1,6 @@
+import argparse
 import os
+import sys
 
 import airo_blender_toolkit as abt
 import blenderproc as bproc
@@ -13,7 +15,7 @@ from cloth_manipulation.materials.penava import materials_by_name
 from cloth_manipulation.scene import setup_camera_topdown, setup_enviroment_texture, setup_ground, setup_shirt_material
 
 
-def fold_sleeves(height_ratio=0.8, tilt_angle=20, run_dir=None):
+def fold_sleeve(height_ratio=0.8, tilt_angle=20, run_dir=None):
     # 1. Setting up the scene
     bproc.init()
 
@@ -133,4 +135,16 @@ def fold_sleeves(height_ratio=0.8, tilt_angle=20, run_dir=None):
 
 
 if __name__ == "__main__":
-    fold_sleeves(0.6, 30)
+    if "--" in sys.argv:
+        arg_start = sys.argv.index("--") + 1
+        argv = sys.argv[arg_start:]
+        parser = argparse.ArgumentParser()
+        parser.add_argument("-ht", "--height_ratio", dest="height_ratio", type=float)
+        parser.add_argument("-ta", "--tilt_angle", dest="tilt_angle", type=float)
+        parser.add_argument("-d", "--dir", dest="run_dir", metavar="RUN_DIR")
+        args = parser.parse_known_args(argv)[0]
+
+        print(args.run_dir)
+        fold_sleeve(args.height_ratio, args.tilt_angle, args.run_dir)
+    else:
+        print("Please rerun with arguments.")
