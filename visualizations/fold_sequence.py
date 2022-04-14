@@ -3,12 +3,12 @@ import os
 import airo_blender_toolkit as abt
 import blenderproc as bproc
 import bpy
+from cipc.dirs import ensure_output_filepaths
+from cipc.materials.penava import materials_by_name
+from cipc.simulator import SimulationCIPC
 from mathutils import Vector
 
-from cloth_manipulation.cipc_sim import SimulationCIPC
-from cloth_manipulation.dirs import ensure_output_filepaths
 from cloth_manipulation.folds import BezierFoldTrajectory, MiddleFold, SideFold, SleeveFold
-from cloth_manipulation.materials.penava import materials_by_name
 
 # 1. Setting up the scene
 bproc.init()

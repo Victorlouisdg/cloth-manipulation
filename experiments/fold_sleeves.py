@@ -6,12 +6,12 @@ import airo_blender_toolkit as abt
 import blenderproc as bproc
 import bpy
 import numpy as np
+from cipc.dirs import ensure_output_filepaths, save_dict_as_json
+from cipc.materials.penava import materials_by_name
+from cipc.simulator import SimulationCIPC
 
-from cloth_manipulation.cipc_sim import SimulationCIPC
-from cloth_manipulation.dirs import ensure_output_filepaths, save_dict_as_json
 from cloth_manipulation.folds import BezierFoldTrajectory, SleeveFold
 from cloth_manipulation.losses import mean_distance
-from cloth_manipulation.materials.penava import materials_by_name
 from cloth_manipulation.scene import setup_camera_topdown, setup_enviroment_texture, setup_ground, setup_shirt_material
 
 
@@ -129,11 +129,12 @@ def fold_sleeves(height_ratio=0.8, tilt_angle=20, run_dir=None):
         object.hide_viewport = True
         object.hide_render = True
 
-    bpy.ops.wm.save_as_mainfile(filepath=filepaths["blend"])
-
     scene.cycles.adaptive_threshold = 0.1
     scene.render.filepath = os.path.join(filepaths["run"], "result.png")
+
+    bpy.ops.wm.save_as_mainfile(filepath=filepaths["blend"])
     bpy.ops.render.render(write_still=True)
+
     return losses
 
 
