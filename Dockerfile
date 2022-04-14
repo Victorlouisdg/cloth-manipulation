@@ -30,20 +30,22 @@ RUN apt-get update && apt-get install -y \
     software-properties-common
 
 
+RUN mkdir "/root/Blender"
+WORKDIR "/root/Blender"
+
 ENV BLENDER_MAJOR 3.1
-ENV BLENDER_VERSION 3.1.0
+ENV BLENDER_VERSION 3.1.2
 ENV BLENDER_PYTHON_VERSION 3.10
 ENV BLENDER_NAME blender-$BLENDER_VERSION-linux-x64
 ENV BLENDER_URL https://download.blender.org/release/Blender$BLENDER_MAJOR/$BLENDER_NAME.tar.xz
 
-WORKDIR "/usr/local"
 RUN echo $BLENDER_URL
 
 # Example used -L option for curl, but doesn't seem necessary
 # Pipe curl output directly to tar to unzip
 RUN curl -L $BLENDER_URL | tar xJ
 
-ENV BLENDER_DIR /usr/local/$BLENDER_NAME
+ENV BLENDER_DIR /root/Blender/$BLENDER_NAME
 ENV BLENDER_PYTHON_BIN_DIR $BLENDER_DIR/$BLENDER_MAJOR/python/bin
 ENV BLENDER_PYTHON $BLENDER_PYTHON_BIN_DIR/python${BLENDER_PYTHON_VERSION}
 RUN $BLENDER_PYTHON -m ensurepip
@@ -51,6 +53,8 @@ ENV BLENDER_PIP $BLENDER_PYTHON_BIN_DIR/pip3
 # Gets rid of the warning:
 RUN $BLENDER_PIP install --upgrade pip
 ENV PATH="$BLENDER_DIR:$PATH"
+
+WORKDIR "/root"
 
 # Deps mostly for Codim-IPC build but one of wandbs deps also required Python.h
 RUN add-apt-repository ppa:deadsnakes/ppa && apt update
@@ -61,42 +65,30 @@ RUN apt-get install -y \
     libeigen3-dev \
     libboost-all-dev
 
-
-ENV PYTHON_LIBS "/usr/lib/libpython$BLENDER_PYTHON_VERSION.so"
-ENV PYTHON_INCLUDE "/usr/include/python$BLENDER_PYTHON_VERSION/"
 # Without this the setproctitle build fails
+ENV PYTHON_INCLUDE "/usr/include/python$BLENDER_PYTHON_VERSION/"
 ENV CPATH="$PYTHON_INCLUDE:$CPATH"
+
+# Install C-IPC first because the build takes a while
+RUN git clone https://github.com/Victorlouisdg/Codim-IPC.git
+RUN $BLENDER_PIP install -e Codim-IPC
+
+
+RUN git clone https://github.com/DLR-RM/BlenderProc.git
+RUN $BLENDER_PIP install -e BlenderProc
+
+RUN git clone https://github.com/airo-ugent/airo-blender-toolkit.git
+RUN $BLENDER_PIP install -e airo-blender-toolkit
 
 # Make folder to download assets in later
 RUN mkdir /root/assets
 
-WORKDIR "/usr/local/src"
-RUN git clone https://github.com/DLR-RM/BlenderProc.git
-RUN git clone https://github.com/airo-ugent/airo-blender-toolkit.git
-RUN git clone https://github.com/Victorlouisdg/cloth-manipulation.git
-
-RUN $BLENDER_PIP install -e BlenderProc
-RUN $BLENDER_PIP install -e airo-blender-toolkit
-RUN $BLENDER_PIP install -e cloth-manipulation
-
 # The first time you import blenderproc it installs several dependencies
-RUN blender -b -P /usr/local/src/airo-blender-toolkit/tests/test_blenderproc_import.py
+RUN blender -b -P /root/airo-blender-toolkit/tests/test_blenderproc_import.py
 
-WORKDIR "/usr/local/src/cloth-manipulation/Codim-IPC"
-RUN mkdir build && cd build && rm -rf CMakeCache.txt
-WORKDIR "/usr/local/src/cloth-manipulation/Codim-IPC/build"
-
-
-# Codim-IPC build
-RUN cmake -DCMAKE_BUILD_TYPE=Release \
-    -DPYTHON_EXECUTABLE:FILEPATH=$BLENDER_PYTHON \
-    -DPYTHON_LIBRARIES=$PYTHON_LIBS \
-    -DPYTHON_INCLUDE_DIRS=$PYTHON_INCLUDE \
-    ..
-
-RUN make -j 12
-
-WORKDIR "/usr/local/src/cloth-manipulation"
+RUN git clone https://github.com/Victorlouisdg/cloth-manipulation.git
+RUN $BLENDER_PIP install -e cloth-manipulation
+WORKDIR "/root/cloth-manipulation"
 
 # VOLUME /media
 # ENTRYPOINT ["/usr/local/blender/blender", "-b"]
