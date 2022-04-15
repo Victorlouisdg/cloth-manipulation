@@ -47,4 +47,4 @@ if __name__ == "__main__":
         parser.add_argument("-c", "--count", dest="count", type=int)
 
         args = parser.parse_known_args(argv)[0]
-        wandb.agent(args.sweep_id, project="simfolds_20k_big", function=run_wandb, count=args.count)
+        wandb.agent(args.sweep_id, project="simfolds_20k_bigger", function=run_wandb, count=args.count)

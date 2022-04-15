@@ -5,10 +5,11 @@ import wandb
 
 values = []
 
-for height_ratio in np.linspace(0.3, 1.0, 10):
-    for angle in np.linspace(30.0, 90.0, int(15 * height_ratio)):
+for height_ratio in np.linspace(0.1, 1.0, 14):
+    for angle in np.linspace(30.0, 90.0, max(2, int(18 * height_ratio))):
         tilt_angle = 90.0 - angle
         values.append(f"{height_ratio}-{tilt_angle}")
+
 
 sweep_config = {
     "entity": "victorlouis",
@@ -18,9 +19,11 @@ sweep_config = {
     "parameters": {
         "height_ratio-tilt_angle": {"values": values},
     },
-    "project": "simfolds_20k_big",
+    "project": "simfolds_20k_bigger",
 }
 
 sweep_id = wandb.sweep(sweep_config, project=sweep_config["project"])
 print(sweep_id)
+print("Combinations:", len(values))
 pprint.pprint(sweep_config)
+print(sweep_id)
