@@ -1,13 +1,15 @@
 import argparse
 import json
 import os
+import shutil
 import subprocess
 import sys
+from functools import partial
 
 import wandb
 
 
-def run_wandb():
+def run_wandb(keep_output=False):
     with wandb.init() as run:
         value = wandb.config["height_ratio-tilt_angle"]
         height_ratio, tilt_angle = value.split("-")
@@ -33,9 +35,8 @@ def run_wandb():
         wandb.log(log)
         wandb.log({"result": wandb.Image(os.path.join(subdir, "result.png"))})
 
-        # artifact = wandb.Artifact(f'result-height_ratio_{height_ratio:.4f}-tilt_angle_{tilt_angle}', type='result')
-        # artifact.add_file(os.path.join(subdir, "result.png"))
-        # run.log_artifact(artifact)
+        if not keep_output:
+            shutil.rmtree(subdir)
 
 
 if __name__ == "__main__":
@@ -45,6 +46,10 @@ if __name__ == "__main__":
         parser = argparse.ArgumentParser()
         parser.add_argument("-s", "--sweep_id", dest="sweep_id")
         parser.add_argument("-c", "--count", dest="count", type=int)
+        parser.add_argument("--keep_output", action=argparse.BooleanOptionalAction)
 
         args = parser.parse_known_args(argv)[0]
-        wandb.agent(args.sweep_id, project="simfolds_20k_bigger", function=run_wandb, count=args.count)
+
+        wandb_function = partial(run_wandb, keep_output=args.keep_output)
+
+        wandb.agent(args.sweep_id, project="simfolds_20k_bigger", function=wandb_function, count=args.count)
