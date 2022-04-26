@@ -28,7 +28,7 @@ def fold_sides(height_ratio=0.8, tilt_angle=20, run_dir=None):
     dir_path = os.path.dirname(os.path.realpath(__file__))
     fold_shirt_path = os.path.join(dir_path, "shirt_folded_sleeves.obj")
 
-    bpy.ops.import_scene.obj(filepath=fold_shirt_path)
+    bpy.ops.import_scene.obj(filepath=fold_shirt_path, split_mode="OFF")
     shirt_obj = bpy.context.selected_objects[0]
     shirt_obj.data.materials.clear()  # Remove the default material
     shirt = bproc.python.types.MeshObjectUtility.MeshObject(shirt_obj)
@@ -145,6 +145,7 @@ def fold_sides(height_ratio=0.8, tilt_angle=20, run_dir=None):
 
     print("Mean distance (initial):", mean_distance_initial)
     print("Mean distance (result):", losses["mean_distance"])
+    print("Mean distance (target-self):", mean_distance(targets, targets))
 
     save_dict_as_json(filepaths["losses"], losses)
 

@@ -19,7 +19,7 @@ sweep_config = {
     "parameters": {
         "height_ratio-tilt_angle": {"values": values},
     },
-    "project": "fold_sides",
+    "project": "fold_sides2",
 }
 
 sweep_id = wandb.sweep(sweep_config, project=sweep_config["project"])

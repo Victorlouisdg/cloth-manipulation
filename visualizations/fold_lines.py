@@ -48,13 +48,12 @@ right_side_bottom = SideFold(keypoints, "right", "bottom")
 middle_left = MiddleFold(keypoints, "left")
 middle_right = MiddleFold(keypoints, "right")
 
-
 fold_line_visualization_lengths = [
     (left_sleeve.fold_line(), 0.3, 0.1),
-    (right_sleeve.fold_line(), 0.1, 0.3),
-    (left_side_top.fold_line(), 0.7, 0.05),
-    (right_side_top.fold_line(), 0.05, 0.7),
-    (middle_left.fold_line(), 0.1, 0.5),
+    # (right_sleeve.fold_line(), 0.1, 0.3),
+    # (left_side_top.fold_line(), 0.7, 0.05),
+    # (right_side_top.fold_line(), 0.05, 0.7),
+    # (middle_left.fold_line(), 0.1, 0.5),
 ]
 
 for fold_line, forward, backward in fold_line_visualization_lengths:
@@ -66,13 +65,13 @@ start = time.time()
 
 trajectories = [
     BezierFoldTrajectory(left_sleeve, 0.6, -60),
-    BezierFoldTrajectory(right_sleeve, 0.6, 60),
-    BezierFoldTrajectory(left_side_top, 0.6, -20),
-    BezierFoldTrajectory(left_side_bottom, 0.6, 20),
-    BezierFoldTrajectory(right_side_top, 0.6, 20),
-    BezierFoldTrajectory(right_side_bottom, 0.6, -20),
-    BezierFoldTrajectory(middle_left, 0.6, -20),
-    BezierFoldTrajectory(middle_right, 0.6, 20),
+    # BezierFoldTrajectory(right_sleeve, 0.6, 60),
+    # BezierFoldTrajectory(left_side_top, 0.6, -20),
+    # BezierFoldTrajectory(left_side_bottom, 0.6, 20),
+    # BezierFoldTrajectory(right_side_top, 0.6, 20),
+    # BezierFoldTrajectory(right_side_bottom, 0.6, -20),
+    # BezierFoldTrajectory(middle_left, 0.6, -20),
+    # BezierFoldTrajectory(middle_right, 0.6, 20),
 ]
 
 print("Time", time.time() - start)
@@ -80,3 +79,5 @@ print("Time", time.time() - start)
 
 for trajectory in trajectories:
     abt.visualize_path(trajectory.path, color=abt.colors.orange)
+    abt.visualize_transform(trajectory.start)
+    abt.visualize_transform(trajectory.end)
