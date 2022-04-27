@@ -97,7 +97,7 @@ def fold_sides(height_ratio=0.8, tilt_angle=20, run_dir=None):
             if fold.side == "left":
                 angle = -tilt_angle
 
-            fold_trajectory = BezierFoldTrajectory(fold, height_ratio, angle, end_height=0.05)
+            fold_trajectory = BezierFoldTrajectory(fold, height_ratio, angle, end_height=0.1)
             gripper = abt.BlockGripper()
             abt.keyframe_trajectory(gripper.gripper_obj, fold_trajectory, frame, frame + frames_per_fold_step)
             bpy.ops.object.paths_range_update()
