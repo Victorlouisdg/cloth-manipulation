@@ -79,7 +79,10 @@ def fold_sides(height_ratio=0.8, tilt_angle=20, run_dir=None):
 
     frames_per_fold_step = 100
     frames_between_fold_steps = 5
-    simulation_steps = len(fold_steps) * (frames_per_fold_step + frames_between_fold_steps)
+    # simulation_steps = len(fold_steps) * (frames_per_fold_step + frames_between_fold_steps)
+
+    # Temporary fix for crash as soon as manipulation ends:
+    simulation_steps = frames_per_fold_step
 
     scene = bpy.context.scene
     scene.frame_end = simulation_steps
@@ -93,11 +96,13 @@ def fold_sides(height_ratio=0.8, tilt_angle=20, run_dir=None):
     for fold_step in fold_steps:
         for fold in fold_step:
             # angle = tilt_angle if fold.side == "right" else -1 * tilt_angle
+
             angle = tilt_angle
             if fold.side == "left":
                 angle = -tilt_angle
 
-            fold_trajectory = BezierFoldTrajectory(fold, height_ratio, angle, end_height=0.1)
+            fold_trajectory = BezierFoldTrajectory(fold, height_ratio, angle, end_height=0.05)
+            # fold_trajectory = BezierFoldTrajectory(fold, height_ratio, angle, end_height=0.05, end_x_multiplier=1.1)
             gripper = abt.BlockGripper()
             abt.keyframe_trajectory(gripper.gripper_obj, fold_trajectory, frame, frame + frames_per_fold_step)
             bpy.ops.object.paths_range_update()
