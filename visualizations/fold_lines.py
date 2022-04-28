@@ -2,6 +2,7 @@ import airo_blender_toolkit as abt
 import blenderproc as bproc
 import bpy
 import numpy as np
+import os
 
 from cloth_manipulation.folds import BezierFoldTrajectory, MiddleFold, SideFold, SleeveFold
 
@@ -34,8 +35,8 @@ scene.view_settings.look = "High Contrast"
 
 # bpy.context.space_data.shading.light = 'FLAT'
 
-hdri_name = "aviation_museum"  # studio_country_hall"# "monbachtal_riverbank"
-hdri_path = abt.download_hdri(hdri_name, "/home/idlab185/assets", res="1k")
+hdri_name = "immenstadter_horn" #"aviation_museum"  # studio_country_hall"# "monbachtal_riverbank"
+hdri_path = abt.download_hdri(hdri_name, os.path.join(os.path.expanduser("~"), "assets"), res="1k")
 abt.load_hdri(hdri_path)
 
 keypoints = {name: coord[0] for name, coord in shirt.keypoints_3D.items()}
