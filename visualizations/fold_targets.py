@@ -32,7 +32,6 @@ camera.rotation_euler = np.deg2rad(59.2), 0, np.deg2rad(32.8)
 
 scene.render.resolution_x = 1024
 scene.render.resolution_y = 512
-scene.view_settings.look = "High Contrast"
 
 # bpy.context.space_data.shading.light = 'FLAT'
 

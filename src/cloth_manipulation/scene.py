@@ -32,7 +32,6 @@ def setup_camera_perspective():
 
     scene.render.resolution_x = 1024
     scene.render.resolution_y = 512
-    scene.view_settings.look = "High Contrast"
 
 
 def setup_camera_topdown():
@@ -44,7 +43,6 @@ def setup_camera_topdown():
     camera.location = (0, 0, 1)
     scene.render.resolution_x = 1024
     scene.render.resolution_y = 512
-    scene.view_settings.look = "High Contrast"
 
 
 def setup_enviroment_texture():

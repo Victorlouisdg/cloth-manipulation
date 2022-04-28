@@ -1,8 +1,9 @@
+import os
+
 import airo_blender_toolkit as abt
 import blenderproc as bproc
 import bpy
 import numpy as np
-import os
 
 from cloth_manipulation.folds import BezierFoldTrajectory, MiddleFold, SideFold, SleeveFold
 
@@ -26,16 +27,16 @@ shirt.visualize_keypoints(radius=0.01)
 
 scene = bpy.context.scene
 camera = scene.camera
-camera.location = 0.936188, -1.19851, 0.919974
-camera.rotation_euler = np.deg2rad(59.2), 0, np.deg2rad(32.8)
+camera.location = -1.02, -1.924, 2.297
+camera.rotation_euler = np.deg2rad(43.6), 0, np.deg2rad(-25.2)
+camera.data.lens = 80
+# scene.render.resolution_x = 1024
+# scene.render.resolution_y = 512
 
-scene.render.resolution_x = 1024
-scene.render.resolution_y = 512
-scene.view_settings.look = "High Contrast"
+scene.render.resolution_x = 3840
+scene.render.resolution_y = 2160
 
-# bpy.context.space_data.shading.light = 'FLAT'
-
-hdri_name = "immenstadter_horn" #"aviation_museum"  # studio_country_hall"# "monbachtal_riverbank"
+hdri_name = "immenstadter_horn"  # "aviation_museum"  # studio_country_hall"# "monbachtal_riverbank"
 hdri_path = abt.download_hdri(hdri_name, os.path.join(os.path.expanduser("~"), "assets"), res="1k")
 abt.load_hdri(hdri_path)
 
@@ -79,6 +80,6 @@ print("Time", time.time() - start)
 
 
 for trajectory in trajectories:
-    abt.visualize_path(trajectory.path, color=abt.colors.orange)
+    # abt.visualize_path(trajectory.path, color=abt.colors.orange)
     abt.visualize_transform(trajectory.start)
     abt.visualize_transform(trajectory.end)
