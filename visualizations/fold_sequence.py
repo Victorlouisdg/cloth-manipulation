@@ -176,7 +176,7 @@ for fold_step in fold_steps:
         tilt_angle = 20 if fold.side == "right" else -20
         trajectory = BezierFoldTrajectory(fold, height_ratio, tilt_angle, end_height=0.1)
 
-        path = abt.visualize_path(trajectory.path, color=abt.colors.orange, radius=0.005)
+        path, _ = abt.visualize_path(trajectory.path, color=abt.colors.orange, radius=0.005)
         path.blender_obj.location += Vector((x, 1, 0))
 
         if i == 1:
