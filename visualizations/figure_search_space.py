@@ -5,13 +5,25 @@ import numpy as np
 from blenderproc.python.material import MaterialLoaderUtility
 from cipc.materials.penava import materials_by_name
 
-from cloth_manipulation.folds import BezierFoldTrajectory, SleeveFold
+from cloth_manipulation.folds import BezierFoldTrajectory, EllipticalFoldTrajectory, SleeveFold
 from cloth_manipulation.scene import setup_enviroment_texture, setup_ground, setup_shirt_material
 
 bproc.init()
 cloth_material = materials_by_name["cotton penava"]
 
-shirt = abt.PolygonalShirt()
+# shirt = abt.PolygonalShirt()
+
+shirt = abt.PolygonalShirt(
+    bottom_width=0.75,
+    neck_width=0.25,
+    neck_depth=0.1,
+    shoulder_width=0.68,
+    shoulder_height=0.95,
+    sleeve_width_start=0.3,
+    sleeve_width_end=0.25,
+    sleeve_length=0.22,
+    sleeve_angle=5.0,
+)
 
 shirt_obj = shirt.blender_obj
 abt.triangulate_blender_object(shirt_obj, minimum_triangle_density=20000)
@@ -68,20 +80,28 @@ for height_ratio in np.linspace(0.1, 1.0, 14):
         angle = tilt_angle if fold.side == "right" else -1 * tilt_angle
         fold_trajectory = BezierFoldTrajectory(fold, height_ratio, angle, end_height=0.05)
         pose = fold_trajectory.pose(0.5)
-        sphere = bproc.object.create_primitive("SPHERE", location=pose.position, radius=0.015)
+        sphere = bproc.object.create_primitive("SPHERE", location=pose.position, radius=0.015 * 0.3)
         sphere.add_material(material)
         # sphere.blender_obj.name = category
 
 
+end_height = 0.05
+
 combos = [
     (1.0, 90.0),
     (1.0, 30.0),
-    (0.025, 90.0),
 ]
 
 for height_ratio, angle in combos:
     tilt_angle = 90.0 - angle
     angle = tilt_angle if fold.side == "right" else -1 * tilt_angle
-    fold_trajectory = BezierFoldTrajectory(fold, height_ratio, angle, end_height=0.05)
+    fold_trajectory = BezierFoldTrajectory(fold, height_ratio, angle, end_height=end_height)
     path, material = abt.visualize_path(fold_trajectory.path, color=abt.colors.orange, radius=0.005)
     material.set_principled_shader_value("Alpha", 0.3)
+
+ciruclar_trajectory = EllipticalFoldTrajectory(fold, end_angle=170)
+end_pose = ciruclar_trajectory.path.end
+end_pose.position[2] = 0.05
+linear_path = abt.path.LinearPath(fold.gripper_start_pose().position, end_pose.position, np.identity(3))
+path, material = abt.visualize_path(linear_path, color=abt.colors.orange, radius=0.005)
+material.set_principled_shader_value("Alpha", 0.3)
