@@ -1,4 +1,5 @@
 import argparse
+import copy
 import os
 import sys
 
@@ -153,6 +154,12 @@ if __name__ == "__main__":
             cloth_material = materials_by_name["wool penava"]
         if args.cloth_material == 2:
             cloth_material = materials_by_name["polyester penava"]
+        if args.cloth_material == 3:
+            cloth_material = copy.deepcopy(materials_by_name["cotton penava"])
+            cloth_material.thickness /= 5.0
+        if args.cloth_material == 4:
+            cloth_material = copy.deepcopy(materials_by_name["cotton penava"])
+            cloth_material.thickness *= 5.0
 
         print(cloth_material.name)
 
