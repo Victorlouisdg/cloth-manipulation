@@ -16,7 +16,7 @@ from cloth_manipulation.losses import mean_distance
 from cloth_manipulation.scene import setup_camera_topdown, setup_enviroment_texture, setup_ground, setup_shirt_material
 
 
-def fold_sleeve(shirt, cloth_material, height_ratio=0.8, tilt_angle=20, run_dir=None):
+def fold_sleeve(shirt, cloth_material, height_ratio=0.8, tilt_angle=20, friction_coefficient=0.5, run_dir=None):
     # 1. Setting up the scene
 
     ground = setup_ground()
@@ -73,6 +73,7 @@ def fold_sleeve(shirt, cloth_material, height_ratio=0.8, tilt_angle=20, run_dir=
 
     # Running the simulation
     simulation = SimulationCIPC(filepaths, 25)
+    simulation.friction_coefficient = friction_coefficient
     simulation.add_cloth(shirt.blender_obj, cloth_material)
     simulation.add_collider(ground.blender_obj, friction_coefficient=0.8)
     simulation.initialize_cipc()
@@ -139,6 +140,7 @@ if __name__ == "__main__":
         parser.add_argument("-d", "--dir", dest="run_dir", metavar="RUN_DIR")
         parser.add_argument("-cm", "--cloth_material", type=int)
         parser.add_argument("-sh", "--shape", type=int)
+        parser.add_argument("-fc", "--friction_coefficient", default=0.5, type=float)
 
         args = parser.parse_known_args(argv)[0]
 
@@ -185,6 +187,6 @@ if __name__ == "__main__":
         shirt_obj.location.z = 2.0 * cloth_material.thickness  # ground offset + cloth offset
         shirt.persist_transformation_into_mesh()
 
-        fold_sleeve(shirt, cloth_material, args.height_ratio, args.tilt_angle, args.run_dir)
+        fold_sleeve(shirt, cloth_material, args.height_ratio, args.tilt_angle, args.friction_coefficient, args.run_dir)
     else:
         print("Please rerun with arguments.")
