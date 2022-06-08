@@ -5,18 +5,13 @@ import numpy as np
 from blenderproc.python.material import MaterialLoaderUtility
 from cipc.materials.penava import materials_by_name
 
-from cloth_manipulation.folds import BezierFoldTrajectory, EllipticalFoldTrajectory, SleeveFold
+from cloth_manipulation.folds import BezierFoldTrajectory, SleeveFold
 from cloth_manipulation.scene import setup_enviroment_texture, setup_ground, setup_shirt_material
 
 bproc.init()
 cloth_material = materials_by_name["cotton penava"]
 
 # shirt = abt.PolygonalShirt()
-
-# shirt = abt.PolygonalShirt(shoulder_height=0.94, sleeve_angle=30.0)
-# scale *= 0.6
-# camera.location = 0.78, -1.057, 1.017
-
 
 shirt = abt.PolygonalShirt(
     bottom_width=0.75,
@@ -29,8 +24,6 @@ shirt = abt.PolygonalShirt(
     sleeve_length=0.22,
     sleeve_angle=5.0,
 )
-# camera.location = 0.75, -1.063, 1.04
-
 
 shirt_obj = shirt.blender_obj
 abt.triangulate_blender_object(shirt_obj, minimum_triangle_density=20000)
@@ -42,27 +35,12 @@ ground = setup_ground()
 scene = bpy.context.scene
 camera = scene.camera
 
-# OLD
-# camera.location = 0.87, -1.167, 0.664
-# camera.rotation_euler = np.deg2rad(72), 0, np.deg2rad(40.4)
-# camera.data.lens = 80
-# scene.render.resolution_x = 2048
-# scene.render.resolution_y = 2048
-
-
-# For Figure Seach Space
-# camera.location = 1.08, -1.25, 0.787
-# camera.rotation_euler = np.deg2rad(71.2), 0, np.deg2rad(41.2)
-# camera.data.lens = 50
-# scene.render.resolution_x = 2048
-# scene.render.resolution_y = 1024
-
-# For Figure Shape Variatiosn
-camera.location = 0.85, -0.97, 1.07
-camera.rotation_euler = np.deg2rad(53.6), 0, np.deg2rad(33.6)
+camera.location = -0.708, -1.492, 1.027
+camera.rotation_euler = np.deg2rad(60.8), 0, np.deg2rad(-21.6)
 camera.data.lens = 50
-scene.render.resolution_x = 1024
+scene.render.resolution_x = 2048
 scene.render.resolution_y = 1024
+
 
 setup_enviroment_texture()
 
@@ -95,23 +73,22 @@ material.set_principled_shader_value("Base Color", (1.0, 1.0, 1.0, 1.0))
 material.set_principled_shader_value("Alpha", 0.4)
 material.blender_obj.diffuse_color = (1.0, 1.0, 1.0, 1.0)
 
-for height_ratio in np.linspace(0.1, 1.0, 14):
-    for angle in np.linspace(30.0, 90.0, max(2, int(18 * height_ratio))):
-        tilt_angle = 90.0 - angle
-        # values.append(f"{height_ratio}-{tilt_angle}")
-        angle = tilt_angle if fold.side == "right" else -1 * tilt_angle
-        fold_trajectory = BezierFoldTrajectory(fold, height_ratio, angle, end_height=0.05)
-        pose = fold_trajectory.pose(0.5)
-        sphere = bproc.object.create_primitive("SPHERE", location=pose.position, radius=0.015)  # * 0.3)
-        sphere.add_material(material)
-        # sphere.blender_obj.name = category
+# for height_ratio in np.linspace(0.1, 1.0, 14):
+#     for angle in np.linspace(30.0, 90.0, max(2, int(18 * height_ratio))):
+#         tilt_angle = 90.0 - angle
+#         # values.append(f"{height_ratio}-{tilt_angle}")
+#         angle = tilt_angle if fold.side == "right" else -1 * tilt_angle
+#         fold_trajectory = BezierFoldTrajectory(fold, height_ratio, angle, end_height=0.05)
+#         pose = fold_trajectory.pose(0.5)
+#         sphere = bproc.object.create_primitive("SPHERE", location=pose.position, radius=0.015) # * 0.3)
+#         sphere.add_material(material)
+#         # sphere.blender_obj.name = category
 
 
 end_height = 0.05
 
 combos = [
     (1.0, 90.0),
-    (1.0, 30.0),
 ]
 
 for height_ratio, angle in combos:
@@ -120,10 +97,3 @@ for height_ratio, angle in combos:
     fold_trajectory = BezierFoldTrajectory(fold, height_ratio, angle, end_height=end_height)
     path, material = abt.visualize_path(fold_trajectory.path, color=abt.colors.orange, radius=0.005)
     material.set_principled_shader_value("Alpha", 0.3)
-
-ciruclar_trajectory = EllipticalFoldTrajectory(fold, end_angle=170)
-end_pose = ciruclar_trajectory.path.end
-end_pose.position[2] = 0.05
-linear_path = abt.path.LinearPath(fold.gripper_start_pose().position, end_pose.position, np.identity(3))
-path, material = abt.visualize_path(linear_path, color=abt.colors.orange, radius=0.005)
-material.set_principled_shader_value("Alpha", 0.3)
