@@ -72,7 +72,7 @@ def get_missing(project):
 
 
 def run_wandb(script, project):
-    with wandb.init(project=project) as run:
+    with wandb.init(project=project, tags=["fix"]) as run:
         height_ratio, tilt_angle = parse_parameters(run)
         output_dir = make_output_dir(run.name, height_ratio, tilt_angle)
 
