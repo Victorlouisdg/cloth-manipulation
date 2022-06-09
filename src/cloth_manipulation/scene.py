@@ -7,7 +7,7 @@ import numpy as np
 
 
 def setup_ground():
-    ground = bproc.object.create_primitive("PLANE", size=20.0)
+    ground = bproc.object.create_primitive("PLANE", size=2.0)
     ground.blender_obj.name = "Ground"
     ground_material = ground.new_material("Ground")
     ground_material.set_principled_shader_value("Base Color", abt.colors.light_blue)
