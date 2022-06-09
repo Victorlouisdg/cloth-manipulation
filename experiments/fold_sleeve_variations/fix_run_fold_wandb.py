@@ -71,9 +71,9 @@ def get_missing(project):
     return missing_thetas, missing_radii
 
 
-def run_wandb(script, project):
+def run_wandb(script, project, height_ratio, tilt_angle):
     with wandb.init(project=project, tags=["fix"]) as run:
-        height_ratio, tilt_angle = parse_parameters(run)
+        # height_ratio, tilt_angle = parse_parameters(run)
         output_dir = make_output_dir(run.name, height_ratio, tilt_angle)
 
         runCommand = (
@@ -94,6 +94,8 @@ if __name__ == "__main__":
     missing_thetas, missing_radii = get_missing(project)
     n_missings = len(missing_thetas)
 
+    missing_angles = [90.0 - np.rad2deg(t) for t in missing_thetas]
+
     for i in range(n_missings):
-        print(missing_thetas[i], missing_radii[i])
-        run_wandb(script, project)
+        print(missing_angles[i], missing_radii[i])
+        run_wandb(script, project, missing_radii[i], missing_angles[i])
