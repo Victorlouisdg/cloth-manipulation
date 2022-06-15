@@ -40,7 +40,7 @@ def run_wandb(script, keep_output=False):
         output_dir = make_output_dir(run.name, height_ratio, tilt_angle)
 
         runCommand = (
-            f"blender -b -P {script} -- -ht {height_ratio} -ta {tilt_angle} -d '{output_dir}' -cm 0 -sh 2 -fc 0.5"
+            f"blender -b -P {script} -- -ht {height_ratio} -ta {tilt_angle} -d '{output_dir}' -cm 3 -sh 0 -fc 0.5"
         )
         subprocess.run([runCommand], shell=True, stdout=subprocess.DEVNULL)
 
