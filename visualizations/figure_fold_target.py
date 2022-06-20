@@ -1,7 +1,6 @@
 import airo_blender_toolkit as abt
 import blenderproc as bproc
 
-from cloth_manipulation import setup_camera_topdown
 from cloth_manipulation.folds import SleeveFold
 from cloth_manipulation.scene import setup_ground
 
@@ -21,7 +20,18 @@ shirt.persist_transformation_into_mesh()
 
 # shirt.visualize_keypoints(radius=0.01)
 
-setup_camera_topdown()
+# setup_camera_topdown()
+import bpy
+
+scene = bpy.context.scene
+camera = scene.camera
+camera.data.display_size = 0.2
+camera.data.type = "ORTHO"
+camera.data.ortho_scale = 1.2
+camera.location = (0.186, 0, 1)
+scene.render.resolution_x = 2000
+scene.render.resolution_y = 1200
+
 # camera = scene.camera
 # camera.location = 0.936188, -1.19851, 0.919974
 # camera.rotation_euler = np.deg2rad(59.2), 0, np.deg2rad(32.8)
