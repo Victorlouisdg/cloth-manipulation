@@ -83,6 +83,7 @@ def fold_sleeves(height_ratio=0.8, tilt_angle=20, run_dir=None):
 
     # Running the simulation
     simulation = SimulationCIPC(filepaths, 25)
+    simulation.friction_coefficient = 0.5
     simulation.add_cloth(shirt.blender_obj, cloth_material)
     simulation.add_collider(ground.blender_obj, friction_coefficient=0.8)
     simulation.initialize_cipc()
