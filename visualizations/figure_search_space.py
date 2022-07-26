@@ -11,24 +11,24 @@ from cloth_manipulation.scene import setup_enviroment_texture, setup_ground, set
 bproc.init()
 cloth_material = materials_by_name["cotton penava"]
 
-# shirt = abt.PolygonalShirt()
+shirt = abt.PolygonalShirt()
 
 # shirt = abt.PolygonalShirt(shoulder_height=0.94, sleeve_angle=30.0)
 # scale *= 0.6
 # camera.location = 0.78, -1.057, 1.017
 
 
-shirt = abt.PolygonalShirt(
-    bottom_width=0.75,
-    neck_width=0.25,
-    neck_depth=0.1,
-    shoulder_width=0.68,
-    shoulder_height=0.95,
-    sleeve_width_start=0.3,
-    sleeve_width_end=0.25,
-    sleeve_length=0.22,
-    sleeve_angle=5.0,
-)
+# shirt = abt.PolygonalShirt(
+#     bottom_width=0.75,
+#     neck_width=0.25,
+#     neck_depth=0.1,
+#     shoulder_width=0.68,
+#     shoulder_height=0.95,
+#     sleeve_width_start=0.3,
+#     sleeve_width_end=0.25,
+#     sleeve_length=0.22,
+#     sleeve_angle=5.0,
+# )
 # camera.location = 0.75, -1.063, 1.04
 
 

@@ -9,15 +9,19 @@ from cipc.simulator import SimulationCIPC
 from mathutils import Vector
 
 from cloth_manipulation.folds import BezierFoldTrajectory, MiddleFold, SideFold, SleeveFold
+from cloth_manipulation.scene import setup_ground
 
 # 1. Setting up the scene
 bproc.init()
 
-ground = bproc.object.create_primitive("PLANE", size=10.0)
-ground.blender_obj.name = "Ground"
-ground_material = ground.new_material("Ground")
-ground_material.set_principled_shader_value("Base Color", abt.colors.light_blue)
-ground_material.blender_obj.diffuse_color = abt.colors.light_blue
+# ground = bproc.object.create_primitive("PLANE", size=10.0)
+# ground.blender_obj.name = "Ground"
+# ground_material = ground.new_material("Ground")
+# ground_material.set_principled_shader_value("Base Color", abt.colors.light_blue)
+# ground_material.blender_obj.diffuse_color = abt.colors.light_blue
+
+ground = setup_ground()
+
 
 cloth_material = materials_by_name["cotton penava"]
 
@@ -69,11 +73,18 @@ middle = [middle_left, middle_right]
 
 fold_steps = [[left_sleeve], [right_sleeve], left_side, right_side, middle]
 
+sleeve_params = [0.4462, 51.429]
+sides_params = [0.9308, 8.0]
+middle_params = [0.6538, 24.0]
+trajectory_params = [sleeve_params, sleeve_params, sides_params, sides_params, middle_params]
 
-frames_per_fold_step = 50
+
+frames_per_fold_step = 100
 frames_between_fold_steps = 5
 
 simulation_steps = len(fold_steps) * (frames_per_fold_step + frames_between_fold_steps)
+
+simulation_steps -= frames_between_fold_steps
 
 print(f"Simulating {simulation_steps} steps.")
 
@@ -86,22 +97,22 @@ grippers = []
 
 frame = scene.frame_start
 
-for fold_step in fold_steps:
+for fold_step, params in zip(fold_steps, trajectory_params):
     for fold in fold_step:
-        height_ratio = 0.8
-        tilt_angle = 20 if fold.side == "right" else -20
-        fold_trajectory = BezierFoldTrajectory(fold, height_ratio, tilt_angle, end_height=0.1)
-        gripper_cube = bproc.object.create_primitive("CUBE", size=0.05).blender_obj
-        abt.keyframe_trajectory(gripper_cube, fold_trajectory, frame, frame + frames_per_fold_step)
+        height_ratio, angle = params
+        tilt_angle = angle if fold.side == "right" else -angle
+        fold_trajectory = BezierFoldTrajectory(fold, height_ratio, tilt_angle, end_height=0.05)
+        gripper = abt.BlockGripper()
+        abt.keyframe_trajectory(gripper.gripper_obj, fold_trajectory, frame, frame + frames_per_fold_step)
         bpy.ops.object.paths_range_update()
         bpy.ops.object.paths_calculate(start_frame=scene.frame_start, end_frame=scene.frame_end)
-        gripper = abt.Gripper(gripper_cube)
         grippers.append(gripper)
     frame += frames_per_fold_step + frames_between_fold_steps
 
 
 # # 3. Running the simulation
 simulation = SimulationCIPC(filepaths, 25)
+simulation.friction_coefficient = 0.5
 simulation.add_cloth(shirt0.blender_obj, cloth_material)
 simulation.add_collider(ground.blender_obj, friction_coefficient=0.8)
 simulation.initialize_cipc()
@@ -130,15 +141,11 @@ for object in objects_to_hide:
     object.hide_viewport = True
     object.hide_render = True
 
-
-# make visualisazation here
-visualized_folds = {0: [left_sleeve, right_sleeve], 110: [left_side_top, right_side_top], 220: [middle_left], 275: []}
-
 fold_line_visualizations = {
     0: [(left_sleeve.fold_line(), 0.3, 0.1), (right_sleeve.fold_line(), 0.1, 0.3)],
-    110: [(left_side_top.fold_line(), 0.7, 0.05), (right_side_top.fold_line(), 0.05, 0.7)],
-    220: [(middle_left.fold_line(), 0.1, 0.5)],
-    275: [],
+    210: [(left_side_top.fold_line(), 0.7, 0.05), (right_side_top.fold_line(), 0.05, 0.7)],
+    420: [(middle_left.fold_line(), 0.1, 0.5)],
+    520: [],
 }
 
 x = 0.0
@@ -169,11 +176,11 @@ for frame, fold_lines in fold_line_visualizations.items():
 
 x = 0.0
 i = 0
-for fold_step in fold_steps:
+for fold_step, params in zip(fold_steps, trajectory_params):
     for fold in fold_step:
         # Ad-hoc shifts to the right
-        height_ratio = 0.8
-        tilt_angle = 20 if fold.side == "right" else -20
+        height_ratio, angle = params
+        tilt_angle = angle if fold.side == "right" else -angle
         trajectory = BezierFoldTrajectory(fold, height_ratio, tilt_angle, end_height=0.1)
 
         path, _ = abt.visualize_path(trajectory.path, color=abt.colors.orange, radius=0.005)
@@ -188,4 +195,4 @@ for fold_step in fold_steps:
 bpy.ops.wm.save_as_mainfile(filepath=filepaths["blend"])
 
 scene.render.filepath = os.path.join(filepaths["run"], "result.png")
-bpy.ops.render.render(write_still=True)
+# bpy.ops.render.render(write_still=True)
