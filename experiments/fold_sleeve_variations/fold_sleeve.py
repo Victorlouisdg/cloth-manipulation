@@ -42,7 +42,7 @@ def fold_sleeve(shirt, cloth_material, height_ratio=0.8, tilt_angle=20, friction
 
     fold_steps = [[left_sleeve]]
 
-    frames_per_fold_step = 100
+    frames_per_fold_step = 50
     frames_between_fold_steps = 5
     simulation_steps = len(fold_steps) * (frames_per_fold_step + frames_between_fold_steps)
 
